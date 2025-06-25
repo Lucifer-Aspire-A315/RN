@@ -1,3 +1,4 @@
+
 # Firebase Studio
 
 This is a NextJS starter in Firebase Studio.
@@ -6,24 +7,17 @@ To get started, take a look at src/app/page.tsx.
 
 ---
 
-## Deployment Guide
+## Deployment Guide for Firebase Studio
 
-Congratulations on building your app! Here’s how to deploy it and connect your custom domain from GoDaddy.
+Congratulations on building your app! Here’s how to deploy it and connect your custom domain from GoDaddy using the Firebase Studio interface.
 
-### Step 1: Deploy to Firebase
+### Step 1: Deploy Your App with a Single Click
 
-First, let's get your site live on its default Firebase URL.
+Firebase Studio makes deploying your application incredibly simple.
 
-1.  **Open the Terminal:** Open a new terminal in your editor.
-2.  **Login to Firebase:** If you haven't already, log in to your Firebase account:
-    ```bash
-    firebase login
-    ```
-3.  **Deploy the App:** Run the following command to deploy your application to App Hosting:
-    ```bash
-    firebase deploy --only apphosting
-    ```
-4.  **Wait for Deployment:** The process will take a few minutes. Once it's complete, the terminal will give you a unique URL for your live site (e.g., `https://your-project-name--live-xxxxxxxx.web.app`). Visit this URL to see your deployed app!
+1.  **Find the "Publish" Button:** Look for the **Publish** button, typically located in the top-right corner of the Firebase Studio editor.
+2.  **Click to Deploy:** Clicking **Publish** will automatically build your Next.js application and deploy it to Firebase App Hosting. This single step handles the entire process for you.
+3.  **Wait for Deployment:** The process will take a few minutes. Once it's complete, you will be given a unique URL for your live site (e.g., `https://your-project-name--live-xxxxxxxx.web.app`). Visit this URL to see your deployed app!
 
 ### Step 2: Connect Your GoDaddy Domain
 
