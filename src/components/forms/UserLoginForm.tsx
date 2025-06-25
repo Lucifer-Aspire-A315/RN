@@ -78,7 +78,7 @@ export function UserLoginForm() {
         <LogIn className="w-12 h-12 mx-auto text-primary mb-2" />
         <h2 className="text-2xl font-bold text-card-foreground">User Login</h2>
         <p className="text-muted-foreground mt-1">
-          Access your FinSol RN account.
+          Access your RN FinTech account.
         </p>
       </div>
       <Form {...form}>

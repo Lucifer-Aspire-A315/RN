@@ -1,3 +1,4 @@
+
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -11,7 +12,7 @@ export function Footer() {
             <div className="bg-background rounded-lg p-2 inline-block">
               <Image
                 src="/logo.png"
-                alt="FinSol RN Logo"
+                alt="RN FinTech Logo"
                 width={140}
                 height={35}
                 className="h-auto w-auto"
@@ -94,7 +95,7 @@ export function Footer() {
         </div>
         <div className="mt-12 border-t border-[#4E944F] pt-8 text-center">
           <p className="text-sm text-[#B2C8BA]">
-            &copy; {new Date().getFullYear()} RN Fintech. All Rights Reserved.
+            &copy; {new Date().getFullYear()} RN FinTech. All Rights Reserved.
           </p>
         </div>
       </div>

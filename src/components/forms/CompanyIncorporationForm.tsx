@@ -86,7 +86,7 @@ const companyIncorporationSections = [
     {
         title: "Declaration",
         fields: [
-            { name: "declaration", label: "I hereby declare that the details and documents submitted are true and correct. I authorize RN Fintech to initiate the company registration process on my behalf.", type: "checkbox", colSpan: 2 },
+            { name: "declaration", label: "I hereby declare that the details and documents submitted are true and correct. I authorize RN FinTech to initiate the company registration process on my behalf.", type: "checkbox", colSpan: 2 },
         ]
     }
 ];

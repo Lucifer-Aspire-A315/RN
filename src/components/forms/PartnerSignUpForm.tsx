@@ -289,7 +289,7 @@ export function PartnerSignUpForm() {
                           <FormLabel>Declaration and Undertaking</FormLabel>
                           <FormMessage />
                           <p className="text-xs text-muted-foreground">
-                            I hereby declare that the details and documents submitted are true and correct. I authorize RN Fintech to process this application.
+                            I hereby declare that the details and documents submitted are true and correct. I authorize RN FinTech to process this application.
                           </p>
                         </div>
                       </FormItem>

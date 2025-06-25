@@ -77,7 +77,7 @@ export function UserSignUpForm() {
         <UserPlus className="w-12 h-12 mx-auto text-primary mb-2" />
         <h2 className="text-2xl font-bold text-card-foreground">Create Your Account</h2>
         <p className="text-muted-foreground mt-1">
-          Join FinSol RN to access our financial services.
+          Join RN FinTech to access our financial services.
         </p>
       </div>
       <Form {...form}>

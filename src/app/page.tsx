@@ -127,7 +127,7 @@ export default function Home() {
               <div className="container mx-auto px-6 text-center">
                 <h2 className="text-3xl font-bold text-foreground">About Us</h2>
                 <p className="mt-4 text-muted-foreground max-w-2xl mx-auto">
-                  RN Fintech is committed to providing transparent, quick, and easy financial solutions.
+                  RN FinTech is committed to providing transparent, quick, and easy financial solutions.
                   We leverage technology to simplify the loan application process and offer competitive rates.
                   Our mission is to empower individuals and businesses to achieve their financial aspirations.
                 </p>

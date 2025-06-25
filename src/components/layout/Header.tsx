@@ -90,7 +90,7 @@ export function Header({ setCurrentPage }: HeaderProps) {
         <Link href="/" onClick={() => handleNavClick('/', () => setCurrentPage?.('main'))} className="flex-shrink-0">
           <Image
             src="/logo.png"
-            alt="FinSol RN Logo"
+            alt="RN FinTech Logo"
             width={130}
             height={40}
             className="h-auto w-auto"
@@ -184,7 +184,7 @@ export function Header({ setCurrentPage }: HeaderProps) {
                 <Link href="/" onClick={() => handleNavClick('/', () => setCurrentPage?.('main'))}>
                   <Image
                     src="/logo.png"
-                    alt="FinSol RN Logo"
+                    alt="RN FinTech Logo"
                     width={140}
                     height={35}
                     priority

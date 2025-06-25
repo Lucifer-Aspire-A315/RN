@@ -25,7 +25,7 @@ export default function PrivacyPolicyPage() {
             </CardHeader>
             <CardContent className="prose dark:prose-invert max-w-none space-y-6 text-foreground">
               <p>
-                Welcome to FinSol RN. We are committed to protecting your privacy and ensuring that your personal information is handled in a safe and responsible manner. This Privacy Policy outlines how we collect, use, maintain, and disclose information collected from users (each, a "User") of the FinSol RN website ("Site").
+                Welcome to RN FinTech. We are committed to protecting your privacy and ensuring that your personal information is handled in a safe and responsible manner. This Privacy Policy outlines how we collect, use, maintain, and disclose information collected from users (each, a "User") of the RN FinTech website ("Site").
               </p>
 
               <h2 className="text-xl font-semibold">Information We Collect</h2>
@@ -35,7 +35,7 @@ export default function PrivacyPolicyPage() {
 
               <h2 className="text-xl font-semibold">How We Use Your Information</h2>
               <p>
-                FinSol RN may collect and use Users' personal information for the following purposes:
+                RN FinTech may collect and use Users' personal information for the following purposes:
               </p>
               <ul className="list-disc list-inside space-y-2">
                 <li><strong>To process applications:</strong> We use the information Users provide about themselves when placing an application only to provide service to that application. We do not share this information with outside parties except to the extent necessary to provide the service.</li>
@@ -51,7 +51,7 @@ export default function PrivacyPolicyPage() {
 
               <h2 className="text-xl font-semibold">Changes to This Privacy Policy</h2>
               <p>
-                FinSol RN has the discretion to update this privacy policy at any time. When we do, we will revise the updated date at the top of this page. We encourage Users to frequently check this page for any changes to stay informed about how we are helping to protect the personal information we collect.
+                RN FinTech has the discretion to update this privacy policy at any time. When we do, we will revise the updated date at the top of this page. We encourage Users to frequently check this page for any changes to stay informed about how we are helping to protect the personal information we collect.
               </p>
 
               <h2 className="text-xl font-semibold">Contact Us</h2>

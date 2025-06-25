@@ -5,7 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from '@/contexts/AuthContext'; // Import AuthProvider
 
 export const metadata: Metadata = {
-  title: 'FinSol RN - Aapke Sapno Ka Loan',
+  title: 'RN FinTech - Aapke Sapno Ka Loan',
   description: 'Quick & Easy Financial Solutions. Your trusted partner in achieving your financial goals.',
 };
 

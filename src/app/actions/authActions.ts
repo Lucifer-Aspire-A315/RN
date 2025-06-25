@@ -3,6 +3,7 @@
 
 
 
+
 'use server';
 
 import { cookies } from 'next/headers';
@@ -283,7 +284,7 @@ export async function userSignUpAction(
 
     return {
       success: true,
-      message: 'Sign-up successful! Welcome to FinSol RN.',
+      message: 'Sign-up successful! Welcome to RN FinTech.',
       user: newUser,
     };
   } catch (error: any) {
