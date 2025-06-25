@@ -41,7 +41,13 @@ export default function TermsOfServicePage() {
 
               <h2 className="text-xl font-semibold">4. Limitation of Liability</h2>
               <p>
-                In no event shall FinSol RN, nor its directors, employees, partners, agents, suppliers, or affiliates, be liable for any indirect, incidental, special, consequential or punitive damages, including without limitation, loss of profits, data, use, goodwill, or other intangible losses, resulting from your access to or use of or inability to access or use the Service.
+                You expressly understand and agree that FinSol RN (including its subsidiaries, affiliates, directors, officers, employees, representatives and providers) shall not be liable for any direct, indirect, incidental, special, consequential or exemplary damages, including but not limited to damages for loss of profits, opportunity, goodwill, use, data or other intangible losses, even if FinSol RN has been advised of the possibility of such damages, resulting from (i) any failure or delay (including without limitation the use of or inability to use any component of the Website), or (ii) any use of the Website or content, or (iii) the performance or non-performance by us or any provider, even if we have been advised of the possibility of damages to such parties or any other party, or (b) any damages to or viruses that may infect your computer equipment or other property as the result of your access to the Website or your downloading of any content from the Website.
+              </p>
+              <p>
+                Notwithstanding the above, if FinSol RN is found liable for any proven and actual loss or damage which arises out of or in any way connected with any of the occurrences described above, then you agree that the liability of FinSol RN shall be restricted to, in the aggregate, any Service/transactional fees paid by you to FinSol RN in connection with such transaction(s)/ Services on this Website, if applicable.
+              </p>
+              <p>
+                FinSol RN has no control over the third party websites which would be provided to you through its Website. You acknowledge and agree that under no circumstance shall FinSol RN be liable for your using the services offered or provided by any third party service provider.
               </p>
 
               <h2 className="text-xl font-semibold">5. Governing Law</h2>

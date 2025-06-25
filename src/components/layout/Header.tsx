@@ -91,8 +91,8 @@ export function Header({ setCurrentPage }: HeaderProps) {
           <Image
             src="/logo.png"
             alt="FinSol RN Logo"
-            width={140}
-            height={35}
+            width={130}
+            height={40}
             className="h-auto w-auto"
             priority
           />
