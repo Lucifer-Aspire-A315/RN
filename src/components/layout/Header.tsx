@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -232,7 +233,7 @@ export function Header({ setCurrentPage }: HeaderProps) {
                           <Button
                               variant="outline"
                               onClick={handleLogout}
-                              className={`${mobileLinkClasses} text-destructive font-semibold text-left justify-start border-destructive w-full`}
+                              className="w-full justify-start text-destructive hover:bg-destructive/10 hover:text-destructive border-destructive"
                           >
                             <LogOut className="mr-2 h-4 w-4" /> Logout
                           </Button>

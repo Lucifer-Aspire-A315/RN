@@ -1,9 +1,11 @@
+
 "use client";
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import type { SetPageView } from '@/app/page';
 import { NewsTicker } from '@/components/shared/NewsTicker';
+import { useRouter } from 'next/navigation';
 
 interface HeroSectionProps {
   setCurrentPage: SetPageView;
@@ -17,7 +19,8 @@ const governmentSchemes = [
         <p className="mt-1">प्रधानमंत्री मुद्रा योजना (PMMY)</p>
       </div>
     ), 
-    className: "text-primary" 
+    bgColor: 'bg-primary/5',
+    textColor: 'text-primary-foreground',
   },
   { 
     text: (
@@ -26,7 +29,8 @@ const governmentSchemes = [
         <p className="mt-1">स्टैंड-अप इंडिया योजना</p>
       </div>
     ),
-    className: "text-accent" 
+    bgColor: 'bg-accent/5',
+    textColor: 'text-accent-foreground',
   },
   { 
     text: (
@@ -35,7 +39,8 @@ const governmentSchemes = [
         <p className="mt-1">प्रधानमंत्री रोजगार सृजन कार्यक्रम (PMEGP)</p>
       </div>
     ), 
-    className: "text-green-600 dark:text-green-400"
+    bgColor: 'bg-green-600/5',
+    textColor: 'text-green-800 dark:text-green-400'
   },
   { 
     text: (
@@ -44,7 +49,8 @@ const governmentSchemes = [
         <p className="mt-1">पीएम स्वनिधि योजना</p>
       </div>
     ), 
-    className: "text-orange-600 dark:text-orange-400" 
+    bgColor: 'bg-orange-600/5',
+    textColor: 'text-orange-800 dark:text-orange-400'
   },
   { 
     text: (
@@ -53,15 +59,22 @@ const governmentSchemes = [
         <p className="mt-1">पीएम विश्वकर्मा योजना</p>
       </div>
     ), 
-    className: "text-sky-600 dark:text-sky-400" 
+    bgColor: 'bg-sky-600/5',
+    textColor: 'text-sky-800 dark:text-sky-400'
   }
 ];
 
 export function HeroSection({ setCurrentPage }: HeroSectionProps) {
+    const router = useRouter();
+
+    const handleNewsTickerClick = () => {
+        setCurrentPage('governmentSchemes')
+    }
+    
   return (
     <section
       id="home"
-      className="relative min-h-[80vh] flex flex-col justify-center items-center bg-gradient-to-b from-[#F8FAE5] to-[#E4EFE7] px-4 overflow-hidden"
+      className="relative flex flex-col justify-center items-center bg-gradient-to-b from-[#F8FAE5] to-[#E4EFE7] px-4 py-20 md:py-28 overflow-hidden"
     >
       {/* Decorative SVGs */}
       <svg
@@ -87,13 +100,8 @@ export function HeroSection({ setCurrentPage }: HeroSectionProps) {
           Empowering your dreams with transparent, technology-driven financial services.
         </p>
 
-        <div
-          className="mt-4 max-w-xl w-full cursor-pointer"
-          onClick={() => setCurrentPage('governmentSchemes')}
-          role="button"
-          aria-label="Click to explore Government Scheme Loans"
-        >
-          <NewsTicker items={governmentSchemes} />
+        <div className="mt-4 max-w-xl w-full">
+          <NewsTicker items={governmentSchemes} onContainerClick={handleNewsTickerClick} />
         </div>
 
         <div className="mt-12 flex flex-col sm:flex-row justify-center items-center gap-4 w-full">
