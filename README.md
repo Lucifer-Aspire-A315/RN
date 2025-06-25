@@ -66,3 +66,21 @@ Now, let's connect your custom domain (e.g., `www.your-domain.com`).
     *   Firebase will now provision an SSL certificate for your domain. This process can take anywhere from a few minutes to a couple of hours.
 
 Once complete, your site will be live and secure at your custom GoDaddy domain!
+
+### Troubleshooting: DNS is Locked or Not Editable on GoDaddy
+
+If you find that you cannot add or edit TXT and A records in your GoDaddy DNS panel, it's almost always because your domain is not using GoDaddy's default nameservers. This can happen if you previously used a different website builder or hosting service.
+
+**Firebase requires you to add A records, not change nameservers.** To fix this, you must switch back to GoDaddy's default nameservers.
+
+1.  **Log in to GoDaddy** and go to your **Domain Portfolio**.
+2.  Select your domain to go to the **Domain Settings** page.
+3.  Find and click on **"Manage DNS"**.
+4.  Scroll down to the **Nameservers** section.
+5.  Click the **"Change"** button.
+6.  You will likely see custom nameservers listed. Select the option that says **"I want to use GoDaddy default nameservers"** (or similar wording).
+7.  **Save** the changes.
+
+**Important:**
+*   **Disruption Warning:** Changing nameservers will disconnect any active website or email service currently linked to those custom nameservers. Proceed only if you are ready to point the domain to your new Firebase app.
+*   **Propagation Time:** It can take anywhere from a few minutes to 48 hours for the nameserver change to take effect across the internet. Once it does, the DNS management section in GoDaddy will become fully editable, and you can proceed with adding the Firebase A and TXT records as described in Step 2 above.
