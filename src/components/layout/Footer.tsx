@@ -1,21 +1,31 @@
-import Link from 'next/link';
 
-const AnimatedGradientText = () => (
-  <span className="animated-gradient-text">RN Fintech</span>
-);
+import Link from 'next/link';
+import Image from 'next/image';
 
 export function Footer() {
   return (
     <footer className="bg-[#2D3A3A] text-[#F8FAE5] border-t border-[#4E944F] shadow-[0_-4px_24px_0_rgba(76,175,80,0.07)] rounded-t-2xl">
-      <div className="container mx-auto px-6 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 divide-y-2 md:divide-y-0 md:divide-x-2 divide-[#4E944F]/40">
-          <div className="pb-8 md:pb-0 md:pr-8">
-            <h3 className="text-xl font-bold text-[#FADA7A]"><AnimatedGradientText /></h3>
+      <div className="container mx-auto px-6 py-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-y-8">
+          {/* Logo and About Section */}
+          <div className="col-span-2 md:col-span-1 p-4">
+            <div className="bg-background rounded-lg p-2 inline-block">
+              <Image
+                src="/logo.png"
+                alt="FinSol RN Logo"
+                width={140}
+                height={35}
+                className="h-auto w-auto"
+                priority
+              />
+            </div>
             <p className="mt-4 text-[#B2C8BA] text-sm">
               Your trusted partner in achieving your financial goals.
             </p>
           </div>
-          <div className="pt-8 md:pt-0 md:px-8">
+
+          {/* Quick Links Section */}
+          <div className="p-4">
             <h4 className="font-semibold text-[#FADA7A]">Quick Links</h4>
             <ul className="mt-4 space-y-2 text-sm">
               <li>
@@ -40,7 +50,9 @@ export function Footer() {
               </li>
             </ul>
           </div>
-          <div className="pt-8 md:pt-0 md:px-8">
+
+          {/* Our Services Section */}
+          <div className="p-4">
             <h4 className="font-semibold text-[#FADA7A]">Our Services</h4>
             <ul className="mt-4 space-y-2 text-sm">
               <li>
@@ -65,7 +77,9 @@ export function Footer() {
               </li>
             </ul>
           </div>
-          <div className="pt-8 md:pt-0 md:pl-8">
+
+          {/* Connect With Us Section */}
+          <div className="p-4">
             <h4 className="font-semibold text-[#FADA7A]">Connect With Us</h4>
             <address className="mt-4 space-y-1 text-sm not-italic">
               <p className="text-[#B2C8BA]">
@@ -79,7 +93,7 @@ export function Footer() {
             </address>
           </div>
         </div>
-        <div className="mt-12 border-t border-[#4E944F] pt-8 text-center">
+        <div className="mt-8 border-t border-[#4E944F] pt-6 text-center">
           <p className="text-sm text-[#B2C8BA]">
             &copy; {new Date().getFullYear()} RN Fintech. All Rights Reserved.
           </p>

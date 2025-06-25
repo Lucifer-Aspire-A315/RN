@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -18,14 +19,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import type { PageView, SetPageView } from '@/app/page';
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from '@/contexts/AuthContext';
-
-interface HeaderProps {
-  setCurrentPage?: SetPageView;
-}
-
-const AnimatedGradientText = () => (
-  <span className="animated-gradient-text">RN Fintech</span>
-);
+import Image from 'next/image';
 
 export function Header({ setCurrentPage }: HeaderProps) {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -89,8 +83,15 @@ export function Header({ setCurrentPage }: HeaderProps) {
   return (
     <header className={`bg-[#F8FAE5] border-b border-[#B2C8BA] shadow-sm sticky top-0 z-50 transition-shadow duration-300 ${isScrolled ? 'shadow-md' : ''}`}>
       <nav className="container mx-auto px-4 sm:px-6 py-4 flex justify-between items-center">
-        <Link href="/" onClick={() => handleNavClick('/', () => setCurrentPage?.('main'))} className="text-2xl font-bold flex-shrink-0 text-[#4E944F]">
-          <AnimatedGradientText />
+        <Link href="/" onClick={() => handleNavClick('/', () => setCurrentPage?.('main'))} className="flex-shrink-0">
+          <Image
+            src="/logo.png"
+            alt="FinSol RN Logo"
+            width={140}
+            height={35}
+            className="h-auto w-auto"
+            priority
+          />
         </Link>
         <div className="hidden md:flex items-center justify-center flex-grow space-x-3 lg:space-x-6">
           {navLinks.map(link => (
@@ -112,7 +113,7 @@ export function Header({ setCurrentPage }: HeaderProps) {
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56" align="end" forceMount>
+              <DropdownMenuContent className="w-56 bg-background shadow-lg" align="end" forceMount>
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
                     <p className="text-sm font-medium leading-none">{currentUser.fullName}</p>
@@ -174,8 +175,14 @@ export function Header({ setCurrentPage }: HeaderProps) {
               <SheetTitle className="sr-only">Menu</SheetTitle>
               <SheetDescription className="sr-only">Site navigation and user options</SheetDescription>
               <div className="p-6 border-b">
-                <Link href="/" onClick={() => handleNavClick('/', () => setCurrentPage?.('main'))} className="text-xl font-bold">
-                  <AnimatedGradientText />
+                <Link href="/" onClick={() => handleNavClick('/', () => setCurrentPage?.('main'))}>
+                  <Image
+                    src="/logo.png"
+                    alt="FinSol RN Logo"
+                    width={140}
+                    height={35}
+                    priority
+                  />
                 </Link>
               </div>
               <nav className="flex flex-col py-2">

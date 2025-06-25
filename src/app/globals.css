@@ -107,22 +107,6 @@
   }
 }
 
-/* Animated Gradient Text for the brand name */
-.animated-gradient-text {
-    background: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--accent)), #9333ea, hsl(var(--primary))); /* Using theme colors */
-    background-size: 200% auto;
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    animation: moveGradient 5s ease-in-out infinite;
-}
-
-@keyframes moveGradient {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-}
-
 .hero-bg {
   background: 
     radial-gradient(at 27% 37%, hsla(var(--primary), 0.1) 0px, transparent 50%),
