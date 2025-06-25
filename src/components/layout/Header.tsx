@@ -86,7 +86,7 @@ export function Header({ setCurrentPage }: HeaderProps) {
 
   return (
     <header className={`bg-[#F8FAE5] border-b border-[#B2C8BA] shadow-sm sticky top-0 z-50 transition-shadow duration-300 ${isScrolled ? 'shadow-md' : ''}`}>
-      <nav className="container mx-auto px-4 sm:px-6 py-4 flex justify-between items-center">
+      <nav className="container mx-auto px-4 sm:px-6 py-2 flex justify-between items-center">
         <Link href="/" onClick={() => handleNavClick('/', () => setCurrentPage?.('main'))} className="flex-shrink-0">
           <Image
             src="/logo.png"
