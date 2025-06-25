@@ -20,7 +20,7 @@ const governmentSchemes = [
       </div>
     ), 
     bgColor: 'bg-primary/5',
-    textColor: 'text-primary-foreground',
+    textColor: 'text-primary',
   },
   { 
     text: (
@@ -30,7 +30,7 @@ const governmentSchemes = [
       </div>
     ),
     bgColor: 'bg-accent/5',
-    textColor: 'text-accent-foreground',
+    textColor: 'text-accent',
   },
   { 
     text: (
@@ -74,7 +74,7 @@ export function HeroSection({ setCurrentPage }: HeroSectionProps) {
   return (
     <section
       id="home"
-      className="relative flex flex-col justify-center items-center bg-gradient-to-b from-[#F8FAE5] to-[#E4EFE7] px-4 py-20 md:py-28 overflow-hidden"
+      className="relative flex flex-col justify-center items-center bg-gradient-to-b from-[#F8FAE5] to-[#E4EFE7] px-4 py-16 md:py-24 overflow-hidden"
     >
       {/* Decorative SVGs */}
       <svg
