@@ -18,24 +18,14 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import type { PageView, SetPageView } from '@/app/page';
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from '@/contexts/AuthContext';
-import Image from 'next/image';
 
 interface HeaderProps {
   setCurrentPage?: SetPageView;
 }
 
-const Logo = () => (
-    <div className="relative w-36 h-10 md:w-40">
-        <Image
-            src="/logo.png"
-            alt="RN Fintech Logo"
-            fill
-            priority
-            className="object-contain"
-        />
-    </div>
+const AnimatedGradientText = () => (
+  <span className="animated-gradient-text">RN Fintech</span>
 );
-
 
 export function Header({ setCurrentPage }: HeaderProps) {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -64,8 +54,7 @@ export function Header({ setCurrentPage }: HeaderProps) {
     setMobileMenuOpen(false);
     
     if (href.startsWith('/#')) {
-        const path = router.pathname || window.location.pathname;
-        if (path === '/') {
+        if (router.pathname === '/') {
             const elementId = href.substring(2);
             const element = document.getElementById(elementId);
             if (element) {
@@ -94,33 +83,14 @@ export function Header({ setCurrentPage }: HeaderProps) {
     return name.substring(0, 2).toUpperCase();
   };
 
-<<<<<<< HEAD
   const commonLinkClasses = "text-[#4E944F] hover:text-[#F26A4B] transition-colors font-semibold";
   const mobileLinkClasses = "block py-3 px-6 text-sm hover:bg-[#B2C8BA]/40";
-=======
-  const commonLinkClasses = "text-primary hover:text-accent transition-colors font-semibold";
-  const mobileLinkClasses = "block py-3 px-4 text-sm hover:bg-secondary/40";
->>>>>>> d4ecd83 (can u review and fix the responsiveness of the website like there are so)
 
   return (
-<<<<<<< HEAD
     <header className={`bg-[#F8FAE5] border-b border-[#B2C8BA] shadow-sm sticky top-0 z-50 transition-shadow duration-300 ${isScrolled ? 'shadow-md' : ''}`}>
       <nav className="container mx-auto px-4 sm:px-6 py-4 flex justify-between items-center">
         <Link href="/" onClick={() => handleNavClick('/', () => setCurrentPage?.('main'))} className="text-2xl font-bold flex-shrink-0 text-[#4E944F]">
-=======
-    <header className={`bg-background border-b border-border shadow-sm sticky top-0 z-50 transition-shadow duration-300 ${isScrolled ? 'shadow-md' : ''}`}>
-      <nav className="container mx-auto px-4 sm:px-6 py-2 flex justify-between items-center">
-<<<<<<< HEAD
-        <Link href="/" onClick={() => handleNavClick('/', () => setCurrentPage?.('main'))} className="text-2xl font-bold flex-shrink-0 text-primary">
-<<<<<<< HEAD
->>>>>>> c3cf252 (great and also the header looks too long in mobile view can u narrow it)
           <AnimatedGradientText />
-=======
-=======
-        <Link href="/" onClick={() => handleNavClick('/', () => setCurrentPage?.('main'))} className="flex-shrink-0">
->>>>>>> 1a79126 (ok so now the logo is place can u now just correct the size and style of)
-          <Logo />
->>>>>>> d36ee72 (ok ive created a public folder and uploaded an svg logo file  there can)
         </Link>
         <div className="hidden md:flex items-center justify-center flex-grow space-x-3 lg:space-x-6">
           {navLinks.map(link => (
@@ -133,52 +103,50 @@ export function Header({ setCurrentPage }: HeaderProps) {
           {isLoading ? (
              <Button variant="ghost" size="icon" disabled><Loader2 className="w-5 h-5 animate-spin" /></Button>
           ) : currentUser ? (
-            <div className="hidden md:block">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-12 w-12 rounded-full">
-                    <Avatar className="h-12 w-12">
-                      <AvatarImage src={`https://api.dicebear.com/8.x/initials/svg?seed=${currentUser.fullName}`} alt={currentUser.fullName} />
-                      <AvatarFallback>{getInitials(currentUser.fullName)}</AvatarFallback>
-                    </Avatar>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56" align="end" forceMount>
-                  <DropdownMenuLabel className="font-normal">
-                    <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none">{currentUser.fullName}</p>
-                      <p className="text-xs leading-none text-muted-foreground">{currentUser.email}</p>
-                    </div>
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
-                      <Link href="/dashboard">
-                        <LayoutDashboard className="mr-2 h-4 w-4" />
-                        <span>Dashboard</span>
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link href="/profile">
-                        <UserIcon className="mr-2 h-4 w-4" />
-                        <span>Profile</span>
-                      </Link>
-                    </DropdownMenuItem>
-                    {currentUser.isAdmin && (
-                       <DropdownMenuItem asChild>
-                        <Link href="/admin/dashboard">
-                          <ShieldCheck className="mr-2 h-4 w-4" />
-                          <span>Admin Panel</span>
-                        </Link>
-                      </DropdownMenuItem>
-                    )}
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleLogout}>
-                    <LogOut className="mr-2 h-4 w-4" />
-                    <span>Log out</span>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                  <Avatar className="h-9 w-9">
+                    <AvatarImage src={`https://api.dicebear.com/8.x/initials/svg?seed=${currentUser.fullName}`} alt={currentUser.fullName} />
+                    <AvatarFallback>{getInitials(currentUser.fullName)}</AvatarFallback>
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56" align="end" forceMount>
+                <DropdownMenuLabel className="font-normal">
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium leading-none">{currentUser.fullName}</p>
+                    <p className="text-xs leading-none text-muted-foreground">{currentUser.email}</p>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link href="/dashboard">
+                      <LayoutDashboard className="mr-2 h-4 w-4" />
+                      <span>Dashboard</span>
+                    </Link>
                   </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
+                  <DropdownMenuItem asChild>
+                    <Link href="/profile">
+                      <UserIcon className="mr-2 h-4 w-4" />
+                      <span>Profile</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  {currentUser.isAdmin && (
+                     <DropdownMenuItem asChild>
+                      <Link href="/admin/dashboard">
+                        <ShieldCheck className="mr-2 h-4 w-4" />
+                        <span>Admin Panel</span>
+                      </Link>
+                    </DropdownMenuItem>
+                  )}
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleLogout}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Log out</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           ) : (
             <>
               <Button
@@ -206,8 +174,8 @@ export function Header({ setCurrentPage }: HeaderProps) {
               <SheetTitle className="sr-only">Menu</SheetTitle>
               <SheetDescription className="sr-only">Site navigation and user options</SheetDescription>
               <div className="p-6 border-b">
-                <Link href="/" onClick={() => handleNavClick('/', () => setCurrentPage?.('main'))}>
-                  <Logo />
+                <Link href="/" onClick={() => handleNavClick('/', () => setCurrentPage?.('main'))} className="text-xl font-bold">
+                  <AnimatedGradientText />
                 </Link>
               </div>
               <nav className="flex flex-col py-2">
@@ -220,10 +188,10 @@ export function Header({ setCurrentPage }: HeaderProps) {
                 ))}
                 <div className="border-t my-2 mx-6"></div>
                 {isLoading ? (
-                  <div className="px-4 py-3 text-center"><Loader2 className="w-5 h-5 animate-spin inline-block" /></div>
+                  <div className="px-6 py-3 text-center"><Loader2 className="w-5 h-5 animate-spin inline-block" /></div>
                 ) : currentUser ? (
-                   <div className="p-4 space-y-3">
-                      <p className="text-sm text-muted-foreground">Welcome, {currentUser.fullName}!</p>
+                   <div className="px-6 py-3 space-y-2">
+                      <p className="text-sm text-muted-foreground mb-2">Welcome, {currentUser.fullName}!</p>
                       {currentUser.isAdmin && (
                         <SheetClose asChild>
                           <Button asChild variant="destructive" className="w-full justify-start">
@@ -252,16 +220,16 @@ export function Header({ setCurrentPage }: HeaderProps) {
                       </SheetClose>
                       <SheetClose asChild>
                           <Button
-                              variant="destructive"
+                              variant="outline"
                               onClick={handleLogout}
-                              className="w-full justify-start px-3"
+                              className={`${mobileLinkClasses} text-destructive font-semibold text-left justify-start border-destructive w-full`}
                           >
-                            <LogOut className="mr-2 h-4 w-4" /> <span>Log out</span>
+                            <LogOut className="mr-2 h-4 w-4" /> Logout
                           </Button>
                       </SheetClose>
                    </div>
                 ) : (
-                  <div className="px-4 py-3 space-y-2">
+                  <div className="px-6 py-3 space-y-2">
                     <SheetClose asChild>
                       <Button
                         variant="outline"
