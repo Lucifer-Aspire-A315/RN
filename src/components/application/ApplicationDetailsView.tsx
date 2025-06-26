@@ -17,6 +17,20 @@ import type { UserApplication } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '../ui/skeleton';
 
+// Helper to check for visible content in nested objects
+const hasVisibleContent = (value: any): boolean => {
+  if (value === null || value === undefined || value === '') {
+    return false;
+  }
+  // Check if it's a plain object to recurse into
+  if (typeof value === 'object' && !Array.isArray(value) && !(value instanceof Date) && !(value instanceof File)) {
+     if (Object.keys(value).length === 0) return false; // Handle empty objects {}
+     return Object.values(value).some(hasVisibleContent);
+  }
+  // It's a primitive with a value or a File/Date object
+  return true;
+};
+
 // Helper to format keys for display (e.g., 'fullName' -> 'Full Name')
 const formatKey = (key: string) => {
   return key
@@ -69,13 +83,17 @@ const renderValue = (value: any) => {
 // Recursive component to render nested objects and values
 const DetailItem = ({ itemKey, itemValue }: { itemKey: string; itemValue: any }) => {
   // Section rendering (for nested objects)
-  if (typeof itemValue === 'object' && itemValue !== null && !Array.isArray(itemValue) && !('seconds' in itemValue)) {
+  if (typeof itemValue === 'object' && itemValue !== null && !Array.isArray(itemValue) && !(itemValue instanceof Date) && !(itemValue instanceof File)) {
+    // Hide entire section if it has no visible content
+    if (!hasVisibleContent(itemValue)) {
+        return null;
+    }
     return (
       <div className="md:col-span-2">
         <h3 className="text-lg font-semibold text-primary mt-6 mb-4 border-b border-primary/20 pb-2">{formatKey(itemKey)}</h3>
         <dl className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
           {Object.entries(itemValue)
-            .filter(([, value]) => value !== null && value !== undefined && value !== '')
+            .filter(([, value]) => hasVisibleContent(value))
             .map(([key, value]) => (
             <DetailItem key={key} itemKey={key} itemValue={value} />
           ))}
@@ -219,21 +237,31 @@ export function ApplicationDetailsView({ applicationId, serviceCategory, title, 
         });
     };
 
+    // Prepare data for rendering
     const {
-      createdAt,
-      updatedAt,
-      submittedBy,
-      formData,
+      // These are handled in the summary card
       status,
       applicationType,
-      ...restOfData
+      
+      // This is flattened into the main data below
+      formData,
+      
+      // The rest of the data to be displayed
+      ...displayData
     } = applicationData;
-  
-    const displayData = { ...restOfData, ...formData };
-    delete displayData.status; 
-    delete displayData.applicationType;
-    delete displayData.serviceCategory; 
 
+    // Merge formData into displayData for a flat structure of sections
+    if (formData) {
+        Object.assign(displayData, formData);
+    }
+    
+    // Explicitly delete fields we don't want in the main loop
+    delete displayData.id;
+    delete displayData.partnerId;
+    delete displayData.status;
+    delete displayData.applicationType;
+    delete displayData.serviceCategory;
+    delete displayData.schemeNameForDisplay;
 
   return (
     <Card className="max-w-4xl mx-auto shadow-lg">
@@ -299,20 +327,6 @@ export function ApplicationDetailsView({ applicationId, serviceCategory, title, 
             ))}
         </dl>
         
-        {submittedBy && (
-            <div className="md:col-span-2">
-                <h3 className="text-lg font-semibold text-primary mt-6 mb-4 border-b border-primary/20 pb-2">Submission Details</h3>
-                <dl className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
-                    <DetailItem itemKey="Submitted By" itemValue={submittedBy} />
-                     {createdAt && (
-                        <div className="flex flex-col space-y-1.5">
-                            <dt className="text-sm font-medium text-muted-foreground">Submitted On</dt>
-                            <dd className="text-base text-foreground break-words">{renderValue(createdAt)}</dd>
-                        </div>
-                    )}
-                </dl>
-            </div>
-        )}
       </CardContent>
     </Card>
   );
