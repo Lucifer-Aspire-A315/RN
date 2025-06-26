@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetClose, SheetTitle, SheetDescription } from '@/components/ui/sheet';
-import { Menu, LogOut, Loader2, LayoutDashboard, ShieldCheck, User as UserIcon } from 'lucide-react';
+import { Menu, LogOut, Loader2, LayoutDashboard, ShieldCheck, User as UserIcon, UserPlus } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,7 +29,8 @@ interface HeaderProps {
 export function Header({ setCurrentPage }: HeaderProps) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState<'login' | 'signup'>('login');
   const router = useRouter();
   const { toast } = useToast();
   const { currentUser, logout, isLoading } = useAuth();
@@ -81,6 +82,11 @@ export function Header({ setCurrentPage }: HeaderProps) {
       return `${names[0][0]}${names[names.length - 1][0]}`.toUpperCase();
     }
     return name.substring(0, 2).toUpperCase();
+  };
+  
+  const openAuthModal = (mode: 'login' | 'signup') => {
+    setModalMode(mode);
+    setModalOpen(true);
   };
 
   const commonLinkClasses = "text-[#4E944F] hover:text-[#F26A4B] transition-colors font-semibold";
@@ -156,12 +162,21 @@ export function Header({ setCurrentPage }: HeaderProps) {
               </DropdownMenu>
             </div>
           ) : (
-            <Button
-                className="hidden md:inline-flex cta-button bg-[#4E944F] hover:bg-[#F26A4B] text-white"
-                onClick={() => setAuthModalOpen(true)}
-              >
-                Login / Sign Up
-            </Button>
+             <div className="hidden md:flex items-center space-x-2">
+                <Button
+                    variant="ghost"
+                    onClick={() => openAuthModal('login')}
+                    className={commonLinkClasses}
+                >
+                    Login
+                </Button>
+                <Button
+                    className="cta-button bg-[#4E944F] hover:bg-[#F26A4B] text-white"
+                    onClick={() => openAuthModal('signup')}
+                >
+                    Sign Up
+                </Button>
+             </div>
           )}
           <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
             <SheetTrigger asChild className="md:hidden">
@@ -237,10 +252,20 @@ export function Header({ setCurrentPage }: HeaderProps) {
                   <div className="px-6 py-3 space-y-2">
                     <SheetClose asChild>
                       <Button
-                        onClick={() => { setAuthModalOpen(true); setMobileMenuOpen(false); }}
+                        onClick={() => { openAuthModal('login'); setMobileMenuOpen(false); }}
                         className={`${mobileLinkClasses} bg-primary text-primary-foreground font-semibold text-left justify-start w-full`}
                       >
-                        Login / Sign Up
+                         <LogIn className="mr-2 h-4 w-4" />
+                         Login
+                      </Button>
+                    </SheetClose>
+                     <SheetClose asChild>
+                      <Button
+                        onClick={() => { openAuthModal('signup'); setMobileMenuOpen(false); }}
+                        className={`${mobileLinkClasses} bg-accent text-accent-foreground font-semibold text-left justify-start w-full`}
+                      >
+                         <UserPlus className="mr-2 h-4 w-4" />
+                         Sign Up
                       </Button>
                     </SheetClose>
                   </div>
@@ -250,7 +275,9 @@ export function Header({ setCurrentPage }: HeaderProps) {
           </Sheet>
         </div>
       </nav>
-      <AuthSelectionModal open={authModalOpen} onOpenChange={setAuthModalOpen} />
+      {!currentUser && (
+        <AuthSelectionModal open={modalOpen} onOpenChange={setModalOpen} mode={modalMode} />
+      )}
     </header>
   );
 }
