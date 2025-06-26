@@ -1,4 +1,3 @@
-
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -8,12 +7,12 @@ export function Footer() {
       <div className="container mx-auto px-6 py-12">
         <div className="grid grid-cols-2 md:grid-cols-4 divide-y-2 md:divide-y-0 md:divide-x-2 divide-[#4E944F]/40">
           {/* Logo and About Section */}
-          <div className="p-4 md:p-8">
+          <div className="p-4 md:p-8 flex flex-col items-center text-center">
             <div className="bg-background rounded-lg p-2 inline-block">
               <Image
                 src="/rnfintech.png"
                 alt="RN FinTech Logo"
-                width={120}
+                width={45}
                 height={30}
                 className="h-auto w-auto"
                 priority
