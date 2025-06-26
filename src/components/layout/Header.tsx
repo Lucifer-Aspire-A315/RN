@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetClose, SheetTitle, SheetDescription } from '@/components/ui/sheet';
-import { Menu, LogOut, Loader2, LayoutDashboard, ShieldCheck, User as UserIcon, UserPlus } from 'lucide-react';
+import { Menu, LogOut, Loader2, LayoutDashboard, ShieldCheck, User as UserIcon, UserPlus, LogIn } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -55,7 +55,8 @@ export function Header({ setCurrentPage }: HeaderProps) {
     setMobileMenuOpen(false);
     
     if (href.startsWith('/#')) {
-        if (router.pathname === '/') {
+        const path = router.asPath || window.location.pathname;
+        if (path === '/') {
             const elementId = href.substring(2);
             const element = document.getElementById(elementId);
             if (element) {
@@ -89,11 +90,11 @@ export function Header({ setCurrentPage }: HeaderProps) {
     setModalOpen(true);
   };
 
-  const commonLinkClasses = "text-[#4E944F] hover:text-[#F26A4B] transition-colors font-semibold";
-  const mobileLinkClasses = "block py-3 px-6 text-sm hover:bg-[#B2C8BA]/40";
+  const commonLinkClasses = "text-primary hover:text-accent transition-colors font-semibold";
+  const mobileLinkClasses = "block py-3 px-6 text-lg hover:bg-secondary/40";
 
   return (
-    <header className={`bg-[#F8FAE5] border-b border-[#B2C8BA] shadow-sm sticky top-0 z-50 transition-shadow duration-300 ${isScrolled ? 'shadow-md' : ''}`}>
+    <header className={`bg-background/80 backdrop-blur-sm border-b border-border sticky top-0 z-50 transition-shadow duration-300 ${isScrolled ? 'shadow-md' : ''}`}>
       <nav className="container mx-auto px-4 sm:px-6 py-2 flex justify-between items-center">
         <Link href="/" onClick={() => handleNavClick('/', () => setCurrentPage?.('main'))} className="flex-shrink-0">
           <Image
@@ -171,7 +172,7 @@ export function Header({ setCurrentPage }: HeaderProps) {
                     Login
                 </Button>
                 <Button
-                    className="cta-button bg-[#4E944F] hover:bg-[#F26A4B] text-white"
+                    className="cta-button"
                     onClick={() => openAuthModal('signup')}
                 >
                     Sign Up
