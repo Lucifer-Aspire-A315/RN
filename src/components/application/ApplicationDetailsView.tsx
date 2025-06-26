@@ -82,8 +82,11 @@ const renderValue = (value: any) => {
 
 // Recursive component to render nested objects and values
 const DetailItem = ({ itemKey, itemValue }: { itemKey: string; itemValue: any }) => {
-  // Section rendering (for nested objects)
-  if (typeof itemValue === 'object' && itemValue !== null && !Array.isArray(itemValue) && !(itemValue instanceof Date) && !(itemValue instanceof File)) {
+  // A Firestore-like timestamp object should be treated as a value, not a section.
+  const isTimestampObject = itemValue && typeof itemValue.seconds === 'number' && typeof itemValue.nanoseconds === 'number';
+
+  // Section rendering (for nested objects that are not timestamps)
+  if (typeof itemValue === 'object' && itemValue !== null && !Array.isArray(itemValue) && !(itemValue instanceof Date) && !(itemValue instanceof File) && !isTimestampObject) {
     // Hide entire section if it has no visible content
     if (!hasVisibleContent(itemValue)) {
         return null;
@@ -239,27 +242,22 @@ export function ApplicationDetailsView({ applicationId, serviceCategory, title, 
 
     // Prepare data for rendering
     const {
-      // These are handled in the summary card
       status,
       applicationType,
-      
-      // This is flattened into the main data below
       formData,
-      
-      // The rest of the data to be displayed
-      ...displayData
+      submittedBy,
+      createdAt,
+      updatedAt,
+      ...restOfData
     } = applicationData;
 
-    // Merge formData into displayData for a flat structure of sections
+    const displayData = { ...restOfData };
     if (formData) {
         Object.assign(displayData, formData);
     }
     
-    // Explicitly delete fields we don't want in the main loop
     delete displayData.id;
     delete displayData.partnerId;
-    delete displayData.status;
-    delete displayData.applicationType;
     delete displayData.serviceCategory;
     delete displayData.schemeNameForDisplay;
 
@@ -327,7 +325,21 @@ export function ApplicationDetailsView({ applicationId, serviceCategory, title, 
             ))}
         </dl>
         
+        {/* Submission Info Section at the bottom */}
+        {(submittedBy || createdAt || updatedAt) && (
+            <div className="mt-8 pt-6 border-t">
+                <div className="md:col-span-2">
+                    <h3 className="text-lg font-semibold text-primary mb-4 border-b border-primary/20 pb-2">Submission Info</h3>
+                    <dl className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                        {submittedBy && <DetailItem itemKey="Submitted By" itemValue={submittedBy} />}
+                        {createdAt && <DetailItem itemKey="Created At" itemValue={createdAt} />}
+                        {updatedAt && <DetailItem itemKey="Last Updated At" itemValue={updatedAt} />}
+                    </dl>
+                </div>
+            </div>
+        )}
       </CardContent>
     </Card>
   );
 }
+
