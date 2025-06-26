@@ -179,7 +179,7 @@ export type PersonalLoanApplicationFormData = z.infer<typeof PersonalLoanApplica
 
 // #region --- BUSINESS LOAN ---
 
-const BusinessDetailsSchema = z.object({
+export const BusinessDetailsSchema = z.object({
   businessName: z.string().min(1, "Business name is required"),
   businessType: z.enum(["proprietorship", "partnership", "pvt_ltd", "other"], { required_error: "Business type is required" }),
   otherBusinessType: z.string().optional(),
@@ -285,6 +285,48 @@ export const CreditCardApplicationSchema = z.object({
   documentUploads: CreditCardDocumentUploadSchema.optional(),
 });
 export type CreditCardApplicationFormData = z.infer<typeof CreditCardApplicationSchema>;
+
+// #endregion
+
+// #region --- MACHINERY LOAN ---
+
+const MachineryLoanDetailsSchema = z.object({
+  descriptionOfMachinery: z.string().min(1, "Description of machinery is required"),
+  supplierName: z.string().min(1, "Supplier name is required"),
+  totalCostOfMachinery: z.preprocess((val) => (val === "" || val === null || val === undefined ? undefined : Number(val)), z.number({ invalid_type_error: "Must be a number" }).min(1, "Total cost is required")),
+  loanAmountRequired: z.preprocess((val) => (val === "" || val === null || val === undefined ? undefined : Number(val)), z.number({ invalid_type_error: "Must be a number" }).min(1, "Loan amount is required")),
+  loanTenureRequired: z.preprocess((val) => (val === "" || val === null || val === undefined ? undefined : Number(val)), z.number({ invalid_type_error: "Must be a number" }).min(1, "Loan tenure is required (in months)")),
+  hasExistingLoans: z.enum(["yes", "no"], { required_error: "Please specify if you have existing loans" }),
+});
+
+const MachineryLoanDocumentUploadSchema = z.object({
+  quotation: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES),
+  panCard: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES),
+  aadhaarCard: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES),
+  gstOrUdyamCertificate: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES),
+  bankStatement: stringOrFileSchema(ACCEPTED_BANK_STATEMENT_TYPES),
+  itrLast2Years: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES),
+  existingLoanStatement: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES).optional(),
+});
+
+export const MachineryLoanApplicationSchema = z.object({
+  applicantDetails: ApplicantDetailsSchema,
+  businessDetails: BusinessDetailsSchema,
+  machineryLoanDetails: MachineryLoanDetailsSchema,
+  existingLoans: ExistingLoansSchema.optional(),
+  documentUploads: MachineryLoanDocumentUploadSchema,
+}).superRefine((data, ctx) => {
+    if (data.machineryLoanDetails.hasExistingLoans === "yes") {
+        const loanData = data.existingLoans;
+        if (!loanData || loanData.emiAmount === undefined || loanData.emiAmount <= 0) {
+            ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Valid EMI is required.", path: ["existingLoans", "emiAmount"] });
+        }
+        if (!loanData || !loanData.bankName) {
+            ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Bank name is required.", path: ["existingLoans", "bankName"] });
+        }
+    }
+});
+export type MachineryLoanApplicationFormData = z.infer<typeof MachineryLoanApplicationSchema>;
 
 // #endregion
 

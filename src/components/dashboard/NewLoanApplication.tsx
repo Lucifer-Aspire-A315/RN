@@ -3,13 +3,14 @@
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Home, User, Briefcase, CreditCardIcon } from 'lucide-react';
+import { Home, User, Briefcase, CreditCardIcon, Cog } from 'lucide-react';
 import { HomeLoanApplicationForm } from '@/components/forms/HomeLoanApplicationForm';
 import { PersonalLoanApplicationForm } from '@/components/forms/PersonalLoanApplicationForm';
 import { BusinessLoanApplicationForm } from '@/components/forms/BusinessLoanApplicationForm';
 import { CreditCardApplicationForm } from '@/components/forms/CreditCardApplicationForm';
+import { MachineryLoanApplicationForm } from '../forms/MachineryLoanApplicationForm';
 
-type FormType = 'home' | 'personal' | 'business' | 'creditCard';
+type FormType = 'home' | 'personal' | 'business' | 'creditCard' | 'machinery';
 
 export function PartnerLoanApplication() {
     const [activeForm, setActiveForm] = useState<FormType | null>(null);
@@ -29,6 +30,9 @@ export function PartnerLoanApplication() {
     }
     if (activeForm === 'creditCard') {
         return <CreditCardApplicationForm onBack={handleBackToMenu} backButtonText="Back to Application Menu" />;
+    }
+    if (activeForm === 'machinery') {
+        return <MachineryLoanApplicationForm onBack={handleBackToMenu} backButtonText="Back to Application Menu" />;
     }
 
     return (
@@ -59,6 +63,13 @@ export function PartnerLoanApplication() {
                  <div>
                     <p className="font-semibold">Credit Card</p>
                     <p className="font-normal text-muted-foreground text-sm">Apply for a new credit card</p>
+                </div>
+            </Button>
+            <Button onClick={() => setActiveForm('machinery')} size="lg" variant="outline" className="justify-start h-auto py-4">
+                <Cog className="mr-4 h-6 w-6" />
+                 <div>
+                    <p className="font-semibold">Machinery Loan</p>
+                    <p className="font-normal text-muted-foreground text-sm">Purchase new equipment for your business</p>
                 </div>
             </Button>
         </div>

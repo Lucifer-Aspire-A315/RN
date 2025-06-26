@@ -12,6 +12,7 @@ import { HomeLoanApplicationForm } from '@/components/forms/HomeLoanApplicationF
 import { PersonalLoanApplicationForm } from '@/components/forms/PersonalLoanApplicationForm';
 import { BusinessLoanApplicationForm } from '@/components/forms/BusinessLoanApplicationForm';
 import { CreditCardApplicationForm } from '@/components/forms/CreditCardApplicationForm';
+import { MachineryLoanApplicationForm } from '@/components/forms/MachineryLoanApplicationForm';
 import { GovernmentSchemesPage } from '@/components/sections/GovernmentSchemesPage';
 import { GovernmentSchemeLoanApplicationForm } from '@/components/forms/GovernmentSchemeLoanApplicationForm';
 import { CAServicesPage } from '@/components/sections/CAServicesPage';
@@ -31,6 +32,7 @@ export type PageView =
   'personalLoan' | 
   'businessLoan' | 
   'creditCard' | 
+  'machineryLoan' |
   'governmentSchemes' | 
   'governmentSchemeApplication' | 
   'caServices' | 
@@ -153,6 +155,8 @@ export default function Home() {
         return <ProtectedFormComponent onBack={handleBackToMain}><BusinessLoanApplicationForm onBack={handleBackToMain} /></ProtectedFormComponent>;
       case 'creditCard':
         return <ProtectedFormComponent onBack={handleBackToMain}><CreditCardApplicationForm onBack={handleBackToMain} /></ProtectedFormComponent>;
+      case 'machineryLoan':
+        return <ProtectedFormComponent onBack={handleBackToMain}><MachineryLoanApplicationForm onBack={handleBackToMain} /></ProtectedFormComponent>;
       case 'governmentSchemes':
         return <GovernmentSchemesPage
                   setCurrentPage={setCurrentPage}

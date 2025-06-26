@@ -1,3 +1,4 @@
+
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import type { SetPageView, PageView } from '@/app/page';
@@ -16,25 +17,34 @@ export function ServiceCard({
   icon,
   title,
   description,
-  bgColorClass,
-  textColorClass,
+  colorIndex,
   targetPage,
   setCurrentPage,
 }: ServiceCardProps) {
+  const colors = {
+    1: { bg: 'bg-chart-1/10', text: 'text-chart-1' },
+    2: { bg: 'bg-chart-2/10', text: 'text-chart-2' },
+    3: { bg: 'bg-chart-3/10', text: 'text-chart-3' },
+    4: { bg: 'bg-chart-4/10', text: 'text-chart-4' },
+    5: { bg: 'bg-chart-5/10', text: 'text-chart-5' },
+  };
+
+  const colorClasses = colors[colorIndex] || colors[1];
+  
   return (
     <div
       className={cn(
-        "bg-card p-8 rounded-xl shadow-lg flex flex-col text-center items-center border border-[#B2C8BA] transition-all duration-200 hover:border-[#4E944F] hover:shadow-xl card-hover-effect"
+        "bg-card p-8 rounded-xl shadow-lg flex flex-col text-center items-center border border-secondary transition-all duration-200 hover:border-primary hover:shadow-xl card-hover-effect"
       )}
     >
-      <div className={`rounded-full w-16 h-16 flex items-center justify-center mx-auto shadow ${bgColorClass}`}>
-        <div className={textColorClass}>{icon}</div>
+      <div className={cn('rounded-full w-16 h-16 flex items-center justify-center mx-auto shadow', colorClasses.bg)}>
+        <div className={colorClasses.text}>{icon}</div>
       </div>
-      <h3 className="text-xl font-semibold mt-6 text-[#4E944F]">{title}</h3>
+      <h3 className={cn("text-xl font-semibold mt-6", colorClasses.text)}>{title}</h3>
       <p className="text-muted-foreground mt-2 flex-grow text-sm">{description}</p>
       <Button
         variant="link"
-        className="inline-flex items-center justify-center mt-6 font-semibold text-[#F26A4B] hover:text-[#4E944F] group p-0"
+        className="inline-flex items-center justify-center mt-6 font-semibold text-primary hover:text-accent group p-0"
         onClick={() => setCurrentPage(targetPage)}
         aria-label={`Apply for ${title}`}
       >
