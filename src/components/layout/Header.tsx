@@ -81,7 +81,7 @@ export function Header({ setCurrentPage }: HeaderProps) {
     return name.substring(0, 2).toUpperCase();
   };
   
-  const commonLinkClasses = "text-primary hover:text-accent transition-colors font-semibold";
+  const commonLinkClasses = "text-primary hover:text-accent transition-colors font-semibold no-underline";
   const mobileLinkClasses = "block py-3 px-6 text-lg hover:bg-secondary/40";
 
   return (
@@ -248,8 +248,10 @@ export function Header({ setCurrentPage }: HeaderProps) {
                   <div className="px-6 py-3 space-y-2">
                     <SheetClose asChild>
                       <Button
+                        variant="default"
+                        size="lg"
                         onClick={() => { openAuthModal('login'); setMobileMenuOpen(false); }}
-                        className={`${mobileLinkClasses} bg-primary text-primary-foreground font-semibold text-left justify-start w-full`}
+                        className="w-full justify-start"
                       >
                          <LogIn className="mr-2 h-4 w-4" />
                          Login
@@ -257,8 +259,9 @@ export function Header({ setCurrentPage }: HeaderProps) {
                     </SheetClose>
                      <SheetClose asChild>
                       <Button
+                        size="lg"
                         onClick={() => { openAuthModal('signup'); setMobileMenuOpen(false); }}
-                        className={`${mobileLinkClasses} bg-accent text-accent-foreground font-semibold text-left justify-start w-full`}
+                        className="bg-accent text-accent-foreground hover:bg-accent/90 w-full justify-start"
                       >
                          <UserPlus className="mr-2 h-4 w-4" />
                          Sign Up
