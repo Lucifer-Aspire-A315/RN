@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { MoreHorizontal, Loader2, Eye } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 interface AdminApplicationsTableProps {
   applications: UserApplication[];
@@ -44,6 +45,12 @@ const getCategoryDisplay = (category: UserApplication['serviceCategory']): strin
 const availableStatuses = ['Submitted', 'In Review', 'Approved', 'Rejected'];
 
 export function AdminApplicationsTable({ applications, onUpdateStatus, isUpdating }: AdminApplicationsTableProps) {
+  const router = useRouter();
+
+  const handleRowClick = (app: UserApplication) => {
+    router.push(`/admin/application/${app.id}?category=${app.serviceCategory}`);
+  };
+
   if (applications.length === 0) {
     return (
       <div className="text-center py-10 border-2 border-dashed rounded-lg">
@@ -68,7 +75,11 @@ export function AdminApplicationsTable({ applications, onUpdateStatus, isUpdatin
         </TableHeader>
         <TableBody>
           {applications.map((app) => (
-            <TableRow key={app.id}>
+            <TableRow 
+              key={app.id} 
+              onClick={() => handleRowClick(app)}
+              className="cursor-pointer"
+            >
               <TableCell className="font-medium">
                 <div>{app.applicantDetails?.fullName || 'N/A'}</div>
                 <div className="text-xs text-muted-foreground">{app.applicantDetails?.email || 'N/A'}</div>
@@ -81,7 +92,7 @@ export function AdminApplicationsTable({ applications, onUpdateStatus, isUpdatin
                   {app.status}
                 </Badge>
               </TableCell>
-              <TableCell className="text-right">
+              <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
                  <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="icon" disabled={isUpdating}>
