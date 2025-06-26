@@ -13,8 +13,8 @@ export function Footer() {
               <Image
                 src="/rnfintech.png"
                 alt="RN FinTech Logo"
-                width={140}
-                height={35}
+                width={120}
+                height={30}
                 className="h-auto w-auto"
                 priority
               />
