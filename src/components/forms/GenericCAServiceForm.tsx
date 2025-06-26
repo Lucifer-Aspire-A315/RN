@@ -120,6 +120,11 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
     }
     return null;
   };
+  
+  const handleBackClick = () => {
+    // If backPage is provided, use it. Otherwise, signal to go back to the menu (null).
+    setCurrentPage(backPage || null);
+  };
 
   async function onSubmit(data: TData) {
     setIsSubmitting(true);
@@ -140,9 +145,12 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
       
       const result = await submitAction(dataToSubmit);
       if (result.success) {
-        toast({ title: "Application Submitted!", description: result.message });
+        toast({ title: "Application Submitted!", description: result.message, duration: 5000 });
         reset();
         setSelectedFiles({});
+        setTimeout(() => {
+          handleBackClick();
+        }, 2000);
       } else {
         toast({ variant: "destructive", title: "Application Failed", description: result.message || "An unknown error occurred.", duration: 9000 });
         if (result.errors) {
@@ -220,11 +228,6 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
         }}
       />
     );
-  };
-
-  const handleBackClick = () => {
-    // If backPage is provided, use it. Otherwise, signal to go back to the menu (null).
-    setCurrentPage(backPage || null);
   };
 
   return (
