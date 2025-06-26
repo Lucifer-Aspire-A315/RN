@@ -4,112 +4,75 @@
 import { cookies } from 'next/headers';
 import { adminStorage } from '@/lib/firebaseAdmin';
 import { randomUUID } from 'crypto';
-import { Readable } from 'stream';
 
-interface FileUploadResponse {
+interface SignedUrlResponse {
   success: boolean;
-  url?: string;
+  uploadUrl?: string;
+  publicUrl?: string;
   error?: string;
 }
 
-export async function uploadFileAction(formData: FormData): Promise<FileUploadResponse> {
-  console.log("[FileUploadAction - Stream] Action initiated.");
+/**
+ * Creates a signed URL that allows the client to directly upload a file to Firebase Storage.
+ * This avoids passing the file through the Next.js server, bypassing body size limits.
+ * @param fileName The original name of the file to be uploaded.
+ * @param fileType The MIME type of the file.
+ * @returns An object containing the upload URL and the final public URL for the file.
+ */
+export async function getSignedUploadUrlAction(fileName: string, fileType: string): Promise<SignedUrlResponse> {
+  console.log(`[SignedUrlAction] Request received for ${fileName} (${fileType})`);
 
   if (!adminStorage) {
-    const adminInitError = "SERVER CONFIGURATION ERROR: Firebase Admin Storage not initialized. This means the Firebase Admin SDK failed to initialize when the server started. PLEASE CHECK YOUR SERVER LOGS (terminal output from `npm run dev`) for detailed error messages from 'src/lib/firebaseAdmin.ts'. Common causes: incorrect GOOGLE_APPLICATION_CREDENTIALS path, invalid service account key, or missing NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET environment variable. The file cannot be uploaded.";
-    console.error("[FileUploadAction - Stream] CRITICAL ERROR:", adminInitError);
+    const adminInitError = "SERVER CONFIGURATION ERROR: Firebase Admin Storage not initialized. This means the Firebase Admin SDK failed to initialize when the server started. PLEASE CHECK YOUR SERVER LOGS for detailed error messages from 'src/lib/firebaseAdmin.ts'.";
+    console.error("[SignedUrlAction] CRITICAL ERROR:", adminInitError);
     return { success: false, error: adminInitError };
   }
-  
-  const file = formData.get('file') as File | null;
-  const fileName = formData.get('fileName') as string | null;
 
-  if (!file || !fileName) {
-    console.error("[FileUploadAction - Stream] Critical error: No file or filename provided in FormData.");
-    return { success: false, error: 'No file or filename provided.' };
-  }
-  
   const cookieStore = cookies();
-  const userIdCookie = await cookieStore.get('user_id');
-  const userId = userIdCookie?.value;
+  const userId = cookieStore.get('user_id')?.value;
   
   let uploadPath: string;
   const uniqueFileName = `${Date.now()}-${encodeURIComponent(fileName)}`;
 
   if (userId) {
-    console.log(`[FileUploadAction - Stream] User ${userId} attempting to upload file: ${fileName} (Size: ${file.size} bytes, Type: ${file.type})`);
+    console.log(`[SignedUrlAction] User ${userId} is generating URL for file: ${fileName}`);
     uploadPath = `uploads/${userId}/${uniqueFileName}`;
   } else {
+    // This case might be for partner sign-ups before a user ID is created
     const tempId = randomUUID();
     uploadPath = `uploads/pending-partners/${tempId}/${uniqueFileName}`;
-    console.log(`[FileUploadAction - Stream] No user session found. Uploading to temporary path: ${uploadPath}`);
+    console.log(`[SignedUrlAction] No user session found. Generating URL for temporary path: ${uploadPath}`);
   }
 
   try {
-    const bucket = adminStorage.bucket(); 
-    const fileUploadRef = bucket.file(uploadPath);
+    const bucket = adminStorage.bucket();
+    const fileRef = bucket.file(uploadPath);
 
-    console.log(`[FileUploadAction - Stream] Starting stream upload to Firebase Storage path: ${uploadPath}`);
+    console.log(`[SignedUrlAction] Generating v4 signed URL for writing to: ${uploadPath}`);
     
-    // Convert the web stream to a Node.js Readable stream
-    const nodeStream = Readable.fromWeb(file.stream() as any);
-
-    // Create a promise that resolves when the stream finishes or rejects on error
-    await new Promise((resolve, reject) => {
-        const writeStream = fileUploadRef.createWriteStream({
-            metadata: {
-                contentType: file.type,
-            },
-        });
-
-        writeStream.on('finish', () => {
-            console.log(`[FileUploadAction - Stream] Write stream finished for ${uploadPath}.`);
-            resolve(true);
-        });
-
-        writeStream.on('error', (err) => {
-            console.error(`[FileUploadAction - Stream] Write stream error for ${uploadPath}:`, err);
-            reject(new Error(`Failed to stream file to storage: ${err.message}`));
-        });
-        
-        nodeStream.pipe(writeStream);
+    // Generate a short-lived signed URL for writing (uploading)
+    const [uploadUrl] = await fileRef.getSignedUrl({
+      version: 'v4',
+      action: 'write',
+      expires: Date.now() + 15 * 60 * 1000, // 15 minutes
+      contentType: fileType,
     });
 
-    console.log(`[FileUploadAction - Stream] File uploaded successfully via stream to path: ${uploadPath}.`);
-
-    const [downloadUrl] = await fileUploadRef.getSignedUrl({
-      action: 'read',
-      expires: '03-09-2491',
+    // Generate a long-lived signed URL for reading (for storing in DB and accessing later)
+    const [publicUrl] = await fileRef.getSignedUrl({
+        action: 'read',
+        expires: '03-09-2491', // A date far in the future
     });
 
-    console.log(`[FileUploadAction - Stream] Generated signed URL for ${uploadPath}: ${downloadUrl.substring(0, 100)}...`);
-
-    return {
-      success: true,
-      url: downloadUrl,
-    };
+    console.log(`[SignedUrlAction] Successfully generated URLs for ${fileName}.`);
+    return { success: true, uploadUrl, publicUrl };
 
   } catch (error: any) {
-    console.error(`[FileUploadAction - Stream] Firebase Admin SDK Storage stream upload error for file ${fileName}:`);
-    console.error("Error Name:", error.name);
-    console.error("Error Message:", error.message);
-    console.error("Error Code:", error.code);
-    console.error("Error Stack:", error.stack);
-
-    let userFriendlyMessage = 'Failed to upload file using a stream due to a server error.';
-    
-    if (error.message) {
-        userFriendlyMessage = error.message;
+    console.error(`[SignedUrlAction] Firebase Admin SDK Storage URL signing error for file ${fileName}:`, error);
+    let userFriendlyMessage = 'Failed to generate a secure upload link due to a server error.';
+    if (error.message?.includes('credential')) {
+        userFriendlyMessage += ' This could be an issue with server credentials.';
     }
-    
-    if (error.message && error.message.includes('Could not load the default credentials')) {
-        userFriendlyMessage += ' This strongly indicates an issue with Firebase Admin SDK initialization - service account credentials (GOOGLE_APPLICATION_CREDENTIALS) might be missing, path incorrect, or file invalid. Check server logs!';
-    }
-    
-     if (error.message && error.message.includes('Forbidden') || (error.code && error.code === 403)) {
-        userFriendlyMessage += ' "Forbidden" or "Permission denied" from Admin SDK usually points to IAM permission issues for the service account on Google Cloud. Ensure it has "Storage Object Admin" role or equivalent for the target bucket.';
-    }
-
     return { success: false, error: userFriendlyMessage };
   }
 }
