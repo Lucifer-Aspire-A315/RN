@@ -156,21 +156,12 @@ export function Header({ setCurrentPage }: HeaderProps) {
               </DropdownMenu>
             </div>
           ) : (
-            <>
-              <Button
-                variant="outline"
-                className="hidden md:inline-flex cta-button border-[#4E944F] text-[#4E944F] hover:bg-[#F26A4B]/10 hover:text-[#F26A4B]"
-                onClick={() => setAuthModalOpen(true)}
-              >
-                PARTNER LOGIN
-              </Button>
-              <Button
+            <Button
                 className="hidden md:inline-flex cta-button bg-[#4E944F] hover:bg-[#F26A4B] text-white"
                 onClick={() => setAuthModalOpen(true)}
               >
-                LOGIN
-              </Button>
-            </>
+                Login / Sign Up
+            </Button>
           )}
           <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
             <SheetTrigger asChild className="md:hidden">
@@ -246,28 +237,10 @@ export function Header({ setCurrentPage }: HeaderProps) {
                   <div className="px-6 py-3 space-y-2">
                     <SheetClose asChild>
                       <Button
-                        variant="outline"
-                        onClick={() => {setAuthModalOpen(true); setMobileMenuOpen(false);}}
-                        className={`${mobileLinkClasses} text-primary font-semibold text-left justify-start border-primary w-full`}
-                      >
-                        PARTNER LOGIN
-                      </Button>
-                    </SheetClose>
-                    <SheetClose asChild>
-                      <Button
                         onClick={() => { setAuthModalOpen(true); setMobileMenuOpen(false); }}
                         className={`${mobileLinkClasses} bg-primary text-primary-foreground font-semibold text-left justify-start w-full`}
                       >
-                        LOGIN
-                      </Button>
-                    </SheetClose>
-                     <SheetClose asChild>
-                      <Button
-                        variant="link"
-                        onClick={() => { setAuthModalOpen(true); setMobileMenuOpen(false); }}
-                        className={`${mobileLinkClasses} text-accent font-semibold text-left justify-start w-full`}
-                      >
-                        CREATE ACCOUNT
+                        Login / Sign Up
                       </Button>
                     </SheetClose>
                   </div>
