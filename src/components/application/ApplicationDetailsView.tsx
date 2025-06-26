@@ -261,6 +261,67 @@ export function ApplicationDetailsView({ applicationId, serviceCategory, title, 
     delete displayData.serviceCategory;
     delete displayData.schemeNameForDisplay;
 
+    // Define the desired display order of sections. Keys are from various form schemas.
+    const sectionOrder = [
+        // Applicant/Personal Details
+        'applicantDetails',
+        'applicantDetailsGov',
+        'applicantFounderDetails',
+        'personalDetails',
+        
+        // Address Details
+        'addressDetails',
+        'addressInformationGov',
+
+        // Business Details
+        'businessDetails',
+        'businessInformation',
+        'businessInformationGov',
+        'companyDetails',
+        
+        // Employment/Professional Details
+        'employmentIncome',
+        'professionalFinancial',
+
+        // Loan/Service/Preferences Details
+        'loanDetails',
+        'loanPropertyDetails',
+        'machineryLoanDetails',
+        'creditCardPreferences',
+        'loanDetailsGov',
+        'gstServiceRequired',
+        'incomeSourceType',
+        'servicesRequired',
+        'advisoryServicesRequired',
+        'optionalServices',
+        'businessScope',
+        'directorsPartners',
+        'currentFinancialOverview',
+
+        // Existing Loans
+        'existingLoans',
+
+        // Documents
+        'documentUploads',
+        'documentUploadsGov',
+        'dsaDocumentUploads',
+        'merchantDocumentUploads',
+
+        // Declaration
+        'declaration'
+    ];
+
+    // Get all keys from the data and sort them according to the defined order.
+    // Keys not in the order will be placed at the end.
+    const sortedDataKeys = Object.keys(displayData).sort((a, b) => {
+        const indexA = sectionOrder.indexOf(a);
+        const indexB = sectionOrder.indexOf(b);
+        if (indexA === -1 && indexB === -1) return 0; // Both not in order, keep original
+        if (indexA === -1) return 1;  // a is not in order, move to end
+        if (indexB === -1) return -1; // b is not in order, move to end
+        return indexA - indexB;
+    });
+
   return (
     <Card className="max-w-4xl mx-auto shadow-lg">
       <CardHeader className="bg-muted/30">
@@ -303,7 +364,7 @@ export function ApplicationDetailsView({ applicationId, serviceCategory, title, 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="flex flex-col space-y-1.5">
                     <dt className="text-sm font-medium text-muted-foreground">Application Type</dt>
-                    <dd className="text-base text-foreground">{applicationType}</dd>
+                    <dd className="text-base text-foreground">{applicationData.schemeNameForDisplay || applicationType}</dd>
                 </div>
                  <div className="flex flex-col space-y-1.5">
                     <dt className="text-sm font-medium text-muted-foreground">Service Category</dt>
@@ -320,8 +381,8 @@ export function ApplicationDetailsView({ applicationId, serviceCategory, title, 
 
         {/* Render all other form data */}
         <dl className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
-            {Object.entries(displayData).map(([key, value]) => (
-                <DetailItem key={key} itemKey={key} itemValue={value} />
+            {sortedDataKeys.map((key) => (
+                <DetailItem key={key} itemKey={key} itemValue={displayData[key]} />
             ))}
         </dl>
         
@@ -342,4 +403,3 @@ export function ApplicationDetailsView({ applicationId, serviceCategory, title, 
     </Card>
   );
 }
-
