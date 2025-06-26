@@ -165,9 +165,9 @@ export function Header({ setCurrentPage }: HeaderProps) {
           ) : (
              <div className="hidden md:flex items-center space-x-2">
                 <Button
-                    variant="ghost"
+                    variant="link"
                     onClick={() => openAuthModal('login')}
-                    className={commonLinkClasses}
+                    className={`${commonLinkClasses} hover:no-underline`}
                 >
                     Login
                 </Button>
