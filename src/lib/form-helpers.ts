@@ -1,15 +1,34 @@
 
-import { getSignedUploadUrlAction } from '@/app/actions/fileUploadActions';
+import { uploadFileAsStringAction } from '@/app/actions/fileUploadActions';
 import type { useToast } from "@/hooks/use-toast";
 
 type ToastFn = ReturnType<typeof useToast>['toast'];
 
 /**
- * Processes and uploads a dictionary of files directly from the client to cloud storage.
- * 1. Gets a secure, one-time upload URL from the server for each file.
- * 2. Uses the browser's `fetch` API to upload the file directly to that URL.
- * 3. Returns a map of field keys to their permanent, accessible public URLs.
- * This method avoids passing large files through the Next.js server, preventing timeout/size limit errors.
+ * Reads a File object from the browser and returns its content as a Base64 encoded data URI.
+ * @param file The File object to read.
+ * @returns A promise that resolves with the data URI string.
+ */
+function fileToDataUri(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+            resolve(reader.result as string);
+        };
+        reader.onerror = (error) => {
+            reject(error);
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+
+/**
+ * Processes and uploads a dictionary of files by sending them as Base64 strings to a server action.
+ * 1. Converts each file to a Base64 data URI string on the client.
+ * 2. Calls a server action to handle the upload to Firebase Storage.
+ * 3. The server action decodes the string and saves the file.
+ * This method avoids client-side CORS issues associated with direct-to-storage uploads.
  * 
  * @param documentUploadsData A record where keys are field names and values are File objects or other data.
  * @param toast A function to display toast notifications for progress and errors.
@@ -33,33 +52,20 @@ export async function processFileUploads(
   for (const [key, file] of filesToUpload) {
     if (file instanceof File) {
         try {
-            toast({ title: `Preparing to upload ${file.name}...` });
-
-            // 1. Get the signed URL from our server action
-            const signedUrlResponse = await getSignedUploadUrlAction(file.name, file.type);
-            if (!signedUrlResponse.success || !signedUrlResponse.uploadUrl || !signedUrlResponse.publicUrl) {
-                throw new Error(signedUrlResponse.error || `Could not get an upload URL for ${file.name}.`);
-            }
-
             toast({ title: `Uploading ${file.name}...`, description: "Please keep this window open." });
 
-            // 2. Upload the file directly to Google Cloud Storage from the browser
-            const uploadResponse = await fetch(signedUrlResponse.uploadUrl, {
-                method: 'PUT',
-                body: file,
-                headers: {
-                    'Content-Type': file.type,
-                },
-            });
+            // 1. Convert the file to a Base64 data URI on the client
+            const dataUri = await fileToDataUri(file);
 
-            if (!uploadResponse.ok) {
-                const errorText = await uploadResponse.text();
-                console.error('Direct upload failed response:', errorText);
-                throw new Error(`Upload failed for ${file.name}. Server responded with: ${uploadResponse.statusText}`);
+            // 2. Send the data URI to the server action for upload
+            const uploadResponse = await uploadFileAsStringAction(dataUri, file.name);
+
+            if (!uploadResponse.success || !uploadResponse.publicUrl) {
+                throw new Error(uploadResponse.error || `Server failed to upload ${file.name}.`);
             }
-
+            
             // 3. Store the permanent public URL for saving to the database
-            uploadedFileUrls[key] = signedUrlResponse.publicUrl;
+            uploadedFileUrls[key] = uploadResponse.publicUrl;
             toast({ title: `Successfully uploaded ${file.name}!` });
 
         } catch (error: any) {
