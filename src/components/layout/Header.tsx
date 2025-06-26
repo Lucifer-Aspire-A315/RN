@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -105,10 +104,12 @@ export function Header({ setCurrentPage }: HeaderProps) {
           ))}
         </div>
         <div className="flex items-center flex-shrink-0 space-x-2">
-          {isLoading ? (
-             <Button variant="ghost" size="icon" disabled><Loader2 className="w-5 h-5 animate-spin" /></Button>
-          ) : currentUser ? (
-            <div className="hidden md:block">
+          
+          {/* Desktop-only auth state */}
+          <div className="hidden md:flex items-center space-x-2">
+            {isLoading ? (
+              <Button variant="ghost" size="icon" disabled><Loader2 className="w-5 h-5 animate-spin" /></Button>
+            ) : currentUser ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-8 w-8 rounded-full">
@@ -153,9 +154,8 @@ export function Header({ setCurrentPage }: HeaderProps) {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-            </div>
-          ) : (
-             <div className="hidden md:flex items-center space-x-2">
+            ) : (
+              <>
                 <Button
                     variant="outline"
                     onClick={() => openAuthModal('login')}
@@ -169,8 +169,11 @@ export function Header({ setCurrentPage }: HeaderProps) {
                 >
                     Sign Up
                 </Button>
-             </div>
-          )}
+              </>
+            )}
+          </div>
+
+          {/* Mobile-only menu */}
           <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
             <SheetTrigger asChild className="md:hidden">
               <Button variant="ghost" size="icon" aria-label="Open menu" disabled={isLoading}>
