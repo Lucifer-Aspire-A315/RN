@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -87,7 +88,7 @@ export function Header({ setCurrentPage }: HeaderProps) {
   return (
     <header className={`bg-background/80 backdrop-blur-sm border-b border-border sticky top-0 z-50 transition-shadow duration-300 ${isScrolled ? 'shadow-md' : ''}`}>
       <nav className="container mx-auto px-4 sm:px-6 py-2 flex justify-between items-center">
-        <Link href="/" onClick={() => handleNavClick('/', () => setCurrentPage?.('main'))} className="flex-shrink-0">
+        <Link href="/" onClick={() => handleNavClick('/', () => setCurrentPage?.('main'))} className="flex-shrink-0 flex items-center gap-2 no-underline">
           <Image
             src="/rnfintech.png"
             alt="RN FinTech Logo"
@@ -95,6 +96,7 @@ export function Header({ setCurrentPage }: HeaderProps) {
             height={20}
             priority
           />
+          <span className="font-bold text-lg text-foreground">RN FinTech</span>
         </Link>
         <div className="hidden md:flex items-center justify-center flex-grow space-x-3 lg:space-x-6">
           {navLinks.map(link => (
@@ -184,14 +186,15 @@ export function Header({ setCurrentPage }: HeaderProps) {
               <SheetTitle className="sr-only">Menu</SheetTitle>
               <SheetDescription className="sr-only">Site navigation and user options</SheetDescription>
               <div className="p-6 border-b">
-                <Link href="/" onClick={() => handleNavClick('/', () => setCurrentPage?.('main'))}>
+                <Link href="/" onClick={() => handleNavClick('/', () => setCurrentPage?.('main'))} className="flex items-center gap-2 no-underline">
                   <Image
-                    src="/logo.png"
+                    src="/rnfintech.png"
                     alt="RN FinTech Logo"
-                    width={140}
-                    height={35}
+                    width={30}
+                    height={20}
                     priority
                   />
+                   <span className="font-bold text-lg text-foreground">RN FinTech</span>
                 </Link>
               </div>
               <nav className="flex flex-col py-2">
@@ -248,7 +251,6 @@ export function Header({ setCurrentPage }: HeaderProps) {
                   <div className="px-6 py-3 space-y-2">
                     <SheetClose asChild>
                       <Button
-                        variant="default"
                         size="lg"
                         onClick={() => { openAuthModal('login'); setMobileMenuOpen(false); }}
                         className="w-full justify-start"

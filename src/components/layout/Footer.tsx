@@ -14,7 +14,6 @@ export function Footer() {
                 alt="RN FinTech Logo"
                 width={45}
                 height={30}
-                className="h-auto w-auto"
                 priority
               />
             </div>
