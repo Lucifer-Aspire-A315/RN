@@ -68,7 +68,7 @@ const governmentSchemeSections = [
   },
   {
     title: "Upload Required Documents",
-    subtitle: "File types allowed: PDF, Word, Excel, JPG, PNG. Max size: 5 MB per document.",
+    subtitle: "File types allowed: PDF, Word, Excel, JPG, PNG. Max size: 10 MB per document.",
     fields: [
       { name: "documentUploadsGov.aadhaarCard", label: "Aadhaar Card", type: "file", colSpan: 2 },
       { name: "documentUploadsGov.panCard", label: "PAN Card", type: "file", colSpan: 2 },

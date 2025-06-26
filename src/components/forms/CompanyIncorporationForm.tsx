@@ -62,7 +62,7 @@ const companyIncorporationSections = [
     },
     {
         title: "Upload Required Documents",
-        subtitle: "For Each Director/Partner. Accepted File Types: PDF, Word, Excel, JPG, PNG. Max File Size: 5 MB per document.",
+        subtitle: "For Each Director/Partner. Accepted File Types: PDF, Word, Excel, JPG, PNG. Max File Size: 10 MB per document.",
         fields: [
             { name: "documentUploads.directorPanCard", label: "PAN Card", type: "file", colSpan: 2 },
             { name: "documentUploads.directorAadhaarCard", label: "Aadhaar Card", type: "file", colSpan: 2 },

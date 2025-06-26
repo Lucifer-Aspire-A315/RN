@@ -67,7 +67,7 @@ const machineryLoanSections = [
   },
   {
     title: "Upload Required Documents",
-    subtitle: "Accepted File Types: PDF, Word, Excel, JPG, PNG. Max File Size: 5 MB per file.",
+    subtitle: "Accepted File Types: PDF, Word, Excel, JPG, PNG. Max File Size: 10 MB per file.",
     fields: [
       { name: "documentUploads.quotation", label: "Machinery Quotation / Proforma Invoice", type: "file", colSpan: 2 },
       { name: "documentUploads.panCard", label: "PAN Card", type: "file", colSpan: 2 },

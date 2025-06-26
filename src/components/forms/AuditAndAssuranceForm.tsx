@@ -47,7 +47,7 @@ const auditAndAssuranceSections = [
     },
     {
         title: "Upload Required Documents",
-        subtitle: "Accepted File Types: PDF, Excel, JPG, PNG. Max File Size: 5 MB per document.",
+        subtitle: "Accepted File Types: PDF, Excel, JPG, PNG. Max File Size: 10 MB per document.",
         fields: [
             { name: "documentUploads.panCardBusiness", label: "PAN Card of Business/Promoter", type: "file", colSpan: 2, accept: ".pdf,.jpg,.jpeg,.png" },
             { name: "documentUploads.gstCertificate", label: "GST Certificate (if available)", type: "file", colSpan: 2, accept: ".pdf,.jpg,.jpeg,.png" },

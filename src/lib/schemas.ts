@@ -3,7 +3,7 @@ import { z } from 'zod';
 
 // #region --- REUSABLE FILE & FIELD SCHEMAS ---
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
 const ACCEPTED_DOCUMENT_TYPES = ["application/pdf", "image/jpeg", "image/jpg", "image/png"];
 const ACCEPTED_EXCEL_TYPES = ["application/vnd.ms-excel", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"];
@@ -14,7 +14,7 @@ const ACCEPTED_BANK_STATEMENT_TYPES = [...ACCEPTED_DOCUMENT_TYPES, ...ACCEPTED_E
 
 
 const fileSchema = (types: string[]) => z.instanceof(File, { message: "File is required." })
-  .refine(file => file.size <= MAX_FILE_SIZE, `Max file size is 5MB.`)
+  .refine(file => file.size <= MAX_FILE_SIZE, `Max file size is 10MB.`)
   .refine(file => types.includes(file.type), `Unsupported file type.`)
   .optional()
   .nullable();

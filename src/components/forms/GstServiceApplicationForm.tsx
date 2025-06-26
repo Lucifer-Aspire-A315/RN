@@ -45,7 +45,7 @@ const gstServiceSections = [
     },
     {
         title: "Upload Required Documents",
-        subtitle: "Accepted File Types: PDF, JPG, PNG. Max File Size: 5 MB per document.",
+        subtitle: "Accepted File Types: PDF, JPG, PNG. Max File Size: 10 MB per document.",
         fields: [
             { name: "documentUploads.panCard", label: "PAN Card of Applicant/Business", type: "file", colSpan: 2 },
             { name: "documentUploads.aadhaarCard", label: "Aadhaar Card of Proprietor/Director", type: "file", colSpan: 2 },
