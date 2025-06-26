@@ -91,12 +91,12 @@ export function Header({ setCurrentPage }: HeaderProps) {
         <Link href="/" onClick={() => handleNavClick('/', () => setCurrentPage?.('main'))} className="flex-shrink-0 flex items-center gap-2 no-underline">
           <Image
             src="/rnfintech.png"
-            alt="RN FinTech Logo"
+            alt="FinTech Logo"
             width={30}
             height={20}
             priority
           />
-          <span className="font-bold text-lg text-foreground">RN FinTech</span>
+          <span className="font-bold text-lg text-foreground">FinTech</span>
         </Link>
         <div className="hidden md:flex items-center justify-center flex-grow space-x-3 lg:space-x-6">
           {navLinks.map(link => (
@@ -189,12 +189,12 @@ export function Header({ setCurrentPage }: HeaderProps) {
                 <Link href="/" onClick={() => handleNavClick('/', () => setCurrentPage?.('main'))} className="flex items-center gap-2 no-underline">
                   <Image
                     src="/rnfintech.png"
-                    alt="RN FinTech Logo"
+                    alt="FinTech Logo"
                     width={30}
                     height={20}
                     priority
                   />
-                   <span className="font-bold text-lg text-foreground">RN FinTech</span>
+                   <span className="font-bold text-lg text-foreground">FinTech</span>
                 </Link>
               </div>
               <nav className="flex flex-col py-2">
