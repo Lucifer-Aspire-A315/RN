@@ -87,7 +87,7 @@ export function Header({ setCurrentPage }: HeaderProps) {
 
   return (
     <header className={`bg-background/80 backdrop-blur-sm border-b border-border sticky top-0 z-50 transition-shadow duration-300 ${isScrolled ? 'shadow-md' : ''}`}>
-      <nav className="container mx-auto px-4 sm:px-6 py-2 flex justify-between items-center">
+      <nav className="w-full max-w-screen-2xl mx-auto px-6 sm:px-8 py-2 flex justify-between items-center">
         <Link href="/" onClick={() => handleNavClick('/', () => setCurrentPage?.('main'))} className="flex-shrink-0 flex items-center gap-2 no-underline">
           <Image
             src="/rnfintech.png"
