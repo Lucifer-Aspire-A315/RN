@@ -20,6 +20,7 @@ import type { PageView, SetPageView } from '@/app/page';
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from '@/contexts/AuthContext';
 import Image from 'next/image';
+import { AuthSelectionModal } from '@/components/shared/AuthSelectionModal';
 
 interface HeaderProps {
   setCurrentPage?: SetPageView;
@@ -28,6 +29,7 @@ interface HeaderProps {
 export function Header({ setCurrentPage }: HeaderProps) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
   const { currentUser, logout, isLoading } = useAuth();
@@ -93,7 +95,6 @@ export function Header({ setCurrentPage }: HeaderProps) {
             alt="RN FinTech Logo"
             width={130}
             height={40}
-            className="h-auto w-auto"
             priority
           />
         </Link>
@@ -159,13 +160,13 @@ export function Header({ setCurrentPage }: HeaderProps) {
               <Button
                 variant="outline"
                 className="hidden md:inline-flex cta-button border-[#4E944F] text-[#4E944F] hover:bg-[#F26A4B]/10 hover:text-[#F26A4B]"
-                onClick={() => router.push('/partner-login')}
+                onClick={() => setAuthModalOpen(true)}
               >
                 PARTNER LOGIN
               </Button>
               <Button
                 className="hidden md:inline-flex cta-button bg-[#4E944F] hover:bg-[#F26A4B] text-white"
-                onClick={() => router.push('/login')}
+                onClick={() => setAuthModalOpen(true)}
               >
                 LOGIN
               </Button>
@@ -246,7 +247,7 @@ export function Header({ setCurrentPage }: HeaderProps) {
                     <SheetClose asChild>
                       <Button
                         variant="outline"
-                        onClick={() => {router.push('/partner-login'); setMobileMenuOpen(false);}}
+                        onClick={() => {setAuthModalOpen(true); setMobileMenuOpen(false);}}
                         className={`${mobileLinkClasses} text-primary font-semibold text-left justify-start border-primary w-full`}
                       >
                         PARTNER LOGIN
@@ -254,7 +255,7 @@ export function Header({ setCurrentPage }: HeaderProps) {
                     </SheetClose>
                     <SheetClose asChild>
                       <Button
-                        onClick={() => { router.push('/login'); setMobileMenuOpen(false); }}
+                        onClick={() => { setAuthModalOpen(true); setMobileMenuOpen(false); }}
                         className={`${mobileLinkClasses} bg-primary text-primary-foreground font-semibold text-left justify-start w-full`}
                       >
                         LOGIN
@@ -263,7 +264,7 @@ export function Header({ setCurrentPage }: HeaderProps) {
                      <SheetClose asChild>
                       <Button
                         variant="link"
-                        onClick={() => { router.push('/signup'); setMobileMenuOpen(false); }}
+                        onClick={() => { setAuthModalOpen(true); setMobileMenuOpen(false); }}
                         className={`${mobileLinkClasses} text-accent font-semibold text-left justify-start w-full`}
                       >
                         CREATE ACCOUNT
@@ -276,6 +277,7 @@ export function Header({ setCurrentPage }: HeaderProps) {
           </Sheet>
         </div>
       </nav>
+      <AuthSelectionModal open={authModalOpen} onOpenChange={setAuthModalOpen} />
     </header>
   );
 }
