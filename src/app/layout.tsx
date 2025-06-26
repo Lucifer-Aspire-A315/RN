@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from '@/contexts/AuthContext'; // Import AuthProvider
+import { AuthModalController } from '@/components/shared/AuthModalController';
 
 export const metadata: Metadata = {
   title: 'RN FinTech - Aapke Sapno Ka Loan',
@@ -22,9 +23,10 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
       </head>
       <body className="font-body antialiased">
-        <AuthProvider> {/* Wrap children with AuthProvider */}
+        <AuthProvider>
           {children}
           <Toaster />
+          <AuthModalController />
         </AuthProvider>
       </body>
     </html>

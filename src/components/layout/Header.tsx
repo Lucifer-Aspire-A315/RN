@@ -20,7 +20,6 @@ import type { PageView, SetPageView } from '@/app/page';
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from '@/contexts/AuthContext';
 import Image from 'next/image';
-import { AuthSelectionModal } from '@/components/shared/AuthSelectionModal';
 
 interface HeaderProps {
   setCurrentPage?: SetPageView;
@@ -29,11 +28,9 @@ interface HeaderProps {
 export function Header({ setCurrentPage }: HeaderProps) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [modalMode, setModalMode] = useState<'login' | 'signup'>('login');
   const router = useRouter();
   const { toast } = useToast();
-  const { currentUser, logout, isLoading } = useAuth();
+  const { currentUser, logout, isLoading, openAuthModal } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -85,11 +82,6 @@ export function Header({ setCurrentPage }: HeaderProps) {
     return name.substring(0, 2).toUpperCase();
   };
   
-  const openAuthModal = (mode: 'login' | 'signup') => {
-    setModalMode(mode);
-    setModalOpen(true);
-  };
-
   const commonLinkClasses = "text-primary hover:text-accent transition-colors font-semibold";
   const mobileLinkClasses = "block py-3 px-6 text-lg hover:bg-secondary/40";
 
@@ -276,9 +268,6 @@ export function Header({ setCurrentPage }: HeaderProps) {
           </Sheet>
         </div>
       </nav>
-      {!currentUser && (
-        <AuthSelectionModal open={modalOpen} onOpenChange={setModalOpen} mode={modalMode} />
-      )}
     </header>
   );
 }

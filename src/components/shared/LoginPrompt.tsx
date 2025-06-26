@@ -3,14 +3,16 @@
 
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import Link from 'next/link';
 import { ArrowLeft, UserPlus, LogIn } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface LoginPromptProps {
     onBack: () => void;
 }
 
 export function LoginPrompt({ onBack }: LoginPromptProps) {
+  const { openAuthModal } = useAuth();
+  
   return (
     <section className="bg-secondary py-12 md:py-20">
       <div className="container mx-auto px-4 sm:px-6">
@@ -25,15 +27,11 @@ export function LoginPrompt({ onBack }: LoginPromptProps) {
               <CardDescription className="mt-2">You need to be logged in to start an application.</CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col sm:flex-row gap-4 justify-center p-6 pt-0">
-              <Button asChild size="lg" className="w-full sm:w-auto">
-                <Link href="/login">
-                  <LogIn className="mr-2" /> Login
-                </Link>
+              <Button size="lg" className="w-full sm:w-auto" onClick={() => openAuthModal('login')}>
+                <LogIn className="mr-2" /> Login
               </Button>
-              <Button asChild variant="outline" size="lg" className="w-full sm:w-auto">
-                <Link href="/signup">
-                  <UserPlus className="mr-2" /> Create Account
-                </Link>
+              <Button variant="outline" size="lg" className="w-full sm:w-auto" onClick={() => openAuthModal('signup')}>
+                <UserPlus className="mr-2" /> Create Account
               </Button>
             </CardContent>
           </Card>

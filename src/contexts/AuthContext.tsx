@@ -11,18 +11,35 @@ interface AuthContextType {
   login: (userData: UserData) => void;
   logout: () => Promise<void>;
   isLoading: boolean;
+  isAuthModalOpen: boolean;
+  authModalMode: 'login' | 'signup';
+  openAuthModal: (mode: 'login' | 'signup') => void;
+  closeAuthModal: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<UserData | null>(null);
-  const [isLoading, setIsLoading] = useState(true); // To handle initial session check
+  const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
+
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authModalMode, setAuthModalMode] = useState<'login' | 'signup'>('login');
+
+  const openAuthModal = useCallback((mode: 'login' | 'signup') => {
+    setAuthModalMode(mode);
+    setIsAuthModalOpen(true);
+  }, []);
+
+  const closeAuthModal = useCallback(() => {
+    setIsAuthModalOpen(false);
+  }, []);
 
   const login = useCallback((userData: UserData) => {
     setCurrentUser(userData);
-  }, []);
+    closeAuthModal(); // Close modal on successful login/signup
+  }, [closeAuthModal]);
 
   const logout = useCallback(async () => {
     const result = await performLogoutAction();
@@ -30,7 +47,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setCurrentUser(null);
       router.push('/'); // Redirect to home after logout
     } else {
-      // Handle logout error, e.g., show a toast
       console.error("Logout failed:", result.message);
     }
   }, [router]);
@@ -56,7 +72,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   return (
-    <AuthContext.Provider value={{ currentUser, login, logout, isLoading }}>
+    <AuthContext.Provider value={{ currentUser, login, logout, isLoading, isAuthModalOpen, authModalMode, openAuthModal, closeAuthModal }}>
       {children}
     </AuthContext.Provider>
   );
