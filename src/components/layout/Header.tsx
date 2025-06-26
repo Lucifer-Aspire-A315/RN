@@ -89,10 +89,10 @@ export function Header({ setCurrentPage }: HeaderProps) {
       <nav className="container mx-auto px-4 sm:px-6 py-2 flex justify-between items-center">
         <Link href="/" onClick={() => handleNavClick('/', () => setCurrentPage?.('main'))} className="flex-shrink-0">
           <Image
-            src="/logo.png"
+            src="/rnfintech.png"
             alt="RN FinTech Logo"
-            width={130}
-            height={40}
+            width={30}
+            height={20}
             priority
           />
         </Link>

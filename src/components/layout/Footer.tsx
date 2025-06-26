@@ -11,7 +11,7 @@ export function Footer() {
           <div className="p-4 md:p-8">
             <div className="bg-background rounded-lg p-2 inline-block">
               <Image
-                src="/logo.png"
+                src="/rnfintech.png"
                 alt="RN FinTech Logo"
                 width={140}
                 height={35}
