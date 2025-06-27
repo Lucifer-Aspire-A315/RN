@@ -2,7 +2,7 @@ import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Mail, Building } from 'lucide-react';
+import { ArrowLeft, Mail, Building, Phone, Clock } from 'lucide-react';
 import Link from 'next/link';
 
 export default function ContactUsPage() {
@@ -17,48 +17,61 @@ export default function ContactUsPage() {
                 Back to Home
               </Link>
             </Button>
-          <Card className="shadow-lg">
-            <CardHeader className="text-center">
+          <Card className="shadow-lg overflow-hidden">
+            <CardHeader className="text-center bg-primary/5">
                 <Mail className="w-16 h-16 mx-auto text-primary" />
                 <CardTitle className="text-3xl mt-4">Contact Us</CardTitle>
                 <CardDescription className="text-lg">We're here to help. Reach out to us anytime.</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-8 p-8">
-              <div className="grid md:grid-cols-2 gap-8">
-                <div className="flex items-start space-x-4 p-6 rounded-lg bg-background border">
-                  <div className="flex-shrink-0 bg-accent/10 p-3 rounded-full">
-                    <Mail className="w-6 h-6 text-accent" />
+            <CardContent className="space-y-12 p-8">
+              <div className="grid md:grid-cols-3 gap-8 text-center">
+                {/* Email Card */}
+                <div className="flex flex-col items-center">
+                   <div className="flex-shrink-0 bg-accent/10 p-4 rounded-full">
+                    <Mail className="w-8 h-8 text-accent" />
                   </div>
-                  <div>
-                    <h3 className="text-lg font-semibold">Email Us</h3>
-                    <p className="text-muted-foreground">For any inquiries, support, or feedback.</p>
-                    <a href="mailto:contact@rnfintech.com" className="text-primary font-medium hover:underline break-all">contact@rnfintech.com</a>
+                  <h3 className="text-xl font-semibold mt-4">Email Us</h3>
+                  <p className="text-muted-foreground mt-1">For inquiries, support, & feedback.</p>
+                  <a href="mailto:contact@rnfintech.com" className="text-primary font-medium hover:underline break-all mt-2">contact@rnfintech.com</a>
+                </div>
+                
+                {/* Phone Card */}
+                 <div className="flex flex-col items-center">
+                   <div className="flex-shrink-0 bg-accent/10 p-4 rounded-full">
+                    <Phone className="w-8 h-8 text-accent" />
                   </div>
+                  <h3 className="text-xl font-semibold mt-4">Call Us</h3>
+                  <p className="text-muted-foreground mt-1">Talk to our experts directly.</p>
+                  <a href="tel:+911234567890" className="text-primary font-medium hover:underline mt-2">+91 12345 67890</a>
                 </div>
 
-                <div className="flex items-start space-x-4 p-6 rounded-lg bg-background border">
-                  <div className="flex-shrink-0 bg-accent/10 p-3 rounded-full">
-                    <Building className="w-6 h-6 text-accent" />
+                {/* Office Card */}
+                 <div className="flex flex-col items-center">
+                   <div className="flex-shrink-0 bg-accent/10 p-4 rounded-full">
+                    <Building className="w-8 h-8 text-accent" />
                   </div>
-                  <div>
-                    <h3 className="text-lg font-semibold">Visit Our Office</h3>
-                    <p className="text-muted-foreground">We welcome you to visit our office for a personal consultation.</p>
-                    <p className="font-medium mt-1">Sunrise Apartment, A-101, Santoshi Mata Rd, near Yashoda Apartment, near KDMC Commissioners Bunglow, Syndicate, Kalyan, Maharashtra 421301</p>
-                  </div>
+                  <h3 className="text-xl font-semibold mt-4">Our Office</h3>
+                  <p className="text-muted-foreground mt-1">Visit for a personal consultation.</p>
+                   <p className="font-medium mt-2 text-foreground">Sunrise Apartment, A-101, Kalyan, Maharashtra 421301</p>
                 </div>
               </div>
-               <div className="w-full h-64 md:h-80 rounded-lg overflow-hidden border">
-                    <iframe
-                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3767.579603204964!2d73.1415486759083!3d19.21360184650631!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3be79586145610d7%3A0x63366838a783318f!2sSunrise%20Apartment!5e0!3m2!1sen!2sin!4v1700000000000"
-                        width="100%"
-                        height="100%"
-                        style={{ border: 0 }}
-                        allowFullScreen={true}
-                        loading="lazy"
-                        referrerPolicy="no-referrer-when-downgrade"
-                        title="RN FinTech Office Location"
-                    ></iframe>
+              
+              <div className="bg-background p-8 rounded-2xl border-2 border-dashed">
+                <div className="text-center">
+                    <h3 className="text-2xl font-bold text-foreground">Get In Touch</h3>
+                    <p className="mt-2 text-muted-foreground max-w-md mx-auto">
+                        Have a question or a proposal? We'd love to hear from you. Drop us a line and we'll get back to you as soon as possible.
+                    </p>
+                     <div className="mt-6 inline-flex items-center justify-center p-4 rounded-lg bg-primary/10">
+                        <Clock className="w-6 h-6 text-primary mr-3" />
+                        <div>
+                            <p className="font-semibold text-primary">Business Hours</p>
+                            <p className="text-sm text-foreground">Monday - Saturday: 10:00 AM - 07:00 PM</p>
+                        </div>
+                    </div>
                 </div>
+              </div>
+
             </CardContent>
           </Card>
         </div>
