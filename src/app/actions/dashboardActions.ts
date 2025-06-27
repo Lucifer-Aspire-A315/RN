@@ -55,11 +55,11 @@ export async function getUserApplications(): Promise<UserApplication[]> {
     const caServiceApplicationsRef = collection(db, 'caServiceApplications');
     const governmentSchemeApplicationsRef = collection(db, 'governmentSchemeApplications');
 
-    // This single query works for both normal users and partners, as `submittedBy.userId`
-    // is always the ID of the logged-in user who created the application.
+    // This single query works for both normal users and partners.
+    // We will fetch all applications for the user and filter out 'Archived' ones in the code
+    // to avoid potential Firestore indexing issues with inequality filters.
     const userSpecificConstraints: QueryConstraint[] = [
         where('submittedBy.userId', '==', userId),
-        where('status', '!=', 'Archived')
     ];
 
     const qLoan = query(loanApplicationsRef, ...userSpecificConstraints);
@@ -73,19 +73,27 @@ export async function getUserApplications(): Promise<UserApplication[]> {
       getDocs(qGov),
     ]);
     
-    console.log(`[DashboardActions] Found ${loanSnapshot.size} loan, ${caSnapshot.size} CA, and ${govSnapshot.size} gov scheme applications.`);
+    console.log(`[DashboardActions] Found ${loanSnapshot.size} loan, ${caSnapshot.size} CA, and ${govSnapshot.size} gov scheme applications before filtering.`);
 
+    // Map and filter applications in code
+    const loanApplications = loanSnapshot.docs
+      .map(doc => formatApplication(doc, 'loan'))
+      .filter(app => app.status !== 'Archived');
+      
+    const caApplications = caSnapshot.docs
+      .map(doc => formatApplication(doc, 'caService'))
+      .filter(app => app.status !== 'Archived');
 
-    const loanApplications = loanSnapshot.docs.map(doc => formatApplication(doc, 'loan'));
-    const caApplications = caSnapshot.docs.map(doc => formatApplication(doc, 'caService'));
-    const govApplications = govSnapshot.docs.map(doc => formatApplication(doc, 'governmentScheme'));
+    const govApplications = govSnapshot.docs
+      .map(doc => formatApplication(doc, 'governmentScheme'))
+      .filter(app => app.status !== 'Archived');
 
     const allApplications = [...loanApplications, ...caApplications, ...govApplications];
     
     // Sort all applications by date, descending
     allApplications.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
-    console.log(`[DashboardActions] Successfully fetched and merged ${allApplications.length} applications.`);
+    console.log(`[DashboardActions] Successfully fetched and merged ${allApplications.length} non-archived applications.`);
     return allApplications;
 
   } catch (error: any) {
