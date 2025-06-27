@@ -42,37 +42,25 @@ function formatApplication(doc: DocumentData, defaultCategory: UserApplication['
 export async function getUserApplications(): Promise<UserApplication[]> {
   console.log('[DashboardActions] Fetching user applications...');
   const userId = cookies().get('user_id')?.value;
-  const userType = cookies().get('user_type')?.value;
 
   if (!userId) {
     console.warn('[DashboardActions] No user ID found in cookies. Returning empty array.');
     return [];
   }
   
-  console.log(`[DashboardActions] User ID: ${userId}, User Type: ${userType}. Querying collections...`);
+  console.log(`[DashboardActions] User ID: ${userId}. Querying collections...`);
 
   try {
     const loanApplicationsRef = collection(db, 'loanApplications');
     const caServiceApplicationsRef = collection(db, 'caServiceApplications');
     const governmentSchemeApplicationsRef = collection(db, 'governmentSchemeApplications');
 
-    let userSpecificConstraints: QueryConstraint[];
-
-    if (userType === 'partner') {
-        // Partners see applications they are assigned to via partnerId
-        console.log(`[DashboardActions] Querying as partner using field: partnerId`);
-        userSpecificConstraints = [
-            where('partnerId', '==', userId),
-            where('status', '!=', 'Archived')
-        ];
-    } else {
-        // Normal users see applications they submitted themselves
-        console.log(`[DashboardActions] Querying as normal user using field: submittedBy.userId`);
-        userSpecificConstraints = [
-            where('submittedBy.userId', '==', userId),
-            where('status', '!=', 'Archived')
-        ];
-    }
+    // This single query works for both normal users and partners, as `submittedBy.userId`
+    // is always the ID of the logged-in user who created the application.
+    const userSpecificConstraints: QueryConstraint[] = [
+        where('submittedBy.userId', '==', userId),
+        where('status', '!=', 'Archived')
+    ];
 
     const qLoan = query(loanApplicationsRef, ...userSpecificConstraints);
     const qCa = query(caServiceApplicationsRef, ...userSpecificConstraints);
