@@ -1,10 +1,7 @@
-
 import type { MetadataRoute } from 'next';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  // IMPORTANT: Once you have a custom domain, replace this with your actual live domain.
-  // For now, it will work with the temporary Firebase URL.
-  const baseUrl = 'https://www.your-app-domain.com';
+  const baseUrl = 'https://www.rnfintech.com';
 
   return [
     {
