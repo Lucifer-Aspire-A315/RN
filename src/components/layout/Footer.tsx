@@ -27,12 +27,12 @@ export function Footer() {
             <h4 className="font-semibold text-[#FADA7A]">Quick Links</h4>
             <ul className="mt-4 space-y-2 text-sm">
               <li>
-                <Link href="#about" className="text-[#F8FAE5] hover:text-[#F26A4B] transition-colors">
+                <Link href="/about" className="text-[#F8FAE5] hover:text-[#F26A4B] transition-colors">
                   About Us
                 </Link>
               </li>
               <li>
-                <Link href="#contact" className="text-[#F8FAE5] hover:text-[#F26A4B] transition-colors">
+                <Link href="/contact" className="text-[#F8FAE5] hover:text-[#F26A4B] transition-colors">
                   Contact
                 </Link>
               </li>
@@ -54,22 +54,22 @@ export function Footer() {
             <h4 className="font-semibold text-[#FADA7A]">Our Services</h4>
             <ul className="mt-4 space-y-2 text-sm">
               <li>
-                <Link href="#services" className="text-[#F8FAE5] hover:text-[#F26A4B] transition-colors">
+                <Link href="/#services" className="text-[#F8FAE5] hover:text-[#F26A4B] transition-colors">
                   Home Loan
                 </Link>
               </li>
               <li>
-                <Link href="#services" className="text-[#F8FAE5] hover:text-[#F26A4B] transition-colors">
+                <Link href="/#services" className="text-[#F8FAE5] hover:text-[#F26A4B] transition-colors">
                   Personal Loan
                 </Link>
               </li>
               <li>
-                <Link href="#services" className="text-[#F8FAE5] hover:text-[#F26A4B] transition-colors">
+                <Link href="/#services" className="text-[#F8FAE5] hover:text-[#F26A4B] transition-colors">
                   Business Loan
                 </Link>
               </li>
               <li>
-                <Link href="#services" className="text-[#F8FAE5] hover:text-[#F26A4B] transition-colors">
+                <Link href="/#services" className="text-[#F8FAE5] hover:text-[#F26A4B] transition-colors">
                   Credit Card
                 </Link>
               </li>

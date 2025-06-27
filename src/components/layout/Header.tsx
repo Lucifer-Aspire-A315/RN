@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -44,7 +43,8 @@ export function Header({ setCurrentPage }: HeaderProps) {
     { href: '/', label: 'Home', action: () => setCurrentPage?.('main') },
     { href: '/#services', label: 'Services', action: () => setCurrentPage?.('main') },
     { href: '/#calculator', label: 'Calculator', action: () => setCurrentPage?.('main') },
-    { href: '/#about', label: 'About Us', action: () => setCurrentPage?.('main') },
+    { href: '/about', label: 'About Us' },
+    { href: '/contact', label: 'Contact Us' },
   ];
 
   const handleNavClick = (href: string, action?: () => void) => {
@@ -52,7 +52,7 @@ export function Header({ setCurrentPage }: HeaderProps) {
     setMobileMenuOpen(false);
     
     if (href.startsWith('/#')) {
-        const path = router.asPath || window.location.pathname;
+        const path = window.location.pathname;
         if (path === '/') {
             const elementId = href.substring(2);
             const element = document.getElementById(elementId);

@@ -63,7 +63,7 @@ export default function Home() {
 
     const handleHashChange = () => {
       const hash = window.location.hash;
-      if (hash === '#home' || hash === '#services' || hash === '#calculator' || hash === '#about' || hash === '#contact') {
+      if (hash === '#home' || hash === '#services' || hash === '#calculator') {
         if(currentPage !== 'main') setCurrentPage('main');
         setTimeout(() => {
           const element = document.getElementById(hash.substring(1));
@@ -73,7 +73,7 @@ export default function Home() {
     };
 
     window.addEventListener('hashchange', handleHashChange, false);
-    if (window.location.hash && (window.location.hash === '#home' || window.location.hash === '#services' || window.location.hash === '#calculator' || window.location.hash === '#about' || window.location.hash === '#contact')) {
+    if (window.location.hash && (window.location.hash === '#home' || window.location.hash === '#services' || window.location.hash === '#calculator')) {
        setCurrentPage('main');
        setTimeout(() => {
         const element = document.getElementById(window.location.hash.substring(1));
@@ -124,26 +124,6 @@ export default function Home() {
             <HeroSection setCurrentPage={setCurrentPage} />
             <ServicesSection setCurrentPage={setCurrentPage} />
             <EMICalculatorSection />
-            <section id="about" className="py-16 md:py-20 bg-background">
-              <div className="container mx-auto px-6 text-center">
-                <h2 className="text-3xl font-bold text-foreground">About Us</h2>
-                <p className="mt-4 text-muted-foreground max-w-2xl mx-auto">
-                  RN FinTech is committed to providing transparent, quick, and easy financial solutions.
-                  We leverage technology to simplify the loan application process and offer competitive rates.
-                  Our mission is to empower individuals and businesses to achieve their financial aspirations.
-                </p>
-              </div>
-            </section>
-             <section id="contact" className="py-16 md:py-20 bg-secondary">
-              <div className="container mx-auto px-6 text-center">
-                <h2 className="text-3xl font-bold text-foreground">Contact Us</h2>
-                <p className="mt-4 text-muted-foreground max-w-2xl mx-auto">
-                    Have questions? We're here to help. Reach out to us via email or visit our office.
-                </p>
-                 <p className="mt-2 text-primary font-semibold">contact@rnfintech.com</p>
-                 <p className="mt-1 text-muted-foreground">Sunrise Apartment, A-101, Santoshi Mata Rd, near Yashoda Apartment, near KDMC Commissioners Bunglow, Syndicate, Kalyan, Maharashtra 421301</p>
-              </div>
-            </section>
           </>
         );
       case 'homeLoan':
