@@ -16,6 +16,7 @@ import { FormSection, FormFieldWrapper } from './FormSection';
 import { useAuth } from '@/contexts/AuthContext';
 import { Textarea } from '../ui/textarea';
 import { processFileUploads } from '@/lib/form-helpers';
+import { useRouter } from 'next/navigation';
 
 // --- TYPE DEFINITIONS ---
 
@@ -49,7 +50,7 @@ interface ServerActionResponse {
 }
 
 interface GenericLoanFormProps<T extends Record<string, any>> {
-  onBack: () => void;
+  onBack?: () => void;
   backButtonText?: string;
   formTitle: string;
   formSubtitle?: string;
@@ -58,6 +59,9 @@ interface GenericLoanFormProps<T extends Record<string, any>> {
   defaultValues: T;
   sections: SectionConfig[];
   submitAction: (data: T) => Promise<ServerActionResponse>;
+  updateAction?: (applicationId: string, data: T) => Promise<ServerActionResponse>;
+  mode?: 'create' | 'edit';
+  applicationId?: string;
   submitButtonText?: string;
 }
 
@@ -112,9 +116,13 @@ export function GenericLoanForm<TData extends Record<string, any>>({
   defaultValues, 
   sections,
   submitAction,
+  updateAction,
+  mode = 'create',
+  applicationId,
   submitButtonText = "Submit Application"
 }: GenericLoanFormProps<TData>) {
   const { toast } = useToast();
+  const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isVerifyingPAN, setIsVerifyingPAN] = useState(false);
   const [isVerifyingAadhaar, setIsVerifyingAadhaar] = useState(false);
@@ -162,17 +170,27 @@ export function GenericLoanForm<TData extends Record<string, any>>({
         Object.assign(payloadForServer[documentUploadsKey], uploadedUrls);
       }
       
-      const result = await submitAction(payloadForServer);
+      let result: ServerActionResponse;
+      if (mode === 'edit' && applicationId && updateAction) {
+          result = await updateAction(applicationId, payloadForServer);
+      } else {
+          result = await submitAction(payloadForServer);
+      }
 
       if (result.success) {
-        toast({ title: "Application Submitted!", description: result.message, duration: 5000 });
-        reset(); 
-        setSelectedFiles({});
-        setTimeout(() => {
-          onBack();
-        }, 2000);
+        toast({ title: mode === 'edit' ? "Application Updated!" : "Application Submitted!", description: result.message, duration: 5000 });
+        if (mode === 'create' && onBack) {
+            reset(); 
+            setSelectedFiles({});
+            setTimeout(() => {
+              onBack();
+            }, 2000);
+        } else if (mode === 'edit') {
+            // No automatic redirect on successful edit, user can choose to navigate away.
+            // The admin action revalidates paths, so data will be fresh if they go back.
+        }
       } else {
-        toast({ variant: "destructive", title: "Application Failed", description: result.message || "An unknown error occurred.", duration: 9000 });
+        toast({ variant: "destructive", title: mode === 'edit' ? "Update Failed" : "Application Failed", description: result.message || "An unknown error occurred.", duration: 9000 });
         if (result.errors) {
           Object.entries(result.errors).forEach(([fieldName, errorMessages]) => {
             setError(fieldName as any, { type: 'manual', message: (errorMessages as string[]).join(', ') });
@@ -313,10 +331,12 @@ export function GenericLoanForm<TData extends Record<string, any>>({
   return (
     <section className="bg-secondary py-12 md:py-20">
       <div className="container mx-auto px-4 sm:px-6">
-        <Button variant="ghost" onClick={onBack} className="inline-flex items-center mb-8 text-muted-foreground hover:text-primary">
-          <ArrowLeft className="w-5 h-5 mr-2" />
-          {backButtonText || 'Back to Home'}
-        </Button>
+        {onBack && (
+            <Button variant="ghost" onClick={onBack} className="inline-flex items-center mb-8 text-muted-foreground hover:text-primary">
+              <ArrowLeft className="w-5 h-5 mr-2" />
+              {backButtonText || 'Back to Home'}
+            </Button>
+        )}
         <div className="max-w-4xl mx-auto bg-card p-6 md:p-10 rounded-2xl shadow-xl">
           <div className="text-center mb-8">
             {formIcon || <Info className="w-12 h-12 mx-auto text-primary mb-2" />}
@@ -363,7 +383,7 @@ export function GenericLoanForm<TData extends Record<string, any>>({
 
               <div className="mt-8 pt-6 border-t border-border">
                 <Button type="submit" className="w-full cta-button" size="lg" disabled={isSubmitting}>
-                  {isSubmitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Submitting...</> : submitButtonText}
+                  {isSubmitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> {mode === 'edit' ? 'Updating...' : 'Submitting...'}</> : (mode === 'edit' ? 'Update Application' : submitButtonText)}
                 </Button>
               </div>
             </form>

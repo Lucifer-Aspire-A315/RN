@@ -73,7 +73,7 @@ const FormFileInput: React.FC<FormFileInputProps> = ({ fieldLabel, rhfRef, rhfNa
 
 
 interface GenericCAServiceFormProps<T extends Record<string, any>> {
-  setCurrentPage: (page: PageView | null) => void;
+  setCurrentPage?: (page: PageView | null) => void;
   backPage?: PageView;
   formTitle: string;
   formSubtitle: string;
@@ -82,6 +82,9 @@ interface GenericCAServiceFormProps<T extends Record<string, any>> {
   defaultValues: T;
   sections: SectionConfig[];
   submitAction: (data: T) => Promise<{ success: boolean; message: string; errors?: Record<string, string[]> }>;
+  updateAction?: (applicationId: string, data: T) => Promise<{ success: boolean; message: string; errors?: Record<string, string[]> }>;
+  mode?: 'create' | 'edit';
+  applicationId?: string;
 }
 
 export function GenericCAServiceForm<TData extends Record<string, any>>({
@@ -94,6 +97,9 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
   defaultValues,
   sections,
   submitAction,
+  updateAction,
+  mode = 'create',
+  applicationId,
 }: GenericCAServiceFormProps<TData>) {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -106,7 +112,7 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
     mode: 'onTouched',
   });
 
-  const { control, handleSubmit, reset, watch, setValue, getValues, setError } = form;
+  const { control, handleSubmit, reset, watch, setValue, setError } = form;
 
   const getNestedValue = (obj: any, path: string) => path.split('.').reduce((o, i) => (o ? o[i] : undefined), obj);
 
@@ -122,8 +128,9 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
   };
   
   const handleBackClick = () => {
-    // If backPage is provided, use it. Otherwise, signal to go back to the menu (null).
-    setCurrentPage(backPage || null);
+    if (setCurrentPage) {
+        setCurrentPage(backPage || 'main');
+    }
   };
 
   async function onSubmit(data: TData) {
@@ -143,16 +150,24 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
         Object.assign(dataToSubmit[documentUploadsKey], uploadedUrls);
       }
       
-      const result = await submitAction(dataToSubmit);
-      if (result.success) {
-        toast({ title: "Application Submitted!", description: result.message, duration: 5000 });
-        reset();
-        setSelectedFiles({});
-        setTimeout(() => {
-          handleBackClick();
-        }, 2000);
+      let result;
+      if (mode === 'edit' && applicationId && updateAction) {
+        result = await updateAction(applicationId, dataToSubmit);
       } else {
-        toast({ variant: "destructive", title: "Application Failed", description: result.message || "An unknown error occurred.", duration: 9000 });
+        result = await submitAction(dataToSubmit);
+      }
+
+      if (result.success) {
+        toast({ title: mode === 'edit' ? "Application Updated!" : "Application Submitted!", description: result.message, duration: 5000 });
+        if (mode === 'create') {
+            reset();
+            setSelectedFiles({});
+            setTimeout(() => {
+              handleBackClick();
+            }, 2000);
+        }
+      } else {
+        toast({ variant: "destructive", title: mode === 'edit' ? "Update Failed" : "Application Failed", description: result.message || "An unknown error occurred.", duration: 9000 });
         if (result.errors) {
             Object.entries(result.errors).forEach(([fieldName, messages]) => {
                 setError(fieldName as any, { type: 'manual', message: (messages as string[]).join(', ') });
@@ -233,10 +248,12 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
   return (
     <section className="bg-secondary py-12 md:py-20">
       <div className="container mx-auto px-4 sm:px-6">
-        <Button variant="ghost" onClick={handleBackClick} className="inline-flex items-center mb-8 text-muted-foreground hover:text-primary">
-          <ArrowLeft className="w-5 h-5 mr-2" />
-          Back
-        </Button>
+        {setCurrentPage && (
+            <Button variant="ghost" onClick={handleBackClick} className="inline-flex items-center mb-8 text-muted-foreground hover:text-primary">
+            <ArrowLeft className="w-5 h-5 mr-2" />
+            Back
+            </Button>
+        )}
         <div className="max-w-4xl mx-auto bg-card p-6 md:p-10 rounded-2xl shadow-xl">
           <div className="text-center mb-8">
             {formIcon}
@@ -263,7 +280,7 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
               ))}
               <div className="mt-10 pt-6 border-t border-border dark:border-gray-700">
                 <Button type="submit" className="w-full cta-button" size="lg" disabled={isSubmitting}>
-                  {isSubmitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Submitting...</> : 'Submit Application'}
+                  {isSubmitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> {mode === 'edit' ? 'Updating...' : 'Submitting...'}</> : (mode === 'edit' ? 'Update Application' : 'Submit Application')}
                 </Button>
               </div>
             </form>
