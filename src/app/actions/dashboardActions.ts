@@ -3,7 +3,7 @@
 
 import { cookies } from 'next/headers';
 import { db } from '@/lib/firebase';
-import { collection, query, where, getDocs, Timestamp } from 'firebase/firestore';
+import { collection, query, where, getDocs, Timestamp, type QueryConstraint } from 'firebase/firestore';
 import type { UserApplication } from '@/lib/types';
 import type { DocumentData } from 'firebase/firestore';
 
@@ -18,11 +18,11 @@ function formatApplication(doc: DocumentData, defaultCategory: UserApplication['
         applicationTypeDisplay = data.schemeNameForDisplay;
     }
     
-    // Logic to get applicant details, consistent with admin view
-    const applicantInfo = data.applicantDetails || data.submittedBy;
-    const applicantFullName = applicantInfo?.fullName || applicantInfo?.userName || 'N/A';
-    const applicantEmail = applicantInfo?.email || applicantInfo?.userEmail || 'N/A';
-    const applicantUserId = applicantInfo?.userId || 'N/A';
+    // Prioritize client details from applicantDetails, fallback to submitter info for display.
+    // This ensures the client's name is shown on the partner dashboard.
+    const applicantFullName = data.applicantDetails?.fullName || data.submittedBy?.userName || 'N/A';
+    const applicantEmail = data.applicantDetails?.email || data.applicantDetails?.emailId || data.submittedBy?.userEmail || 'N/A';
+    const applicantUserId = data.applicantDetails?.userId || 'N/A';
 
     return {
         id: doc.id,
@@ -42,23 +42,41 @@ function formatApplication(doc: DocumentData, defaultCategory: UserApplication['
 export async function getUserApplications(): Promise<UserApplication[]> {
   console.log('[DashboardActions] Fetching user applications...');
   const userId = cookies().get('user_id')?.value;
+  const userType = cookies().get('user_type')?.value;
 
   if (!userId) {
     console.warn('[DashboardActions] No user ID found in cookies. Returning empty array.');
     return [];
   }
   
-  console.log(`[DashboardActions] Found user ID: ${userId}. Querying collections...`);
+  console.log(`[DashboardActions] User ID: ${userId}, User Type: ${userType}. Querying collections...`);
 
   try {
     const loanApplicationsRef = collection(db, 'loanApplications');
     const caServiceApplicationsRef = collection(db, 'caServiceApplications');
     const governmentSchemeApplicationsRef = collection(db, 'governmentSchemeApplications');
 
-    // Filter out archived applications
-    const qLoan = query(loanApplicationsRef, where('submittedBy.userId', '==', userId), where('status', '!=', 'Archived'));
-    const qCa = query(caServiceApplicationsRef, where('submittedBy.userId', '==', userId), where('status', '!=', 'Archived'));
-    const qGov = query(governmentSchemeApplicationsRef, where('submittedBy.userId', '==', userId), where('status', '!=', 'Archived'));
+    let userSpecificConstraints: QueryConstraint[];
+
+    if (userType === 'partner') {
+        // Partners see applications they are assigned to via partnerId
+        console.log(`[DashboardActions] Querying as partner using field: partnerId`);
+        userSpecificConstraints = [
+            where('partnerId', '==', userId),
+            where('status', '!=', 'Archived')
+        ];
+    } else {
+        // Normal users see applications they submitted themselves
+        console.log(`[DashboardActions] Querying as normal user using field: submittedBy.userId`);
+        userSpecificConstraints = [
+            where('submittedBy.userId', '==', userId),
+            where('status', '!=', 'Archived')
+        ];
+    }
+
+    const qLoan = query(loanApplicationsRef, ...userSpecificConstraints);
+    const qCa = query(caServiceApplicationsRef, ...userSpecificConstraints);
+    const qGov = query(governmentSchemeApplicationsRef, ...userSpecificConstraints);
 
 
     const [loanSnapshot, caSnapshot, govSnapshot] = await Promise.all([
