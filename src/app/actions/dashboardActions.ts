@@ -1,4 +1,3 @@
-
 'use server';
 
 import { cookies } from 'next/headers';
@@ -42,13 +41,14 @@ function formatApplication(doc: DocumentData, defaultCategory: UserApplication['
 export async function getUserApplications(): Promise<UserApplication[]> {
   console.log('[DashboardActions] Fetching user applications...');
   const userId = cookies().get('user_id')?.value;
+  const userType = cookies().get('user_type')?.value;
 
   if (!userId) {
     console.warn('[DashboardActions] No user ID found in cookies. Returning empty array.');
     return [];
   }
   
-  console.log(`[DashboardActions] User ID: ${userId}. Querying collections...`);
+  console.log(`[DashboardActions] User ID: ${userId}, Type: ${userType}. Querying collections...`);
 
   try {
     const loanApplicationsRef = collection(db, 'loanApplications');
@@ -57,9 +57,9 @@ export async function getUserApplications(): Promise<UserApplication[]> {
 
     // This single query works for both normal users and partners, as `submittedBy.userId`
     // is always the ID of the logged-in user who created the application.
-    // We remove the status check from the query to make it more reliable and avoid indexing issues.
     const userSpecificConstraints: QueryConstraint[] = [
         where('submittedBy.userId', '==', userId),
+        where('status', '!=', 'Archived')
     ];
 
     const qLoan = query(loanApplicationsRef, ...userSpecificConstraints);
@@ -73,7 +73,7 @@ export async function getUserApplications(): Promise<UserApplication[]> {
       getDocs(qGov),
     ]);
     
-    console.log(`[DashboardActions] Found ${loanSnapshot.size} loan, ${caSnapshot.size} CA, and ${govSnapshot.size} gov scheme applications before filtering.`);
+    console.log(`[DashboardActions] Found ${loanSnapshot.size} loan, ${caSnapshot.size} CA, and ${govSnapshot.size} gov scheme applications.`);
 
 
     const loanApplications = loanSnapshot.docs.map(doc => formatApplication(doc, 'loan'));
@@ -82,14 +82,11 @@ export async function getUserApplications(): Promise<UserApplication[]> {
 
     const allApplications = [...loanApplications, ...caApplications, ...govApplications];
     
-    // We now filter out archived applications in the code, which is more reliable.
-    const activeApplications = allApplications.filter(app => app.status.toLowerCase() !== 'archived');
-
     // Sort all applications by date, descending
-    activeApplications.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    allApplications.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
-    console.log(`[DashboardActions] Successfully fetched and merged ${activeApplications.length} active applications.`);
-    return activeApplications;
+    console.log(`[DashboardActions] Successfully fetched and merged ${allApplications.length} applications.`);
+    return allApplications;
 
   } catch (error: any) {
     console.error('[DashboardActions] Error fetching user applications from Firestore:', error.message, error.stack);
