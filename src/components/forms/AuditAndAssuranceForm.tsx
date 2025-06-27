@@ -5,11 +5,14 @@ import React from 'react';
 import { AuditAndAssuranceFormSchema, type AuditAndAssuranceFormData } from '@/lib/schemas';
 import { ClipboardCheck } from 'lucide-react';
 import type { SetPageView } from '@/app/page';
-import { submitAuditAndAssuranceAction } from '@/app/actions/caServiceActions';
+import { submitAuditAndAssuranceAction, updateCAServiceApplicationAction } from '@/app/actions/caServiceActions';
 import { GenericCAServiceForm } from './GenericCAServiceForm';
 
 interface AuditAndAssuranceFormProps {
-  setCurrentPage: SetPageView;
+  setCurrentPage?: SetPageView;
+  initialData?: AuditAndAssuranceFormData | null;
+  applicationId?: string;
+  mode?: 'create' | 'edit';
 }
 
 const auditAndAssuranceSections = [
@@ -59,7 +62,7 @@ const auditAndAssuranceSections = [
     }
 ];
 
-export function AuditAndAssuranceForm({ setCurrentPage }: AuditAndAssuranceFormProps) {
+export function AuditAndAssuranceForm({ setCurrentPage, initialData, applicationId, mode = 'create' }: AuditAndAssuranceFormProps) {
   const defaultValues: AuditAndAssuranceFormData = {
     applicantDetails: {
       fullName: '',
@@ -98,9 +101,12 @@ export function AuditAndAssuranceForm({ setCurrentPage }: AuditAndAssuranceFormP
       formSubtitle="Please provide the details below to avail our services."
       formIcon={<ClipboardCheck className="w-12 h-12 mx-auto text-primary mb-2" />}
       schema={AuditAndAssuranceFormSchema}
-      defaultValues={defaultValues}
+      defaultValues={initialData || defaultValues}
       sections={auditAndAssuranceSections}
       submitAction={submitAuditAndAssuranceAction}
+      updateAction={updateCAServiceApplicationAction}
+      applicationId={applicationId}
+      mode={mode}
     />
   );
 }

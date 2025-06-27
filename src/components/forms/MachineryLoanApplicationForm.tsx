@@ -5,11 +5,14 @@ import React from 'react';
 import { Cog } from 'lucide-react';
 import { GenericLoanForm } from './GenericLoanForm';
 import { MachineryLoanApplicationSchema, type MachineryLoanApplicationFormData } from '@/lib/schemas';
-import { submitLoanApplicationAction } from '@/app/actions/loanActions';
+import { submitLoanApplicationAction, updateLoanApplicationAction } from '@/app/actions/loanActions';
 
 interface MachineryLoanApplicationFormProps {
-  onBack: () => void;
+  onBack?: () => void;
   backButtonText?: string;
+  initialData?: MachineryLoanApplicationFormData | null;
+  applicationId?: string;
+  mode?: 'create' | 'edit';
 }
 
 const machineryLoanSections = [
@@ -80,7 +83,7 @@ const machineryLoanSections = [
   }
 ];
 
-export function MachineryLoanApplicationForm({ onBack, backButtonText }: MachineryLoanApplicationFormProps) {
+export function MachineryLoanApplicationForm({ onBack, backButtonText, initialData, applicationId, mode = 'create' }: MachineryLoanApplicationFormProps) {
   const defaultValues: MachineryLoanApplicationFormData = {
     applicantDetails: { name: '', dob: '', mobile: '', email: '', pan: '', aadhaar: '' },
     businessDetails: {
@@ -125,9 +128,12 @@ export function MachineryLoanApplicationForm({ onBack, backButtonText }: Machine
       formSubtitle="Get funds to purchase new or upgrade existing machinery for your business."
       formIcon={<Cog className="w-12 h-12 mx-auto text-primary mb-2" />}
       schema={MachineryLoanApplicationSchema}
-      defaultValues={defaultValues}
+      defaultValues={initialData || defaultValues}
       sections={machineryLoanSections}
       submitAction={(data) => submitLoanApplicationAction(data, 'Machinery Loan')}
+      updateAction={updateLoanApplicationAction}
+      applicationId={applicationId}
+      mode={mode}
       submitButtonText="Submit Machinery Loan Application"
     />
   );

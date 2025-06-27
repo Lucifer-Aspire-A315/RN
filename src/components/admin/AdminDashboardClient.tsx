@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AdminApplicationsTable } from './AdminApplicationsTable';
 import { PendingPartnersTable } from './PendingPartnersTable';
-import { approvePartner, updateApplicationStatus, getAllApplications, getPendingPartners } from '@/app/actions/adminActions';
+import { approvePartner, updateApplicationStatus, getAllApplications, getPendingPartners, archiveApplicationAction } from '@/app/actions/adminActions';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '../ui/skeleton';
 
@@ -101,6 +101,25 @@ export function AdminDashboardClient({}: AdminDashboardClientProps) {
     });
   };
 
+  const handleArchiveApplication = (applicationId: string, serviceCategory: UserApplication['serviceCategory']) => {
+    startUpdateTransition(async () => {
+        const result = await archiveApplicationAction(applicationId, serviceCategory);
+        if (result.success) {
+            toast({
+                title: "Application Archived",
+                description: result.message,
+            });
+            setApplications(currentApps => currentApps.filter(app => app.id !== applicationId));
+        } else {
+            toast({
+                variant: "destructive",
+                title: "Archive Failed",
+                description: result.message,
+            });
+        }
+    });
+  };
+
 
   return (
     <Tabs defaultValue="partners" className="space-y-4">
@@ -140,6 +159,7 @@ export function AdminDashboardClient({}: AdminDashboardClientProps) {
                     <AdminApplicationsTable 
                         applications={applications} 
                         onUpdateStatus={handleUpdateStatus}
+                        onArchive={handleArchiveApplication}
                         isUpdating={isUpdating}
                     />
                 )}

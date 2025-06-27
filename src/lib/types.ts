@@ -23,7 +23,7 @@ export interface UserApplication {
   serviceCategory: 'loan' | 'caService' | 'governmentScheme' | 'Unknown';
   applicationType: string;
   createdAt: string; // ISO string date
-  status: string;
+  status: 'Submitted' | 'In Review' | 'Approved' | 'Rejected' | 'Archived' | string;
 }
 
 export interface PartnerData {

@@ -45,11 +45,11 @@ export async function getUserApplications(): Promise<UserApplication[]> {
     const caServiceApplicationsRef = collection(db, 'caServiceApplications');
     const governmentSchemeApplicationsRef = collection(db, 'governmentSchemeApplications');
 
-    // Removed the orderBy clause to avoid needing a composite index.
-    // The sorting is handled in the application code below.
-    const qLoan = query(loanApplicationsRef, where('submittedBy.userId', '==', userId));
-    const qCa = query(caServiceApplicationsRef, where('submittedBy.userId', '==', userId));
-    const qGov = query(governmentSchemeApplicationsRef, where('submittedBy.userId', '==', userId));
+    // Filter out archived applications
+    const qLoan = query(loanApplicationsRef, where('submittedBy.userId', '==', userId), where('status', '!=', 'Archived'));
+    const qCa = query(caServiceApplicationsRef, where('submittedBy.userId', '==', userId), where('status', '!=', 'Archived'));
+    const qGov = query(governmentSchemeApplicationsRef, where('submittedBy.userId', '==', userId), where('status', '!=', 'Archived'));
+
 
     const [loanSnapshot, caSnapshot, govSnapshot] = await Promise.all([
       getDocs(qLoan),

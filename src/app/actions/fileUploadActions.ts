@@ -80,3 +80,59 @@ export async function uploadFileAsStringAction(dataUri: string, fileName: string
     return { success: false, error: userFriendlyMessage };
   }
 }
+
+
+/**
+ * Deletes files from Firebase Storage based on their public URLs.
+ * This is an admin-only action.
+ * @param urls An array of public URLs of the files to delete.
+ * @returns An object indicating success or failure.
+ */
+export async function deleteFilesByUrlAction(urls: string[]): Promise<{ success: boolean; error?: string }> {
+  console.log(`[DeleteFilesAction] Request received for ${urls.length} files.`);
+  
+  if (!adminStorage) {
+    const adminInitError = "SERVER CONFIGURATION ERROR: Firebase Admin Storage not initialized.";
+    console.error("[DeleteFilesAction] CRITICAL ERROR:", adminInitError);
+    return { success: false, error: adminInitError };
+  }
+
+  const bucket = adminStorage.bucket();
+  const deletionPromises: Promise<any>[] = [];
+
+  for (const url of urls) {
+    try {
+      // Extract the file path from the URL. Example: /b/your-bucket.appspot.com/o/uploads%2F...
+      const urlObject = new URL(url);
+      // The pathname starts with a slash, which we need to remove.
+      // It's also URL-encoded, so we decode it.
+      const filePath = decodeURIComponent(urlObject.pathname).substring(1);
+      
+      // The SDK expects the path without the bucket prefix, e.g., 'uploads/...'
+      const pathWithoutBucket = filePath.replace(`${bucket.name}/o/`, '');
+
+      if (pathWithoutBucket) {
+        console.log(`[DeleteFilesAction] Queuing deletion for: ${pathWithoutBucket}`);
+        deletionPromises.push(bucket.file(pathWithoutBucket).delete());
+      }
+    } catch (error) {
+      console.error(`[DeleteFilesAction] Skipping invalid or unparsable URL: ${url}`);
+    }
+  }
+
+  if (deletionPromises.length === 0) {
+    console.log('[DeleteFilesAction] No valid file paths found to delete.');
+    return { success: true };
+  }
+
+  try {
+    await Promise.all(deletionPromises);
+    console.log(`[DeleteFilesAction] Successfully deleted ${deletionPromises.length} files.`);
+    return { success: true };
+  } catch (error: any) {
+    console.error('[DeleteFilesAction] Error deleting one or more files from storage:', error);
+    // Even if some fail, we don't want to block the whole process.
+    // The calling function will decide how to handle partial failure.
+    return { success: false, error: 'One or more files could not be deleted.' };
+  }
+}

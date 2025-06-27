@@ -4,6 +4,9 @@
 import { db } from '@/lib/firebase';
 import { collection, addDoc, Timestamp }  from 'firebase/firestore';
 import { cookies } from 'next/headers';
+import { updateApplicationAction } from './applicationActions';
+import type { UserApplication } from '@/lib/types';
+
 
 interface ServerActionResponse {
   success: boolean;
@@ -63,33 +66,7 @@ export async function submitLoanApplicationAction<T extends Record<string, any>>
       updatedAt: Timestamp.now(),
     };
     
-    console.log(`[Server Action - Loan] Attempting to save to Firestore for type "${loanType}". Data to be serialized (next log check):`);
-    try {
-      const serializableCheck = JSON.parse(JSON.stringify(applicationData));
-      console.log(`[Server Action - Loan] Successfully serialized applicationData for Firestore:`, JSON.stringify(serializableCheck, null, 2).substring(0, 1000) + "...");
-    } catch (serializationError: any) {
-      console.error(`[Server Action - Loan] FAILED TO SERIALIZE applicationData for Firestore write:`, serializationError.message);
-      console.log(`[Server Action - Loan] Raw applicationData structure (pre-serialization attempt):`, applicationData);
-      
-      if (applicationData.formData && typeof applicationData.formData === 'object') {
-        console.error(`[Server Action - Loan] Checking individual fields within formData for serialization issues:`);
-        for (const key in applicationData.formData) {
-          try {
-            if (typeof (applicationData.formData as Record<string, any>)[key] === 'object' && (applicationData.formData as Record<string, any>)[key] instanceof File) {
-                 console.error(`[Server Action - Loan] Non-serializable File object found in formData -> "${key}": Value type: File`);
-            } else {
-                JSON.stringify((applicationData.formData as Record<string, any>)[key]);
-            }
-          } catch (fieldError: any) {
-            console.error(`[Server Action - Loan] Non-serializable field in formData -> "${key}": Value type: ${typeof (applicationData.formData as Record<string, any>)[key]}, Error: ${fieldError.message}`);
-          }
-        }
-      }
-      return {
-          success: false,
-          message: `Data for ${loanType} is not serializable and cannot be saved. Check server logs for details.`,
-      };
-    }
+    console.log(`[Server Action - Loan] Attempting to save to Firestore for type "${loanType}".`);
 
     const docRef = await addDoc(collection(db, 'loanApplications'), applicationData);
     
@@ -118,5 +95,10 @@ export async function submitLoanApplicationAction<T extends Record<string, any>>
       message: safeErrorMessage,
     };
   }
+}
+
+export async function updateLoanApplicationAction(applicationId: string, data: any) {
+    // This is a wrapper to call the generic update action with the correct category.
+    return updateApplicationAction(applicationId, 'loan' as UserApplication['serviceCategory'], { formData: data });
 }
     

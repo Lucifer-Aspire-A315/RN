@@ -12,6 +12,8 @@ import type {
   FinancialAdvisoryFormData,
   AuditAndAssuranceFormData
 } from '@/lib/schemas';
+import { updateApplicationAction } from './applicationActions';
+import type { UserApplication } from '@/lib/types';
 
 interface ServerActionResponse {
   success: boolean;
@@ -99,6 +101,11 @@ async function submitCAServiceApplication<T extends Record<string, any>>(
       message: safeErrorMessage,
     };
   }
+}
+
+export async function updateCAServiceApplicationAction(applicationId: string, data: any) {
+    // This is a wrapper to call the generic update action with the correct category.
+    return updateApplicationAction(applicationId, 'caService' as UserApplication['serviceCategory'], { formData: data });
 }
 
 

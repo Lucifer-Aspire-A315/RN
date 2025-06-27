@@ -1,11 +1,13 @@
 
 'use server';
 
-import type { ZodType, ZodTypeDef } from 'zod'; // Keep ZodType for schema validation if used locally, though not for DB submission here
+import type { ZodType, ZodTypeDef } from 'zod'; 
 import { db } from '@/lib/firebase';
 import { collection, addDoc, Timestamp } from 'firebase/firestore';
 import { cookies } from 'next/headers';
 import type { GovernmentSchemeLoanApplicationFormData } from '@/lib/schemas';
+import { updateApplicationAction } from './applicationActions';
+import type { UserApplication } from '@/lib/types';
 
 
 interface ServerActionResponse {
@@ -17,13 +19,11 @@ interface ServerActionResponse {
 
 export async function submitGovernmentSchemeLoanApplicationAction(
   data: GovernmentSchemeLoanApplicationFormData,
-  // schema: ZodType<GovernmentSchemeLoanApplicationFormData, ZodTypeDef, GovernmentSchemeLoanApplicationFormData> // Schema param can be removed if validation is purely client-side for this action
 ): Promise<ServerActionResponse> {
   const applicationTypeDisplay = data.loanDetailsGov.selectedScheme === 'Other' && data.loanDetailsGov.otherSchemeName
     ? data.loanDetailsGov.otherSchemeName
     : data.loanDetailsGov.selectedScheme;
   
-  // For consistency, let's use a more generic internal applicationType
   const internalApplicationType = data.loanDetailsGov.selectedScheme;
 
 
@@ -44,7 +44,6 @@ export async function submitGovernmentSchemeLoanApplicationAction(
       };
     }
     
-    // Get applicant info from the form data. This schema uses `applicantDetailsGov`.
     const applicantDataFromForm = data.applicantDetailsGov;
     if (!applicantDataFromForm) {
       return { success: false, message: 'Applicant details are missing from the form submission.' };
@@ -103,5 +102,10 @@ export async function submitGovernmentSchemeLoanApplicationAction(
       message: safeErrorMessage,
     };
   }
+}
+
+export async function updateGovernmentSchemeLoanApplicationAction(applicationId: string, data: any) {
+    // This is a wrapper to call the generic update action with the correct category.
+    return updateApplicationAction(applicationId, 'governmentScheme' as UserApplication['serviceCategory'], { formData: data });
 }
     

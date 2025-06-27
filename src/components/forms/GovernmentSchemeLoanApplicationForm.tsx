@@ -2,17 +2,18 @@
 "use client";
 
 import React from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { GovernmentSchemeLoanApplicationSchema, type GovernmentSchemeLoanApplicationFormData } from '@/lib/schemas';
 import { FileText } from 'lucide-react';
 import { GenericLoanForm } from './GenericLoanForm';
-import { submitGovernmentSchemeLoanApplicationAction } from '@/app/actions/governmentSchemeActions';
+import { submitGovernmentSchemeLoanApplicationAction, updateGovernmentSchemeLoanApplicationAction } from '@/app/actions/governmentSchemeActions';
 
 interface GovernmentSchemeLoanApplicationFormProps {
-  onBack: () => void;
-  selectedScheme: string;
+  onBack?: () => void;
+  selectedScheme?: string;
   otherSchemeName?: string;
+  initialData?: GovernmentSchemeLoanApplicationFormData | null;
+  applicationId?: string;
+  mode?: 'create' | 'edit';
 }
 
 const schemeDisplayNames: Record<string, string> = {
@@ -83,9 +84,9 @@ const governmentSchemeSections = [
   }
 ];
 
-export function GovernmentSchemeLoanApplicationForm({ onBack, selectedScheme, otherSchemeName }: GovernmentSchemeLoanApplicationFormProps) {
+export function GovernmentSchemeLoanApplicationForm({ onBack, selectedScheme, otherSchemeName, initialData, applicationId, mode = 'create' }: GovernmentSchemeLoanApplicationFormProps) {
 
-  const defaultValues: GovernmentSchemeLoanApplicationFormData = {
+  const defaultValues: GovernmentSchemeLoanApplicationFormData = initialData || {
     applicantDetailsGov: {
       fullName: '',
       fatherSpouseName: '',
@@ -112,7 +113,7 @@ export function GovernmentSchemeLoanApplicationForm({ onBack, selectedScheme, ot
       loanPurpose: undefined,
     },
     loanDetailsGov: {
-      selectedScheme: schemeDisplayNames[selectedScheme] || otherSchemeName || selectedScheme,
+      selectedScheme: selectedScheme ? (schemeDisplayNames[selectedScheme] || otherSchemeName || selectedScheme) : '',
       otherSchemeName: selectedScheme === 'other' ? otherSchemeName : '',
       loanAmountRequired: undefined,
       loanTenure: undefined,
@@ -130,17 +131,24 @@ export function GovernmentSchemeLoanApplicationForm({ onBack, selectedScheme, ot
     }
   };
 
+  const formSubtitle = mode === 'edit'
+    ? `Editing Application for: ${initialData?.loanDetailsGov.selectedScheme}`
+    : `Applying for: ${defaultValues.loanDetailsGov.selectedScheme}`;
+
   return (
      <GenericLoanForm
       onBack={onBack}
       backButtonText="Back to Schemes"
       formTitle="Government Scheme Loan Application Form"
-      formSubtitle={`Applying for: ${defaultValues.loanDetailsGov.selectedScheme}`}
+      formSubtitle={formSubtitle}
       formIcon={<FileText className="w-12 h-12 mx-auto text-primary mb-2" />}
       schema={GovernmentSchemeLoanApplicationSchema}
       defaultValues={defaultValues}
       sections={governmentSchemeSections}
       submitAction={submitGovernmentSchemeLoanApplicationAction}
+      updateAction={updateGovernmentSchemeLoanApplicationAction}
+      applicationId={applicationId}
+      mode={mode}
       submitButtonText="Submit Government Scheme Application"
     />
   );

@@ -5,11 +5,14 @@ import React from 'react';
 import { AccountingBookkeepingFormSchema, type AccountingBookkeepingFormData } from '@/lib/schemas';
 import { BookOpenCheck } from 'lucide-react';
 import type { SetPageView } from '@/app/page';
-import { submitAccountingBookkeepingAction } from '@/app/actions/caServiceActions';
+import { submitAccountingBookkeepingAction, updateCAServiceApplicationAction } from '@/app/actions/caServiceActions';
 import { GenericCAServiceForm } from './GenericCAServiceForm';
 
 interface AccountingBookkeepingFormProps {
-  setCurrentPage: SetPageView;
+  setCurrentPage?: SetPageView;
+  initialData?: AccountingBookkeepingFormData | null;
+  applicationId?: string;
+  mode?: 'create' | 'edit';
 }
 
 const accountingSections = [
@@ -62,7 +65,7 @@ const accountingSections = [
     }
 ];
 
-export function AccountingBookkeepingForm({ setCurrentPage }: AccountingBookkeepingFormProps) {
+export function AccountingBookkeepingForm({ setCurrentPage, initialData, applicationId, mode = 'create' }: AccountingBookkeepingFormProps) {
   const defaultValues: AccountingBookkeepingFormData = {
     applicantDetails: {
       fullName: '',
@@ -104,9 +107,12 @@ export function AccountingBookkeepingForm({ setCurrentPage }: AccountingBookkeep
         formSubtitle="Please provide the details below to avail our services."
         formIcon={<BookOpenCheck className="w-12 h-12 mx-auto text-primary mb-2" />}
         schema={AccountingBookkeepingFormSchema}
-        defaultValues={defaultValues}
+        defaultValues={initialData || defaultValues}
         sections={accountingSections}
         submitAction={submitAccountingBookkeepingAction}
+        updateAction={updateCAServiceApplicationAction}
+        applicationId={applicationId}
+        mode={mode}
     />
   );
 }

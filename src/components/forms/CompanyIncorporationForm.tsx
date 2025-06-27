@@ -5,11 +5,14 @@ import React from 'react';
 import { CompanyIncorporationFormSchema, type CompanyIncorporationFormData } from '@/lib/schemas';
 import { Building2 } from 'lucide-react';
 import type { SetPageView } from '@/app/page';
-import { submitCompanyIncorporationAction } from '@/app/actions/caServiceActions';
+import { submitCompanyIncorporationAction, updateCAServiceApplicationAction } from '@/app/actions/caServiceActions';
 import { GenericCAServiceForm } from './GenericCAServiceForm';
 
 interface CompanyIncorporationFormProps {
-  setCurrentPage: SetPageView;
+  setCurrentPage?: SetPageView;
+  initialData?: CompanyIncorporationFormData | null;
+  applicationId?: string;
+  mode?: 'create' | 'edit';
 }
 
 const companyIncorporationSections = [
@@ -91,7 +94,7 @@ const companyIncorporationSections = [
     }
 ];
 
-export function CompanyIncorporationForm({ setCurrentPage }: CompanyIncorporationFormProps) {
+export function CompanyIncorporationForm({ setCurrentPage, initialData, applicationId, mode = 'create' }: CompanyIncorporationFormProps) {
   const defaultValues: CompanyIncorporationFormData = {
     applicantFounderDetails: {
       fullName: '',
@@ -141,9 +144,12 @@ export function CompanyIncorporationForm({ setCurrentPage }: CompanyIncorporatio
         formSubtitle="Please provide the details below to start your company registration process."
         formIcon={<Building2 className="w-12 h-12 mx-auto text-primary mb-2" />}
         schema={CompanyIncorporationFormSchema}
-        defaultValues={defaultValues}
+        defaultValues={initialData || defaultValues}
         sections={companyIncorporationSections}
         submitAction={submitCompanyIncorporationAction}
+        updateAction={updateCAServiceApplicationAction}
+        applicationId={applicationId}
+        mode={mode}
     />
   );
 }

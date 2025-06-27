@@ -5,17 +5,19 @@ import React, { useState, useTransition, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { format } from 'date-fns';
-import { ArrowLeft, Loader2, FileText } from 'lucide-react';
+import { ArrowLeft, Loader2, FileText, Edit, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { updateApplicationStatus } from '@/app/actions/adminActions';
+import { updateApplicationStatus, archiveApplicationAction } from '@/app/actions/adminActions';
 import { getApplicationDetails } from '@/app/actions/applicationActions';
 import { useToast } from '@/hooks/use-toast';
 import type { UserApplication } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '../ui/skeleton';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+
 
 // Helper to check for visible content in nested objects
 const hasVisibleContent = (value: any): boolean => {
@@ -45,7 +47,7 @@ const renderValue = (value: any) => {
   }
   if (typeof value === 'string' && (value.startsWith('http') || value.startsWith('data:'))) {
     const isFileLink = value.includes('firebasestorage.googleapis.com');
-    const fileName = isFileLink ? decodeURIComponent(value.split('/').pop()?.split('?')[0] ?? 'Download').split('-').slice(1).join('-') : 'View Document';
+    const fileName = isFileLink ? decodeURIComponent(value.split('/').pop()?.split('?')[0] ?? 'Download').split('-').slice(2).join('-') : 'View Document';
     return (
       <Link
         href={value}
@@ -82,12 +84,9 @@ const renderValue = (value: any) => {
 
 // Recursive component to render nested objects and values
 const DetailItem = ({ itemKey, itemValue }: { itemKey: string; itemValue: any }) => {
-  // A Firestore-like timestamp object should be treated as a value, not a section.
   const isTimestampObject = itemValue && typeof itemValue.seconds === 'number' && typeof itemValue.nanoseconds === 'number';
 
-  // Section rendering (for nested objects that are not timestamps)
   if (typeof itemValue === 'object' && itemValue !== null && !Array.isArray(itemValue) && !(itemValue instanceof Date) && !(itemValue instanceof File) && !isTimestampObject) {
-    // Hide entire section if it has no visible content
     if (!hasVisibleContent(itemValue)) {
         return null;
     }
@@ -122,7 +121,7 @@ interface ApplicationDetailsViewProps {
   isAdmin: boolean;
 }
 
-const availableStatuses = ['Submitted', 'In Review', 'Approved', 'Rejected'];
+const availableStatuses = ['Submitted', 'In Review', 'Approved', 'Rejected', 'Archived'];
 
 const getStatusVariant = (status: string): "default" | "secondary" | "destructive" => {
   switch (status?.toLowerCase()) {
@@ -130,6 +129,7 @@ const getStatusVariant = (status: string): "default" | "secondary" | "destructiv
     case 'in review': return 'secondary';
     case 'approved': return 'secondary'; // Consider a 'success' variant in the theme
     case 'rejected': return 'destructive';
+    case 'archived': return 'destructive';
     default: return 'default';
   }
 };
@@ -168,9 +168,10 @@ const ApplicationDetailsSkeleton = () => (
 export function ApplicationDetailsView({ applicationId, serviceCategory, title, subtitle, isAdmin = false }: ApplicationDetailsViewProps) {
     const router = useRouter();
     const { toast } = useToast();
-    const [isUpdatingStatus, startUpdateTransition] = useTransition();
+    const [isUpdating, startUpdateTransition] = useTransition();
     const [isLoading, setIsLoading] = useState(true);
     const [applicationData, setApplicationData] = useState<any | null>(null);
+    const [isAlertOpen, setIsAlertOpen] = useState(false);
 
     const [currentStatus, setCurrentStatus] = useState<string>('');
     const [selectedStatus, setSelectedStatus] = useState<string>('');
@@ -239,6 +240,19 @@ export function ApplicationDetailsView({ applicationId, serviceCategory, title, 
             }
         });
     };
+    
+    const confirmArchive = () => {
+        startUpdateTransition(async () => {
+            const result = await archiveApplicationAction(applicationId, serviceCategory as UserApplication['serviceCategory']);
+            if (result.success) {
+                toast({ title: "Application Archived", description: result.message });
+                router.push('/admin/dashboard');
+            } else {
+                toast({ variant: "destructive", title: "Archive Failed", description: result.message });
+            }
+        });
+        setIsAlertOpen(false);
+    };
 
     // Prepare data for rendering
     const {
@@ -261,84 +275,60 @@ export function ApplicationDetailsView({ applicationId, serviceCategory, title, 
     delete displayData.serviceCategory;
     delete displayData.schemeNameForDisplay;
 
-    // Define the desired display order of sections. Keys are from various form schemas.
     const sectionOrder = [
-        // Applicant/Personal Details
-        'applicantDetails',
-        'applicantDetailsGov',
-        'applicantFounderDetails',
-        'personalDetails',
-        
-        // Address Details
-        'addressDetails',
-        'addressInformationGov',
-
-        // Business Details
-        'businessDetails',
-        'businessInformation',
-        'businessInformationGov',
-        'companyDetails',
-        
-        // Employment/Professional Details
-        'employmentIncome',
-        'professionalFinancial',
-
-        // Loan/Service/Preferences Details
-        'loanDetails',
-        'loanPropertyDetails',
-        'machineryLoanDetails',
-        'creditCardPreferences',
-        'loanDetailsGov',
-        'gstServiceRequired',
-        'incomeSourceType',
-        'servicesRequired',
-        'advisoryServicesRequired',
-        'optionalServices',
-        'businessScope',
-        'directorsPartners',
-        'currentFinancialOverview',
-
-        // Existing Loans
+        'applicantDetails', 'applicantDetailsGov', 'applicantFounderDetails', 'personalDetails',
+        'addressDetails', 'addressInformationGov',
+        'businessDetails', 'businessInformation', 'businessInformationGov', 'companyDetails',
+        'employmentIncome', 'professionalFinancial',
+        'loanDetails', 'loanPropertyDetails', 'machineryLoanDetails', 'creditCardPreferences', 'loanDetailsGov', 'gstServiceRequired', 'incomeSourceType', 'servicesRequired', 'advisoryServicesRequired', 'optionalServices', 'businessScope', 'directorsPartners', 'currentFinancialOverview',
         'existingLoans',
-
-        // Documents
-        'documentUploads',
-        'documentUploadsGov',
-        'dsaDocumentUploads',
-        'merchantDocumentUploads',
-
-        // Declaration
+        'documentUploads', 'documentUploadsGov', 'dsaDocumentUploads', 'merchantDocumentUploads',
         'declaration'
     ];
 
-    // Get all keys from the data and sort them according to the defined order.
-    // Keys not in the order will be placed at the end.
     const sortedDataKeys = Object.keys(displayData).sort((a, b) => {
         const indexA = sectionOrder.indexOf(a);
         const indexB = sectionOrder.indexOf(b);
-        if (indexA === -1 && indexB === -1) return 0; // Both not in order, keep original
-        if (indexA === -1) return 1;  // a is not in order, move to end
-        if (indexB === -1) return -1; // b is not in order, move to end
+        if (indexA === -1 && indexB === -1) return 0;
+        if (indexA === -1) return 1;
+        if (indexB === -1) return -1;
         return indexA - indexB;
     });
 
   return (
+    <>
     <Card className="max-w-4xl mx-auto shadow-lg">
       <CardHeader className="bg-muted/30">
          <Button onClick={() => router.back()} variant="ghost" className="self-start -ml-4 mb-2">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Dashboard
         </Button>
-        <div className="pt-2">
-            <CardTitle className="text-2xl">{title}</CardTitle>
-            <CardDescription>{subtitle}</CardDescription>
+        <div className="pt-2 flex justify-between items-start">
+            <div>
+                <CardTitle className="text-2xl">{title}</CardTitle>
+                <CardDescription>{subtitle}</CardDescription>
+            </div>
+            {isAdmin && (
+                <div className="flex gap-2">
+                    <Button asChild variant="outline">
+                        <Link href={`/admin/application/${applicationId}/edit?category=${serviceCategory}`}>
+                            <Edit className="mr-2 h-4 w-4" />
+                            Edit
+                        </Link>
+                    </Button>
+                     <Button variant="destructive" onClick={() => setIsAlertOpen(true)} disabled={isUpdating}>
+                        {isUpdating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
+                        Delete
+                    </Button>
+                </div>
+            )}
         </div>
       </CardHeader>
       <CardContent className="p-6 space-y-6">
         
         {isAdmin && (
             <div className="bg-muted/50 p-4 rounded-lg border border-border">
-                <h4 className="text-md font-semibold text-foreground mb-3">Admin Actions</h4>
+                <h4 className="text-md font-semibold text-foreground mb-3">Admin Actions: Update Status</h4>
                 <div className="flex items-center space-x-4">
                     <Select value={selectedStatus} onValueChange={setSelectedStatus}>
                         <SelectTrigger className="w-[200px]">
@@ -350,8 +340,8 @@ export function ApplicationDetailsView({ applicationId, serviceCategory, title, 
                             ))}
                         </SelectContent>
                     </Select>
-                    <Button onClick={handleUpdateStatus} disabled={isUpdatingStatus || selectedStatus === currentStatus}>
-                        {isUpdatingStatus && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    <Button onClick={handleUpdateStatus} disabled={isUpdating || selectedStatus === currentStatus}>
+                        {isUpdating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                         Update Status
                     </Button>
                 </div>
@@ -401,5 +391,23 @@ export function ApplicationDetailsView({ applicationId, serviceCategory, title, 
         )}
       </CardContent>
     </Card>
+
+    <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure you want to delete this application?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will archive the application record and permanently delete all associated documents from storage. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmArchive} className="bg-destructive hover:bg-destructive/90">
+              {isUpdating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Yes, Delete'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }

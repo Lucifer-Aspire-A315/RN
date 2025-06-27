@@ -5,11 +5,14 @@ import React from 'react';
 import { Home as HomeIcon } from 'lucide-react';
 import { GenericLoanForm } from './GenericLoanForm';
 import { HomeLoanApplicationSchema, type HomeLoanApplicationFormData } from '@/lib/schemas';
-import { submitLoanApplicationAction } from '@/app/actions/loanActions';
+import { submitLoanApplicationAction, updateLoanApplicationAction } from '@/app/actions/loanActions';
 
 interface HomeLoanApplicationFormProps {
-  onBack: () => void;
+  onBack?: () => void;
   backButtonText?: string;
+  initialData?: HomeLoanApplicationFormData | null;
+  applicationId?: string;
+  mode?: 'create' | 'edit';
 }
 
 const homeLoanSections = [
@@ -98,7 +101,7 @@ const homeLoanSections = [
   }
 ];
 
-export function HomeLoanApplicationForm({ onBack, backButtonText }: HomeLoanApplicationFormProps) {
+export function HomeLoanApplicationForm({ onBack, backButtonText, initialData, applicationId, mode = 'create' }: HomeLoanApplicationFormProps) {
   const defaultValues: HomeLoanApplicationFormData = {
     applicantDetails: { name: '', dob: '', mobile: '', email: '', pan: '', aadhaar: '' },
     addressDetails: {
@@ -147,9 +150,12 @@ export function HomeLoanApplicationForm({ onBack, backButtonText }: HomeLoanAppl
       formSubtitle="Simple & Fast Home Loan Process. Transparent Terms, Minimum Documentation. 100% Digital & Safe."
       formIcon={<HomeIcon className="w-12 h-12 mx-auto text-primary mb-2" />}
       schema={HomeLoanApplicationSchema}
-      defaultValues={defaultValues}
+      defaultValues={initialData || defaultValues}
       sections={homeLoanSections}
       submitAction={(data) => submitLoanApplicationAction(data, 'Home Loan')}
+      updateAction={updateLoanApplicationAction}
+      applicationId={applicationId}
+      mode={mode}
       submitButtonText="Submit Home Loan Application"
     />
   );

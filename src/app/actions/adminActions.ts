@@ -3,10 +3,13 @@
 
 import { revalidatePath } from 'next/cache';
 import { db } from '@/lib/firebase';
-import { collection, query, where, getDocs, Timestamp, doc, updateDoc } from 'firebase/firestore';
+import { collection, query, where, getDocs, Timestamp, doc, updateDoc, writeBatch, documentId } from 'firebase/firestore';
 import type { UserApplication, PartnerData } from '@/lib/types';
 import type { DocumentData } from 'firebase/firestore';
 import { checkSessionAction } from './authActions';
+import { getApplicationDetails } from './applicationActions';
+import { deleteFilesByUrlAction } from './fileUploadActions';
+import { getCollectionName } from '@/lib/utils';
 
 // Helper function to ensure only admins can execute these actions
 async function verifyAdmin() {
@@ -27,7 +30,6 @@ function formatApplication(doc: DocumentData, defaultCategory: UserApplication['
         applicationTypeDisplay = data.schemeNameForDisplay;
     }
     
-    // Fallback to submittedBy if applicantDetails is not present
     const applicantInfo = data.applicantDetails || data.submittedBy;
     const applicantFullName = applicantInfo?.fullName || applicantInfo?.userName || 'N/A';
     const applicantEmail = applicantInfo?.email || applicantInfo?.userEmail || 'N/A';
@@ -57,10 +59,15 @@ export async function getAllApplications(): Promise<UserApplication[]> {
     const caServiceApplicationsRef = collection(db, 'caServiceApplications');
     const governmentSchemeApplicationsRef = collection(db, 'governmentSchemeApplications');
 
+    const qLoan = query(loanApplicationsRef, where('status', '!=', 'Archived'));
+    const qCa = query(caServiceApplicationsRef, where('status', '!=', 'Archived'));
+    const qGov = query(governmentSchemeApplicationsRef, where('status', '!=', 'Archived'));
+
+
     const [loanSnapshot, caSnapshot, govSnapshot] = await Promise.all([
-      getDocs(loanApplicationsRef),
-      getDocs(caServiceApplicationsRef),
-      getDocs(governmentSchemeApplicationsRef),
+      getDocs(qLoan),
+      getDocs(qCa),
+      getDocs(qGov),
     ]);
     
     console.log(`[AdminActions] Found ${loanSnapshot.size} loan, ${caSnapshot.size} CA, and ${govSnapshot.size} gov scheme applications.`);
@@ -128,7 +135,7 @@ export async function approvePartner(partnerId: string): Promise<{ success: bool
         });
         
         console.log(`[AdminActions] Successfully approved partner: ${partnerId}`);
-        revalidatePath('/admin/dashboard'); // Revalidate the dashboard to show updated list
+        revalidatePath('/admin/dashboard');
         return { success: true, message: 'Partner approved successfully.' };
     } catch (error: any) {
         console.error(`[AdminActions] Error approving partner ${partnerId}:`, error.message, error.stack);
@@ -144,19 +151,9 @@ export async function updateApplicationStatus(
 ): Promise<{ success: boolean; message: string }> {
   await verifyAdmin();
   console.log(`[AdminActions] Attempting to update status for app ${applicationId} in category ${serviceCategory} to ${newStatus}`);
-
-  let collectionName: string;
-  switch (serviceCategory) {
-    case 'loan':
-      collectionName = 'loanApplications';
-      break;
-    case 'caService':
-      collectionName = 'caServiceApplications';
-      break;
-    case 'governmentScheme':
-      collectionName = 'governmentSchemeApplications';
-      break;
-    default:
+  
+  const collectionName = getCollectionName(serviceCategory);
+  if (!collectionName) {
       console.error(`[AdminActions] Invalid service category provided: ${serviceCategory}`);
       return { success: false, message: 'Invalid service category.' };
   }
@@ -170,10 +167,73 @@ export async function updateApplicationStatus(
 
     console.log(`[AdminActions] Successfully updated status for ${applicationId}`);
     revalidatePath('/admin/dashboard');
-    revalidatePath('/dashboard'); // Revalidate user dashboard as well
+    revalidatePath('/dashboard');
     return { success: true, message: `Application status updated to ${newStatus}.` };
   } catch (error: any) {
     console.error(`[AdminActions] Error updating status for ${applicationId}:`, error.message, error.stack);
     return { success: false, message: 'Failed to update application status.' };
   }
+}
+
+function findFileUrls(data: any): string[] {
+    const urls: string[] = [];
+    if (!data || typeof data !== 'object') {
+        return urls;
+    }
+
+    for (const key in data) {
+        const value = data[key];
+        if (typeof value === 'string' && value.startsWith('https://firebasestorage.googleapis.com')) {
+            urls.push(value);
+        } else if (typeof value === 'object') {
+            urls.push(...findFileUrls(value));
+        }
+    }
+    return urls;
+}
+
+export async function archiveApplicationAction(
+  applicationId: string,
+  serviceCategory: UserApplication['serviceCategory']
+): Promise<{ success: boolean; message: string }> {
+    await verifyAdmin();
+    console.log(`[AdminActions] Archiving application ${applicationId} in category ${serviceCategory}...`);
+
+    try {
+        // Step 1: Get full application data to find file URLs
+        const applicationData = await getApplicationDetails(applicationId, serviceCategory);
+        if (!applicationData) {
+            throw new Error('Application not found or you do not have permission.');
+        }
+
+        // Step 2: Find all file URLs within the form data
+        const fileUrls = findFileUrls(applicationData.formData);
+        console.log(`[AdminActions] Found ${fileUrls.length} files to delete for application ${applicationId}.`);
+
+        // Step 3: Delete files from Firebase Storage if any are found
+        if (fileUrls.length > 0) {
+            const deleteResult = await deleteFilesByUrlAction(fileUrls);
+            if (!deleteResult.success) {
+                // Log error but continue to archive the application record
+                console.error(`[AdminActions] Failed to delete some files, but proceeding with archival. Error: ${deleteResult.error}`);
+            }
+        }
+
+        // Step 4: Update the application status to 'Archived' in Firestore
+        const collectionName = getCollectionName(serviceCategory);
+        const appRef = doc(db, collectionName, applicationId);
+        await updateDoc(appRef, {
+            status: 'Archived',
+            updatedAt: Timestamp.now(),
+        });
+        
+        console.log(`[AdminActions] Successfully archived application ${applicationId}.`);
+        revalidatePath('/admin/dashboard');
+        revalidatePath('/dashboard');
+        return { success: true, message: 'Application archived successfully. Associated files have been deleted.' };
+
+    } catch (error: any) {
+        console.error(`[AdminActions] Error archiving application ${applicationId}:`, error.message, error.stack);
+        return { success: false, message: 'Failed to archive application.' };
+    }
 }

@@ -33,7 +33,7 @@ export function Footer() {
               </li>
               <li>
                 <Link href="/contact" className="text-[#F8FAE5] hover:text-[#F26A4B] transition-colors">
-                  Contact
+                  Contact Us
                 </Link>
               </li>
               <li>

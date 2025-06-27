@@ -5,11 +5,14 @@ import React from 'react';
 import { GstServiceApplicationSchema, type GstServiceApplicationFormData } from '@/lib/schemas';
 import { ReceiptText } from 'lucide-react';
 import type { SetPageView } from '@/app/page';
-import { submitGstServiceApplicationAction } from '@/app/actions/caServiceActions';
+import { submitGstServiceApplicationAction, updateCAServiceApplicationAction } from '@/app/actions/caServiceActions';
 import { GenericCAServiceForm } from './GenericCAServiceForm';
 
 interface GstServiceApplicationFormProps {
-  setCurrentPage: SetPageView;
+  setCurrentPage?: SetPageView;
+  initialData?: GstServiceApplicationFormData | null;
+  applicationId?: string;
+  mode?: 'create' | 'edit';
 }
 
 const gstServiceSections = [
@@ -58,7 +61,7 @@ const gstServiceSections = [
     }
 ];
 
-export function GstServiceApplicationForm({ setCurrentPage }: GstServiceApplicationFormProps) {
+export function GstServiceApplicationForm({ setCurrentPage, initialData, applicationId, mode = 'create' }: GstServiceApplicationFormProps) {
   const defaultValues: GstServiceApplicationFormData = {
     applicantDetails: {
       fullName: '',
@@ -98,9 +101,12 @@ export function GstServiceApplicationForm({ setCurrentPage }: GstServiceApplicat
       formSubtitle="Please fill in the details below to apply for GST related services."
       formIcon={<ReceiptText className="w-12 h-12 mx-auto text-primary mb-2" />}
       schema={GstServiceApplicationSchema}
-      defaultValues={defaultValues}
+      defaultValues={initialData || defaultValues}
       sections={gstServiceSections}
       submitAction={submitGstServiceApplicationAction}
+      updateAction={updateCAServiceApplicationAction}
+      applicationId={applicationId}
+      mode={mode}
     />
   );
 }

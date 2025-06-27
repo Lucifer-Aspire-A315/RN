@@ -5,11 +5,14 @@ import React from 'react';
 import { CreditCardIcon } from 'lucide-react';
 import { GenericLoanForm } from './GenericLoanForm';
 import { CreditCardApplicationSchema, type CreditCardApplicationFormData } from '@/lib/schemas';
-import { submitLoanApplicationAction } from '@/app/actions/loanActions';
+import { submitLoanApplicationAction, updateLoanApplicationAction } from '@/app/actions/loanActions';
 
 interface CreditCardApplicationFormProps {
-  onBack: () => void;
+  onBack?: () => void;
   backButtonText?: string;
+  initialData?: CreditCardApplicationFormData | null;
+  applicationId?: string;
+  mode?: 'create' | 'edit';
 }
 
 const creditCardSections = [
@@ -70,7 +73,7 @@ const creditCardSections = [
   }
 ];
 
-export function CreditCardApplicationForm({ onBack, backButtonText }: CreditCardApplicationFormProps) {
+export function CreditCardApplicationForm({ onBack, backButtonText, initialData, applicationId, mode = 'create' }: CreditCardApplicationFormProps) {
   const defaultValues: CreditCardApplicationFormData = {
     applicantDetails: { name: '', dob: '', mobile: '', email: '', pan: '', aadhaar: '', residentialAddress: '', city: '', pincode: '' },
     employmentIncome: { 
@@ -105,9 +108,12 @@ export function CreditCardApplicationForm({ onBack, backButtonText }: CreditCard
       formSubtitle="Apply for Your Credit Card Easily • Quick Approval • Minimal Documents • 100% Digital & Secure Process"
       formIcon={<CreditCardIcon className="w-12 h-12 mx-auto text-primary mb-2" />}
       schema={CreditCardApplicationSchema}
-      defaultValues={defaultValues}
+      defaultValues={initialData || defaultValues}
       sections={creditCardSections}
       submitAction={(data) => submitLoanApplicationAction(data, 'Credit Card')}
+      updateAction={updateLoanApplicationAction}
+      applicationId={applicationId}
+      mode={mode}
       submitButtonText="Submit Credit Card Application"
     />
   );

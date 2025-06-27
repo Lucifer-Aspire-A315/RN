@@ -5,11 +5,14 @@ import React from 'react';
 import { ItrFilingConsultationFormSchema, type ItrFilingConsultationFormData } from '@/lib/schemas';
 import { FileSpreadsheet } from 'lucide-react';
 import type { SetPageView } from '@/app/page';
-import { submitItrFilingConsultationAction } from '@/app/actions/caServiceActions';
+import { submitItrFilingConsultationAction, updateCAServiceApplicationAction } from '@/app/actions/caServiceActions';
 import { GenericCAServiceForm } from './GenericCAServiceForm';
 
 interface ItrFilingConsultationFormProps {
-  setCurrentPage: SetPageView;
+  setCurrentPage?: SetPageView;
+  initialData?: ItrFilingConsultationFormData | null;
+  applicationId?: string;
+  mode?: 'create' | 'edit';
 }
 
 const itrFilingSections = [
@@ -56,7 +59,7 @@ const itrFilingSections = [
     }
 ];
 
-export function ItrFilingConsultationForm({ setCurrentPage }: ItrFilingConsultationFormProps) {
+export function ItrFilingConsultationForm({ setCurrentPage, initialData, applicationId, mode = 'create' }: ItrFilingConsultationFormProps) {
   const defaultValues: ItrFilingConsultationFormData = {
     applicantDetails: {
       fullName: '',
@@ -98,9 +101,12 @@ export function ItrFilingConsultationForm({ setCurrentPage }: ItrFilingConsultat
       formSubtitle="Please provide the following details for ITR filing and consultation services."
       formIcon={<FileSpreadsheet className="w-12 h-12 mx-auto text-primary mb-2" />}
       schema={ItrFilingConsultationFormSchema}
-      defaultValues={defaultValues}
+      defaultValues={initialData || defaultValues}
       sections={itrFilingSections}
       submitAction={submitItrFilingConsultationAction}
+      updateAction={updateCAServiceApplicationAction}
+      applicationId={applicationId}
+      mode={mode}
     />
   );
 }

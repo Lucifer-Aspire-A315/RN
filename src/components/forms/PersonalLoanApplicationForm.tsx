@@ -5,11 +5,14 @@ import React from 'react';
 import { User } from 'lucide-react';
 import { GenericLoanForm } from './GenericLoanForm';
 import { PersonalLoanApplicationSchema, type PersonalLoanApplicationFormData } from '@/lib/schemas';
-import { submitLoanApplicationAction } from '@/app/actions/loanActions';
+import { submitLoanApplicationAction, updateLoanApplicationAction } from '@/app/actions/loanActions';
 
 interface PersonalLoanApplicationFormProps {
-  onBack: () => void;
+  onBack?: () => void;
   backButtonText?: string;
+  initialData?: PersonalLoanApplicationFormData | null;
+  applicationId?: string;
+  mode?: 'create' | 'edit';
 }
 
 const personalLoanSections = [
@@ -79,7 +82,7 @@ const personalLoanSections = [
 ];
 
 
-export function PersonalLoanApplicationForm({ onBack, backButtonText }: PersonalLoanApplicationFormProps) {
+export function PersonalLoanApplicationForm({ onBack, backButtonText, initialData, applicationId, mode = 'create' }: PersonalLoanApplicationFormProps) {
   const defaultValues: PersonalLoanApplicationFormData = {
     applicantDetails: { name: '', dob: '', mobile: '', email: '', pan: '', aadhaar: '', residentialAddress: '' },
     employmentIncome: { 
@@ -120,9 +123,12 @@ export function PersonalLoanApplicationForm({ onBack, backButtonText }: Personal
       formSubtitle="Instant Loan for Your Personal Needs • Easy Process • Fast Disbursal • Minimum Documents • 100% Secure & Confidential"
       formIcon={<User className="w-12 h-12 mx-auto text-primary mb-2" />}
       schema={PersonalLoanApplicationSchema}
-      defaultValues={defaultValues}
+      defaultValues={initialData || defaultValues}
       sections={personalLoanSections}
       submitAction={(data) => submitLoanApplicationAction(data, 'Personal Loan')}
+      updateAction={updateLoanApplicationAction}
+      applicationId={applicationId}
+      mode={mode}
       submitButtonText="Submit Personal Loan Application"
     />
   );

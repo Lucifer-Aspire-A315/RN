@@ -5,10 +5,14 @@ import React from 'react';
 import { Briefcase } from 'lucide-react';
 import { GenericLoanForm } from './GenericLoanForm';
 import { BusinessLoanApplicationSchema, type BusinessLoanApplicationFormData } from '@/lib/schemas';
+import { submitLoanApplicationAction, updateLoanApplicationAction } from '@/app/actions/loanActions';
 
 interface BusinessLoanApplicationFormProps {
-  onBack: () => void;
+  onBack?: () => void;
   backButtonText?: string;
+  initialData?: BusinessLoanApplicationFormData | null;
+  applicationId?: string;
+  mode?: 'create' | 'edit';
 }
 
 const businessLoanSections = [
@@ -86,7 +90,7 @@ const businessLoanSections = [
   }
 ];
 
-export function BusinessLoanApplicationForm({ onBack, backButtonText }: BusinessLoanApplicationFormProps) {
+export function BusinessLoanApplicationForm({ onBack, backButtonText, initialData, applicationId, mode = 'create' }: BusinessLoanApplicationFormProps) {
   const defaultValues: BusinessLoanApplicationFormData = {
     applicantDetails: { name: '', dob: '', mobile: '', email: '', pan: '', aadhaar: '' },
     businessDetails: {
@@ -133,9 +137,12 @@ export function BusinessLoanApplicationForm({ onBack, backButtonText }: Business
       formSubtitle="Easy Application Process • Minimum Documentation • 100% Digital & Secure"
       formIcon={<Briefcase className="w-12 h-12 mx-auto text-primary mb-2" />}
       schema={BusinessLoanApplicationSchema}
-      defaultValues={defaultValues}
+      defaultValues={initialData || defaultValues}
       sections={businessLoanSections}
       submitAction={(data) => submitLoanApplicationAction(data, 'Business Loan')}
+      updateAction={updateLoanApplicationAction}
+      applicationId={applicationId}
+      mode={mode}
       submitButtonText="Submit Business Loan Application"
     />
   );
