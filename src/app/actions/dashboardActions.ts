@@ -17,10 +17,20 @@ function formatApplication(doc: DocumentData, defaultCategory: UserApplication['
     if (defaultCategory === 'governmentScheme' && data.schemeNameForDisplay) {
         applicationTypeDisplay = data.schemeNameForDisplay;
     }
-
+    
+    // Logic to get applicant details, consistent with admin view
+    const applicantInfo = data.applicantDetails || data.submittedBy;
+    const applicantFullName = applicantInfo?.fullName || applicantInfo?.userName || 'N/A';
+    const applicantEmail = applicantInfo?.email || applicantInfo?.userEmail || 'N/A';
+    const applicantUserId = applicantInfo?.userId || 'N/A';
 
     return {
         id: doc.id,
+        applicantDetails: {
+            userId: applicantUserId,
+            fullName: applicantFullName,
+            email: applicantEmail,
+        },
         serviceCategory: data.serviceCategory || defaultCategory,
         applicationType: applicationTypeDisplay,
         createdAt: createdAtTimestamp?.toDate().toISOString() || new Date().toISOString(),

@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -56,6 +57,7 @@ export function ApplicationsTable({ applications }: ApplicationsTableProps) {
       <Table>
         <TableHeader>
           <TableRow>
+            <TableHead>Applicant</TableHead>
             <TableHead>Application Type</TableHead>
             <TableHead>Category</TableHead>
             <TableHead>Submitted On</TableHead>
@@ -69,7 +71,11 @@ export function ApplicationsTable({ applications }: ApplicationsTableProps) {
               onClick={() => handleRowClick(app)}
               className="cursor-pointer"
             >
-              <TableCell className="font-medium">{app.applicationType}</TableCell>
+              <TableCell className="font-medium">
+                <div>{app.applicantDetails?.fullName || 'N/A'}</div>
+                <div className="text-xs text-muted-foreground">{app.applicantDetails?.email || 'N/A'}</div>
+              </TableCell>
+              <TableCell>{app.applicationType}</TableCell>
               <TableCell>{getCategoryDisplay(app.serviceCategory)}</TableCell>
               <TableCell>{format(new Date(app.createdAt), 'PPp')}</TableCell>
               <TableCell className="text-right">

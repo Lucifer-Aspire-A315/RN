@@ -308,20 +308,29 @@ export function ApplicationDetailsView({ applicationId, serviceCategory, title, 
                 <CardTitle className="text-2xl">{title}</CardTitle>
                 <CardDescription>{subtitle}</CardDescription>
             </div>
-            {isAdmin && (
-                <div className="flex gap-2">
+            <div className="flex gap-2">
+                {isAdmin ? (
+                    <>
+                        <Button asChild variant="outline">
+                            <Link href={`/admin/application/${applicationId}/edit?category=${serviceCategory}`}>
+                                <Edit className="mr-2 h-4 w-4" />
+                                Edit
+                            </Link>
+                        </Button>
+                         <Button variant="destructive" onClick={() => setIsAlertOpen(true)} disabled={isUpdating}>
+                            {isUpdating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
+                            Delete
+                        </Button>
+                    </>
+                ) : (
                     <Button asChild variant="outline">
-                        <Link href={`/admin/application/${applicationId}/edit?category=${serviceCategory}`}>
+                        <Link href={`/dashboard/application/${applicationId}/edit?category=${serviceCategory}`}>
                             <Edit className="mr-2 h-4 w-4" />
-                            Edit
+                            Edit Application
                         </Link>
                     </Button>
-                     <Button variant="destructive" onClick={() => setIsAlertOpen(true)} disabled={isUpdating}>
-                        {isUpdating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
-                        Delete
-                    </Button>
-                </div>
-            )}
+                )}
+            </div>
         </div>
       </CardHeader>
       <CardContent className="p-6 space-y-6">
