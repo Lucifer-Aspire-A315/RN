@@ -57,9 +57,9 @@ export async function getUserApplications(): Promise<UserApplication[]> {
 
     // This single query works for both normal users and partners, as `submittedBy.userId`
     // is always the ID of the logged-in user who created the application.
+    // We remove the status check from the query to make it more reliable and avoid indexing issues.
     const userSpecificConstraints: QueryConstraint[] = [
         where('submittedBy.userId', '==', userId),
-        where('status', '!=', 'Archived')
     ];
 
     const qLoan = query(loanApplicationsRef, ...userSpecificConstraints);
@@ -73,7 +73,7 @@ export async function getUserApplications(): Promise<UserApplication[]> {
       getDocs(qGov),
     ]);
     
-    console.log(`[DashboardActions] Found ${loanSnapshot.size} loan, ${caSnapshot.size} CA, and ${govSnapshot.size} gov scheme applications.`);
+    console.log(`[DashboardActions] Found ${loanSnapshot.size} loan, ${caSnapshot.size} CA, and ${govSnapshot.size} gov scheme applications before filtering.`);
 
 
     const loanApplications = loanSnapshot.docs.map(doc => formatApplication(doc, 'loan'));
@@ -81,12 +81,15 @@ export async function getUserApplications(): Promise<UserApplication[]> {
     const govApplications = govSnapshot.docs.map(doc => formatApplication(doc, 'governmentScheme'));
 
     const allApplications = [...loanApplications, ...caApplications, ...govApplications];
+    
+    // We now filter out archived applications in the code, which is more reliable.
+    const activeApplications = allApplications.filter(app => app.status.toLowerCase() !== 'archived');
 
     // Sort all applications by date, descending
-    allApplications.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    activeApplications.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
-    console.log(`[DashboardActions] Successfully fetched and merged ${allApplications.length} applications.`);
-    return allApplications;
+    console.log(`[DashboardActions] Successfully fetched and merged ${activeApplications.length} active applications.`);
+    return activeApplications;
 
   } catch (error: any) {
     console.error('[DashboardActions] Error fetching user applications from Firestore:', error.message, error.stack);
