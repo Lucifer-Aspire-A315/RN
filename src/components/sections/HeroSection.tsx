@@ -1,3 +1,4 @@
+
 "use client";
 
 import React from 'react';
@@ -37,7 +38,7 @@ export function HeroSection({ setCurrentPage }: HeroSectionProps) {
                         variant="ghost"
                         size="lg"
                         onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}
-                        className="text-primary hover:text-accent"
+                        className="text-primary hover:text-primary hover:bg-primary/10"
                     >
                         How It Works
                     </Button>

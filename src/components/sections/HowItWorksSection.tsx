@@ -161,7 +161,7 @@ const Timeline: React.FC<{ steps: typeof customerSteps }> = ({ steps }) => {
 
 export function HowItWorksSection() {
   return (
-    <section className="py-16 md:py-24 bg-secondary/50">
+    <section id="how-it-works" className="py-16 md:py-24 bg-secondary/50">
       <div className="container mx-auto px-6 text-center">
         <h2 className="text-3xl font-bold text-foreground">A Clear Path to Your Financial Goals</h2>
         <p className="mt-2 text-muted-foreground max-w-2xl mx-auto">
