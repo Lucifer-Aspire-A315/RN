@@ -9,13 +9,8 @@ import { AccountingBookkeepingForm } from '@/components/forms/AccountingBookkeep
 import { CompanyIncorporationForm } from '@/components/forms/CompanyIncorporationForm';
 import { FinancialAdvisoryForm } from '@/components/forms/FinancialAdvisoryForm';
 import { AuditAndAssuranceForm } from '@/components/forms/AuditAndAssuranceForm';
-import type { PageView } from '@/app/page';
 
 type FormType = 'gst' | 'itr' | 'accounting' | 'incorporation' | 'advisory' | 'audit';
-
-// This is a simplified SetPageView for internal state management.
-type SetPageViewForPartner = React.Dispatch<React.SetStateAction<PageView | null>>;
-
 
 const caServicesList = [
   { id: "accounting", title: "Accounting & Bookkeeping", description: "Manage finances and keep records.", formType: "accounting" as FormType },
@@ -26,18 +21,6 @@ const caServicesList = [
   { id: "advisory", title: "Financial Advisory", description: "Strategic advice to grow.", formType: "advisory" as FormType },
 ];
 
-const FormComponentWrapper = ({ children, onBack }: { children: React.ReactNode, onBack: () => void }) => {
-    // This wrapper injects `setCurrentPage` as a prop to the form components
-    // which they expect from the main page, but here we just need to handle the back action.
-    const childrenWithProps = React.Children.map(children, child => {
-        if (React.isValidElement(child)) {
-            return React.cloneElement(child, { setCurrentPage: onBack } as any);
-        }
-        return child;
-    });
-
-    return <>{childrenWithProps}</>;
-};
 
 export function PartnerCAServiceApplication() {
     const [activeForm, setActiveForm] = useState<FormType | null>(null);
@@ -47,17 +30,15 @@ export function PartnerCAServiceApplication() {
     };
 
     if (activeForm) {
-        let FormComponent;
         switch (activeForm) {
-            case 'gst': FormComponent = <GstServiceApplicationForm setCurrentPage={() => {}} />; break;
-            case 'itr': FormComponent = <ItrFilingConsultationForm setCurrentPage={() => {}} />; break;
-            case 'accounting': FormComponent = <AccountingBookkeepingForm setCurrentPage={() => {}} />; break;
-            case 'incorporation': FormComponent = <CompanyIncorporationForm setCurrentPage={() => {}} />; break;
-            case 'advisory': FormComponent = <FinancialAdvisoryForm setCurrentPage={() => {}} />; break;
-            case 'audit': FormComponent = <AuditAndAssuranceForm setCurrentPage={() => {}} />; break;
+            case 'gst': return <GstServiceApplicationForm onBack={handleBackToMenu} />;
+            case 'itr': return <ItrFilingConsultationForm onBack={handleBackToMenu} />;
+            case 'accounting': return <AccountingBookkeepingForm onBack={handleBackToMenu} />;
+            case 'incorporation': return <CompanyIncorporationForm onBack={handleBackToMenu} />;
+            case 'advisory': return <FinancialAdvisoryForm onBack={handleBackToMenu} />;
+            case 'audit': return <AuditAndAssuranceForm onBack={handleBackToMenu} />;
             default: return null;
         }
-        return <FormComponentWrapper onBack={handleBackToMenu}>{FormComponent}</FormComponentWrapper>;
     }
     
     return (

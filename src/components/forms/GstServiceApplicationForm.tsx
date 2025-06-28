@@ -4,12 +4,11 @@
 import React from 'react';
 import { GstServiceApplicationSchema, type GstServiceApplicationFormData } from '@/lib/schemas';
 import { ReceiptText } from 'lucide-react';
-import type { SetPageView } from '@/app/page';
 import { submitGstServiceApplicationAction, updateCAServiceApplicationAction } from '@/app/actions/caServiceActions';
 import { GenericCAServiceForm } from './GenericCAServiceForm';
 
 interface GstServiceApplicationFormProps {
-  setCurrentPage?: SetPageView;
+  onBack?: () => void;
   initialData?: GstServiceApplicationFormData | null;
   applicationId?: string;
   mode?: 'create' | 'edit';
@@ -61,7 +60,7 @@ const gstServiceSections = [
     }
 ];
 
-export function GstServiceApplicationForm({ setCurrentPage, initialData, applicationId, mode = 'create' }: GstServiceApplicationFormProps) {
+export function GstServiceApplicationForm({ onBack, initialData, applicationId, mode = 'create' }: GstServiceApplicationFormProps) {
   const defaultValues: GstServiceApplicationFormData = {
     applicantDetails: {
       fullName: '',
@@ -95,8 +94,7 @@ export function GstServiceApplicationForm({ setCurrentPage, initialData, applica
 
   return (
     <GenericCAServiceForm
-      setCurrentPage={setCurrentPage}
-      backPage="caServices"
+      onBack={onBack}
       formTitle="GST Service Application Form"
       formSubtitle="Please fill in the details below to apply for GST related services."
       formIcon={<ReceiptText className="w-12 h-12 mx-auto text-primary mb-2" />}

@@ -4,12 +4,11 @@
 import React from 'react';
 import { AuditAndAssuranceFormSchema, type AuditAndAssuranceFormData } from '@/lib/schemas';
 import { ClipboardCheck } from 'lucide-react';
-import type { SetPageView } from '@/app/page';
 import { submitAuditAndAssuranceAction, updateCAServiceApplicationAction } from '@/app/actions/caServiceActions';
 import { GenericCAServiceForm } from './GenericCAServiceForm';
 
 interface AuditAndAssuranceFormProps {
-  setCurrentPage?: SetPageView;
+  onBack?: () => void;
   initialData?: AuditAndAssuranceFormData | null;
   applicationId?: string;
   mode?: 'create' | 'edit';
@@ -62,7 +61,7 @@ const auditAndAssuranceSections = [
     }
 ];
 
-export function AuditAndAssuranceForm({ setCurrentPage, initialData, applicationId, mode = 'create' }: AuditAndAssuranceFormProps) {
+export function AuditAndAssuranceForm({ onBack, initialData, applicationId, mode = 'create' }: AuditAndAssuranceFormProps) {
   const defaultValues: AuditAndAssuranceFormData = {
     applicantDetails: {
       fullName: '',
@@ -95,8 +94,7 @@ export function AuditAndAssuranceForm({ setCurrentPage, initialData, application
 
   return (
     <GenericCAServiceForm
-      setCurrentPage={setCurrentPage}
-      backPage='caServices'
+      onBack={onBack}
       formTitle="Audit and Assurance Service Application"
       formSubtitle="Please provide the details below to avail our services."
       formIcon={<ClipboardCheck className="w-12 h-12 mx-auto text-primary mb-2" />}

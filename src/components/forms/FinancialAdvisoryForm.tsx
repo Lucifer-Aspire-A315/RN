@@ -4,12 +4,11 @@
 import React from 'react';
 import { FinancialAdvisoryFormSchema, type FinancialAdvisoryFormData } from '@/lib/schemas';
 import { PiggyBank } from 'lucide-react';
-import type { SetPageView } from '@/app/page';
 import { submitFinancialAdvisoryAction, updateCAServiceApplicationAction } from '@/app/actions/caServiceActions';
 import { GenericCAServiceForm } from './GenericCAServiceForm';
 
 interface FinancialAdvisoryFormProps {
-  setCurrentPage?: SetPageView;
+  onBack?: () => void;
   initialData?: FinancialAdvisoryFormData | null;
   applicationId?: string;
   mode?: 'create' | 'edit';
@@ -81,7 +80,7 @@ const financialAdvisorySections = [
     }
 ];
 
-export function FinancialAdvisoryForm({ setCurrentPage, initialData, applicationId, mode = 'create' }: FinancialAdvisoryFormProps) {
+export function FinancialAdvisoryForm({ onBack, initialData, applicationId, mode = 'create' }: FinancialAdvisoryFormProps) {
   const defaultValues: FinancialAdvisoryFormData = {
     applicantDetails: {
       fullName: '',
@@ -132,8 +131,7 @@ export function FinancialAdvisoryForm({ setCurrentPage, initialData, application
 
   return (
     <GenericCAServiceForm
-        setCurrentPage={setCurrentPage}
-        backPage='caServices'
+        onBack={onBack}
         formTitle="Financial Advisory Service Application"
         formSubtitle="Please provide the details below to help us understand your financial needs."
         formIcon={<PiggyBank className="w-12 h-12 mx-auto text-primary mb-2" />}

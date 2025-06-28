@@ -4,12 +4,11 @@
 import React from 'react';
 import { CompanyIncorporationFormSchema, type CompanyIncorporationFormData } from '@/lib/schemas';
 import { Building2 } from 'lucide-react';
-import type { SetPageView } from '@/app/page';
 import { submitCompanyIncorporationAction, updateCAServiceApplicationAction } from '@/app/actions/caServiceActions';
 import { GenericCAServiceForm } from './GenericCAServiceForm';
 
 interface CompanyIncorporationFormProps {
-  setCurrentPage?: SetPageView;
+  onBack?: () => void;
   initialData?: CompanyIncorporationFormData | null;
   applicationId?: string;
   mode?: 'create' | 'edit';
@@ -94,7 +93,7 @@ const companyIncorporationSections = [
     }
 ];
 
-export function CompanyIncorporationForm({ setCurrentPage, initialData, applicationId, mode = 'create' }: CompanyIncorporationFormProps) {
+export function CompanyIncorporationForm({ onBack, initialData, applicationId, mode = 'create' }: CompanyIncorporationFormProps) {
   const defaultValues: CompanyIncorporationFormData = {
     applicantFounderDetails: {
       fullName: '',
@@ -138,8 +137,7 @@ export function CompanyIncorporationForm({ setCurrentPage, initialData, applicat
 
   return (
     <GenericCAServiceForm
-        setCurrentPage={setCurrentPage}
-        backPage='caServices'
+        onBack={onBack}
         formTitle="Company Incorporation Application Form"
         formSubtitle="Please provide the details below to start your company registration process."
         formIcon={<Building2 className="w-12 h-12 mx-auto text-primary mb-2" />}

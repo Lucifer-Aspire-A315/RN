@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -159,17 +160,17 @@ export default function Home() {
       case 'caServices':
         return <CAServicesPage setCurrentPage={setCurrentPage} />;
       case 'gstServiceForm':
-        return <ProtectedFormComponent onBack={() => setCurrentPage('caServices')}><GstServiceApplicationForm setCurrentPage={setCurrentPage} /></ProtectedFormComponent>;
+        return <ProtectedFormComponent onBack={() => setCurrentPage('caServices')}><GstServiceApplicationForm onBack={() => setCurrentPage('caServices')} /></ProtectedFormComponent>;
       case 'itrFilingConsultationForm':
-        return <ProtectedFormComponent onBack={() => setCurrentPage('caServices')}><ItrFilingConsultationForm setCurrentPage={setCurrentPage} /></ProtectedFormComponent>;
+        return <ProtectedFormComponent onBack={() => setCurrentPage('caServices')}><ItrFilingConsultationForm onBack={() => setCurrentPage('caServices')} /></ProtectedFormComponent>;
       case 'accountingBookkeepingForm':
-        return <ProtectedFormComponent onBack={() => setCurrentPage('caServices')}><AccountingBookkeepingForm setCurrentPage={setCurrentPage} /></ProtectedFormComponent>;
+        return <ProtectedFormComponent onBack={() => setCurrentPage('caServices')}><AccountingBookkeepingForm onBack={() => setCurrentPage('caServices')} /></ProtectedFormComponent>;
       case 'companyIncorporationForm':
-        return <ProtectedFormComponent onBack={() => setCurrentPage('caServices')}><CompanyIncorporationForm setCurrentPage={setCurrentPage} /></ProtectedFormComponent>;
+        return <ProtectedFormComponent onBack={() => setCurrentPage('caServices')}><CompanyIncorporationForm onBack={() => setCurrentPage('caServices')} /></ProtectedFormComponent>;
       case 'financialAdvisoryForm':
-        return <ProtectedFormComponent onBack={() => setCurrentPage('caServices')}><FinancialAdvisoryForm setCurrentPage={setCurrentPage} /></ProtectedFormComponent>;
+        return <ProtectedFormComponent onBack={() => setCurrentPage('caServices')}><FinancialAdvisoryForm onBack={() => setCurrentPage('caServices')} /></ProtectedFormComponent>;
       case 'auditAndAssuranceForm':
-        return <ProtectedFormComponent onBack={() => setCurrentPage('caServices')}><AuditAndAssuranceForm setCurrentPage={setCurrentPage} /></ProtectedFormComponent>;
+        return <ProtectedFormComponent onBack={() => setCurrentPage('caServices')}><AuditAndAssuranceForm onBack={() => setCurrentPage('caServices')} /></ProtectedFormComponent>;
       default:
         return <p>Page not found.</p>;
     }

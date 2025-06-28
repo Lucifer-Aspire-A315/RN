@@ -4,12 +4,11 @@
 import React from 'react';
 import { ItrFilingConsultationFormSchema, type ItrFilingConsultationFormData } from '@/lib/schemas';
 import { FileSpreadsheet } from 'lucide-react';
-import type { SetPageView } from '@/app/page';
 import { submitItrFilingConsultationAction, updateCAServiceApplicationAction } from '@/app/actions/caServiceActions';
 import { GenericCAServiceForm } from './GenericCAServiceForm';
 
 interface ItrFilingConsultationFormProps {
-  setCurrentPage?: SetPageView;
+  onBack?: () => void;
   initialData?: ItrFilingConsultationFormData | null;
   applicationId?: string;
   mode?: 'create' | 'edit';
@@ -59,7 +58,7 @@ const itrFilingSections = [
     }
 ];
 
-export function ItrFilingConsultationForm({ setCurrentPage, initialData, applicationId, mode = 'create' }: ItrFilingConsultationFormProps) {
+export function ItrFilingConsultationForm({ onBack, initialData, applicationId, mode = 'create' }: ItrFilingConsultationFormProps) {
   const defaultValues: ItrFilingConsultationFormData = {
     applicantDetails: {
       fullName: '',
@@ -95,8 +94,7 @@ export function ItrFilingConsultationForm({ setCurrentPage, initialData, applica
 
   return (
     <GenericCAServiceForm
-      setCurrentPage={setCurrentPage}
-      backPage="caServices"
+      onBack={onBack}
       formTitle="Income Tax Filing & Consultation Application"
       formSubtitle="Please provide the following details for ITR filing and consultation services."
       formIcon={<FileSpreadsheet className="w-12 h-12 mx-auto text-primary mb-2" />}

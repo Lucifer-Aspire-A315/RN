@@ -4,12 +4,11 @@
 import React from 'react';
 import { AccountingBookkeepingFormSchema, type AccountingBookkeepingFormData } from '@/lib/schemas';
 import { BookOpenCheck } from 'lucide-react';
-import type { SetPageView } from '@/app/page';
 import { submitAccountingBookkeepingAction, updateCAServiceApplicationAction } from '@/app/actions/caServiceActions';
 import { GenericCAServiceForm } from './GenericCAServiceForm';
 
 interface AccountingBookkeepingFormProps {
-  setCurrentPage?: SetPageView;
+  onBack?: () => void;
   initialData?: AccountingBookkeepingFormData | null;
   applicationId?: string;
   mode?: 'create' | 'edit';
@@ -65,7 +64,7 @@ const accountingSections = [
     }
 ];
 
-export function AccountingBookkeepingForm({ setCurrentPage, initialData, applicationId, mode = 'create' }: AccountingBookkeepingFormProps) {
+export function AccountingBookkeepingForm({ onBack, initialData, applicationId, mode = 'create' }: AccountingBookkeepingFormProps) {
   const defaultValues: AccountingBookkeepingFormData = {
     applicantDetails: {
       fullName: '',
@@ -101,8 +100,7 @@ export function AccountingBookkeepingForm({ setCurrentPage, initialData, applica
 
   return (
     <GenericCAServiceForm
-        setCurrentPage={setCurrentPage}
-        backPage='caServices'
+        onBack={onBack}
         formTitle="Accounting & Bookkeeping Service Application"
         formSubtitle="Please provide the details below to avail our services."
         formIcon={<BookOpenCheck className="w-12 h-12 mx-auto text-primary mb-2" />}

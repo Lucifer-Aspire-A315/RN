@@ -9,7 +9,6 @@ import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { MoreHorizontal, Loader2, Eye, Edit, Trash2 } from 'lucide-react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 
@@ -52,7 +51,7 @@ export function AdminApplicationsTable({ applications, onUpdateStatus, onArchive
   const [isAlertOpen, setIsAlertOpen] = useState(false);
   const [selectedAppForArchive, setSelectedAppForArchive] = useState<UserApplication | null>(null);
 
-  const handleRowClick = (app: UserApplication) => {
+  const handleViewClick = (app: UserApplication) => {
     router.push(`/admin/application/${app.id}?category=${app.serviceCategory}`);
   };
   
@@ -99,55 +98,54 @@ export function AdminApplicationsTable({ applications, onUpdateStatus, onArchive
           <TableBody>
             {applications.map((app) => (
               <TableRow 
-                key={app.id} 
-                className="cursor-pointer"
+                key={app.id}
               >
-                <TableCell className="font-medium" onClick={() => handleRowClick(app)}>
+                <TableCell className="font-medium cursor-pointer" onClick={() => handleViewClick(app)}>
                   <div>{app.applicantDetails?.fullName || 'N/A'}</div>
                   <div className="text-xs text-muted-foreground">{app.applicantDetails?.email || 'N/A'}</div>
                 </TableCell>
-                <TableCell onClick={() => handleRowClick(app)}>{app.applicationType}</TableCell>
-                <TableCell onClick={() => handleRowClick(app)}>{getCategoryDisplay(app.serviceCategory)}</TableCell>
-                <TableCell onClick={() => handleRowClick(app)}>{format(new Date(app.createdAt), 'PPp')}</TableCell>
-                <TableCell onClick={() => handleRowClick(app)}>
+                <TableCell className="cursor-pointer" onClick={() => handleViewClick(app)}>{app.applicationType}</TableCell>
+                <TableCell className="cursor-pointer" onClick={() => handleViewClick(app)}>{getCategoryDisplay(app.serviceCategory)}</TableCell>
+                <TableCell className="cursor-pointer" onClick={() => handleViewClick(app)}>{format(new Date(app.createdAt), 'PPp')}</TableCell>
+                <TableCell className="cursor-pointer" onClick={() => handleViewClick(app)}>
                   <Badge variant={getStatusVariant(app.status)} className="capitalize">
                     {app.status}
                   </Badge>
                 </TableCell>
-                <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" disabled={isUpdating}>
-                        {isUpdating ? <Loader2 className="h-4 w-4 animate-spin" /> : <MoreHorizontal className="h-4 w-4" />}
-                        <span className="sr-only">Actions</span>
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => handleRowClick(app)}>
-                        <Eye className="mr-2 h-4 w-4" />
-                        View Details
-                      </DropdownMenuItem>
-                       <DropdownMenuItem onClick={() => handleEditClick(app)}>
-                        <Edit className="mr-2 h-4 w-4" />
-                        Edit Application
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      {availableStatuses.map((status) => (
-                        <DropdownMenuItem
-                          key={status}
-                          onClick={() => onUpdateStatus(app.id, app.serviceCategory, status)}
-                          disabled={app.status.toLowerCase() === status.toLowerCase() || isUpdating}
-                        >
-                          Set as {status}
-                        </DropdownMenuItem>
-                      ))}
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => openArchiveDialog(app)}>
-                         <Trash2 className="mr-2 h-4 w-4" />
-                         <span>Delete</span>
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                <TableCell className="text-right">
+                  <div className="flex items-center justify-end gap-2">
+                     <Button variant="outline" size="icon" onClick={() => handleEditClick(app)} title="Edit Application">
+                        <Edit className="h-4 w-4" />
+                     </Button>
+                      <Button variant="destructive" size="icon" onClick={() => openArchiveDialog(app)} title="Delete Application">
+                        <Trash2 className="h-4 w-4" />
+                     </Button>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" disabled={isUpdating}>
+                            {isUpdating ? <Loader2 className="h-4 w-4 animate-spin" /> : <MoreHorizontal className="h-4 w-4" />}
+                            <span className="sr-only">More actions</span>
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                           <DropdownMenuItem onClick={() => handleViewClick(app)}>
+                            <Eye className="mr-2 h-4 w-4" />
+                            View Details
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                           <DropdownMenuLabel>Set Status</DropdownMenuLabel>
+                          {availableStatuses.map((status) => (
+                            <DropdownMenuItem
+                              key={status}
+                              onClick={() => onUpdateStatus(app.id, app.serviceCategory, status)}
+                              disabled={app.status.toLowerCase() === status.toLowerCase() || isUpdating}
+                            >
+                              {status}
+                            </DropdownMenuItem>
+                          ))}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                  </div>
                 </TableCell>
               </TableRow>
             ))}

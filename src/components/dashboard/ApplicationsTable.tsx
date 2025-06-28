@@ -6,6 +6,8 @@ import { Badge } from '@/components/ui/badge';
 import type { UserApplication } from '@/lib/types';
 import { format } from 'date-fns';
 import { useRouter } from 'next/navigation';
+import { Button } from '../ui/button';
+import { Edit } from 'lucide-react';
 
 interface ApplicationsTableProps {
   applications: UserApplication[];
@@ -47,8 +49,12 @@ export function ApplicationsTable({ applications }: ApplicationsTableProps) {
     );
   }
 
-  const handleRowClick = (app: UserApplication) => {
+  const handleViewClick = (app: UserApplication) => {
     router.push(`/dashboard/application/${app.id}?category=${app.serviceCategory}`);
+  };
+  
+  const handleEditClick = (app: UserApplication) => {
+    router.push(`/dashboard/application/${app.id}/edit?category=${app.serviceCategory}`);
   };
 
 
@@ -61,27 +67,29 @@ export function ApplicationsTable({ applications }: ApplicationsTableProps) {
             <TableHead>Application Type</TableHead>
             <TableHead>Category</TableHead>
             <TableHead>Submitted On</TableHead>
-            <TableHead className="text-right">Status</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead className="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {applications.map((app) => (
-            <TableRow 
-              key={app.id} 
-              onClick={() => handleRowClick(app)}
-              className="cursor-pointer"
-            >
-              <TableCell className="font-medium">
+            <TableRow key={app.id}>
+              <TableCell className="font-medium cursor-pointer" onClick={() => handleViewClick(app)}>
                 <div>{app.applicantDetails?.fullName || 'N/A'}</div>
                 <div className="text-xs text-muted-foreground">{app.applicantDetails?.email || 'N/A'}</div>
               </TableCell>
-              <TableCell>{app.applicationType}</TableCell>
-              <TableCell>{getCategoryDisplay(app.serviceCategory)}</TableCell>
-              <TableCell>{format(new Date(app.createdAt), 'PPp')}</TableCell>
-              <TableCell className="text-right">
+              <TableCell className="cursor-pointer" onClick={() => handleViewClick(app)}>{app.applicationType}</TableCell>
+              <TableCell className="cursor-pointer" onClick={() => handleViewClick(app)}>{getCategoryDisplay(app.serviceCategory)}</TableCell>
+              <TableCell className="cursor-pointer" onClick={() => handleViewClick(app)}>{format(new Date(app.createdAt), 'PPp')}</TableCell>
+              <TableCell className="cursor-pointer" onClick={() => handleViewClick(app)}>
                 <Badge variant={getStatusVariant(app.status)} className="capitalize">
                   {app.status}
                 </Badge>
+              </TableCell>
+              <TableCell className="text-right">
+                <Button variant="outline" size="sm" onClick={() => handleEditClick(app)}>
+                  <Edit className="mr-2 h-4 w-4" /> Edit
+                </Button>
               </TableCell>
             </TableRow>
           ))}

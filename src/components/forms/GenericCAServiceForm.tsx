@@ -15,8 +15,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from '@/contexts/AuthContext';
 import { ArrowLeft, Loader2, UploadCloud } from 'lucide-react';
 import { FormSection, FormFieldWrapper } from './FormSection';
-import type { SetPageView, PageView } from '@/app/page';
 import { processFileUploads } from '@/lib/form-helpers';
+import { useRouter } from 'next/navigation';
 
 // Field and Section Configuration Types
 interface FieldConfig {
@@ -73,8 +73,7 @@ const FormFileInput: React.FC<FormFileInputProps> = ({ fieldLabel, rhfRef, rhfNa
 
 
 interface GenericCAServiceFormProps<T extends Record<string, any>> {
-  setCurrentPage?: (page: PageView | null) => void;
-  backPage?: PageView;
+  onBack?: () => void;
   formTitle: string;
   formSubtitle: string;
   formIcon: React.ReactNode;
@@ -88,8 +87,7 @@ interface GenericCAServiceFormProps<T extends Record<string, any>> {
 }
 
 export function GenericCAServiceForm<TData extends Record<string, any>>({
-  setCurrentPage,
-  backPage,
+  onBack,
   formTitle,
   formSubtitle,
   formIcon,
@@ -102,6 +100,7 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
   applicationId,
 }: GenericCAServiceFormProps<TData>) {
   const { toast } = useToast();
+  const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<Record<string, File | null>>({});
   const { currentUser } = useAuth();
@@ -127,11 +126,8 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
     return null;
   };
   
-  const handleBackClick = () => {
-    if (setCurrentPage) {
-        setCurrentPage(backPage || 'main');
-    }
-  };
+  const handleBackClick = onBack || (mode === 'edit' ? () => router.back() : undefined);
+
 
   async function onSubmit(data: TData) {
     setIsSubmitting(true);
@@ -162,9 +158,11 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
         if (mode === 'create') {
             reset();
             setSelectedFiles({});
-            setTimeout(() => {
-              handleBackClick();
-            }, 2000);
+            if (handleBackClick) {
+                setTimeout(() => {
+                  handleBackClick();
+                }, 2000);
+            }
         }
       } else {
         toast({ variant: "destructive", title: mode === 'edit' ? "Update Failed" : "Application Failed", description: result.message || "An unknown error occurred.", duration: 9000 });
@@ -248,10 +246,10 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
   return (
     <section className="bg-secondary py-12 md:py-20">
       <div className="container mx-auto px-4 sm:px-6">
-        {setCurrentPage && (
+        {handleBackClick && (
             <Button variant="ghost" onClick={handleBackClick} className="inline-flex items-center mb-8 text-muted-foreground hover:text-primary">
             <ArrowLeft className="w-5 h-5 mr-2" />
-            Back
+             {mode === 'edit' ? 'Back to Details' : 'Back'}
             </Button>
         )}
         <div className="max-w-4xl mx-auto bg-card p-6 md:p-10 rounded-2xl shadow-xl">

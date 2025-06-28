@@ -150,6 +150,8 @@ export function GenericLoanForm<TData extends Record<string, any>>({
     return null;
   };
 
+  const handleBackClick = onBack || (mode === 'edit' ? () => router.back() : undefined);
+
 
   async function onSubmit(data: TData) {
     setIsSubmitting(true);
@@ -179,11 +181,11 @@ export function GenericLoanForm<TData extends Record<string, any>>({
 
       if (result.success) {
         toast({ title: mode === 'edit' ? "Application Updated!" : "Application Submitted!", description: result.message, duration: 5000 });
-        if (mode === 'create' && onBack) {
+        if (mode === 'create' && handleBackClick) {
             reset(); 
             setSelectedFiles({});
             setTimeout(() => {
-              onBack();
+              handleBackClick();
             }, 2000);
         } else if (mode === 'edit') {
             // No automatic redirect on successful edit, user can choose to navigate away.
@@ -331,10 +333,10 @@ export function GenericLoanForm<TData extends Record<string, any>>({
   return (
     <section className="bg-secondary py-12 md:py-20">
       <div className="container mx-auto px-4 sm:px-6">
-        {onBack && (
-            <Button variant="ghost" onClick={onBack} className="inline-flex items-center mb-8 text-muted-foreground hover:text-primary">
+        {handleBackClick && (
+            <Button variant="ghost" onClick={handleBackClick} className="inline-flex items-center mb-8 text-muted-foreground hover:text-primary">
               <ArrowLeft className="w-5 h-5 mr-2" />
-              {backButtonText || 'Back to Home'}
+              {backButtonText || (mode === 'edit' ? 'Back to Details' : 'Back to Home')}
             </Button>
         )}
         <div className="max-w-4xl mx-auto bg-card p-6 md:p-10 rounded-2xl shadow-xl">
