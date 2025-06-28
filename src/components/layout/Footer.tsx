@@ -73,6 +73,11 @@ export function Footer() {
                   Credit Card
                 </Link>
               </li>
+              <li>
+                <Link href="/#services" className="text-[#F8FAE5] hover:text-[#F26A4B] transition-colors">
+                  Machinery Loan
+                </Link>
+              </li>
             </ul>
           </div>
 
