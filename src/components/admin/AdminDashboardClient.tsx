@@ -106,25 +106,25 @@ export function AdminDashboardClient({}: AdminDashboardClientProps) {
     });
   };
 
-  const handleArchiveApplication = (applicationId: string, serviceCategory: UserApplication['serviceCategory']) => {
-    startTransition(async () => {
-        setProcessingId(applicationId);
-        const result = await archiveApplicationAction(applicationId, serviceCategory);
-        if (result.success) {
-            toast({
-                title: "Application Archived",
-                description: result.message,
-            });
+  const handleArchiveApplication = async (applicationId: string, serviceCategory: UserApplication['serviceCategory']) => {
+    setProcessingId(applicationId);
+    const result = await archiveApplicationAction(applicationId, serviceCategory);
+    if (result.success) {
+        toast({
+            title: "Application Archived",
+            description: result.message,
+        });
+        startTransition(() => {
             setApplications(currentApps => currentApps.filter(app => app.id !== applicationId));
-        } else {
-            toast({
-                variant: "destructive",
-                title: "Archive Failed",
-                description: result.message,
-            });
-        }
-        setProcessingId(null);
-    });
+        });
+    } else {
+        toast({
+            variant: "destructive",
+            title: "Archive Failed",
+            description: result.message,
+        });
+    }
+    setProcessingId(null);
   };
 
 

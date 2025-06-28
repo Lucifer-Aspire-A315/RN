@@ -16,7 +16,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 interface AdminApplicationsTableProps {
   applications: UserApplication[];
   onUpdateStatus: (applicationId: string, serviceCategory: UserApplication['serviceCategory'], newStatus: string) => void;
-  onArchive: (applicationId: string, serviceCategory: UserApplication['serviceCategory']) => void;
+  onArchive: (applicationId: string, serviceCategory: UserApplication['serviceCategory']) => Promise<void>;
   processingId: string | null;
 }
 
@@ -64,9 +64,9 @@ export function AdminApplicationsTable({ applications, onUpdateStatus, onArchive
     setIsAlertOpen(true);
   };
 
-  const confirmArchive = () => {
+  const confirmArchive = async () => {
     if (selectedAppForArchive) {
-      onArchive(selectedAppForArchive.id, selectedAppForArchive.serviceCategory);
+      await onArchive(selectedAppForArchive.id, selectedAppForArchive.serviceCategory);
     }
     setIsAlertOpen(false);
     setSelectedAppForArchive(null);
