@@ -25,6 +25,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/contexts/AuthContext';
 import { LoginPrompt } from '@/components/shared/LoginPrompt';
 import { HowItWorksSection } from '@/components/sections/HowItWorksSection';
+import { CTASection } from '@/components/sections/CTASection';
+import { PartnerBanksSection } from '@/components/sections/PartnerBanksSection';
 
 export type PageView = 
   'main' | 
@@ -64,7 +66,7 @@ export default function Home() {
 
     const handleHashChange = () => {
       const hash = window.location.hash;
-      if (hash === '#home' || hash === '#services' || hash === '#calculator') {
+      if (hash === '#home' || hash === '#services' || hash === '#calculator' || hash === '#how-it-works') {
         if(currentPage !== 'main') setCurrentPage('main');
         setTimeout(() => {
           const element = document.getElementById(hash.substring(1));
@@ -74,10 +76,11 @@ export default function Home() {
     };
 
     window.addEventListener('hashchange', handleHashChange, false);
-    if (window.location.hash && (window.location.hash === '#home' || window.location.hash === '#services' || window.location.hash === '#calculator')) {
+    if (window.location.hash) {
        setCurrentPage('main');
        setTimeout(() => {
-        const element = document.getElementById(window.location.hash.substring(1));
+        const elementId = window.location.hash.substring(1);
+        const element = document.getElementById(elementId);
         if (element) element.scrollIntoView({ behavior: 'smooth' });
        }, 100);
     }
@@ -123,8 +126,10 @@ export default function Home() {
         return (
           <>
             <HeroSection setCurrentPage={setCurrentPage} />
+            <PartnerBanksSection />
             <ServicesSection setCurrentPage={setCurrentPage} />
             <HowItWorksSection />
+            <CTASection />
             <EMICalculatorSection />
           </>
         );
