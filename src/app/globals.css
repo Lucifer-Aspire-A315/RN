@@ -113,11 +113,23 @@
   }
 }
 
+@layer utilities {
+  @keyframes scroll-infinite {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+  .animate-scroll-infinite {
+    animation: scroll-infinite 40s linear infinite;
+  }
+}
+
 .hero-bg {
   background: 
-    radial-gradient(at 27% 37%, hsla(var(--primary), 0.1) 0px, transparent 50%),
+    radial-gradient(at 27% 37%, hsla(var(--primary), 0.15) 0px, transparent 50%),
     radial-gradient(at 97% 21%, hsla(var(--accent), 0.1) 0px, transparent 50%),
-    radial-gradient(at 52% 99%, hsla(var(--primary), 0.1) 0px, transparent 50%);
+    radial-gradient(at 52% 99%, hsla(var(--secondary), 0.2) 0px, transparent 50%),
+    radial-gradient(at 10% 80%, hsla(var(--primary), 0.1) 0px, transparent 50%),
+    radial-gradient(at 80% 90%, hsla(var(--accent), 0.15) 0px, transparent 50%);
 }
 
 
