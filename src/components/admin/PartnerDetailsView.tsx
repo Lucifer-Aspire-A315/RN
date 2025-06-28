@@ -92,10 +92,10 @@ export function PartnerDetailsView({ partnerId }: PartnerDetailsViewProps) {
         startRemoveTransition(async () => {
             const result = await removePartnerAction(partnerId);
             if (result.success) {
-                toast({ title: "Partner Removed", description: result.message });
+                toast({ title: "Partner Deactivated", description: result.message });
                 router.push('/admin/dashboard');
             } else {
-                toast({ variant: "destructive", title: "Removal Failed", description: result.message });
+                toast({ variant: "destructive", title: "Deactivation Failed", description: result.message });
             }
             setIsAlertOpen(false);
         });
@@ -172,7 +172,7 @@ export function PartnerDetailsView({ partnerId }: PartnerDetailsViewProps) {
                      <div className="border-t pt-6 flex justify-end">
                         <Button variant="destructive" onClick={() => setIsAlertOpen(true)} disabled={isRemoving}>
                             {isRemoving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
-                            Remove Partner
+                            Deactivate Partner
                         </Button>
                     </div>
                 </CardContent>
@@ -191,15 +191,15 @@ export function PartnerDetailsView({ partnerId }: PartnerDetailsViewProps) {
             <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
                 <AlertDialogContent>
                   <AlertDialogHeader>
-                    <AlertDialogTitle>Are you sure you want to remove this partner?</AlertDialogTitle>
+                    <AlertDialogTitle>Are you sure you want to deactivate this partner?</AlertDialogTitle>
                     <AlertDialogDescription>
-                      This action will permanently delete the partner's account. Their previously submitted applications will remain but they will no longer be able to log in. This action cannot be undone.
+                      This will revoke the partner's access and move them to the pending list. They will not be able to log in until approved again. Their data will be preserved.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
                     <AlertDialogAction onClick={handleRemovePartner} className="bg-destructive hover:bg-destructive/90" disabled={isRemoving}>
-                      {isRemoving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Yes, Remove Partner'}
+                      {isRemoving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Yes, Deactivate'}
                     </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>

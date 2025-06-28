@@ -150,7 +150,7 @@ export async function getAllPartners(): Promise<PartnerData[]> {
         return allPartners;
 
     } catch (error: any) {
-        console.error('[AdminActions] Error fetching all partners:', error.message, error.stack);
+        console.error(`[AdminActions] Error fetching all partners:', error.message, error.stack);
         return [];
     }
 }
@@ -331,17 +331,19 @@ export async function getApplicationsByPartner(partnerId: string): Promise<UserA
 
 export async function removePartnerAction(partnerId: string): Promise<{ success: boolean; message: string }> {
     await verifyAdmin();
-    console.log(`[AdminActions] Attempting to remove partner with ID: ${partnerId}`);
+    console.log(`[AdminActions] Attempting to deactivate partner with ID: ${partnerId}`);
 
     try {
         const partnerRef = doc(db, 'partners', partnerId);
-        await deleteDoc(partnerRef);
+        await updateDoc(partnerRef, {
+            isApproved: false
+        });
 
-        console.log(`[AdminActions] Successfully removed partner: ${partnerId}`);
+        console.log(`[AdminActions] Successfully deactivated partner: ${partnerId}`);
         revalidatePath('/admin/dashboard');
-        return { success: true, message: 'Partner removed successfully.' };
+        return { success: true, message: 'Partner has been deactivated and moved to the pending list.' };
     } catch (error: any) {
-        console.error(`[AdminActions] Error removing partner ${partnerId}:`, error.message, error.stack);
-        return { success: false, message: 'Failed to remove partner.' };
+        console.error(`[AdminActions] Error deactivating partner ${partnerId}:`, error.message, error.stack);
+        return { success: false, message: 'Failed to deactivate partner.' };
     }
 }
