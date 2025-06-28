@@ -30,7 +30,7 @@ export function AdminDashboardClient({}: AdminDashboardClientProps) {
   const [applications, setApplications] = useState<UserApplication[]>([]);
   const [pendingPartners, setPendingPartners] = useState<PartnerData[]>([]);
   const [isPending, startTransition] = useTransition();
-  const [processingId, setProcessingId] = useState<string | null>(null);
+  const [processingState, setProcessingState] = useState<{ id: string; type: 'delete' | 'status' | 'approve' } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
@@ -60,7 +60,7 @@ export function AdminDashboardClient({}: AdminDashboardClientProps) {
 
   const handleApprovePartner = (partnerId: string) => {
     startTransition(async () => {
-        setProcessingId(partnerId);
+        setProcessingState({ id: partnerId, type: 'approve' });
         const result = await approvePartner(partnerId);
         if (result.success) {
             toast({
@@ -76,13 +76,13 @@ export function AdminDashboardClient({}: AdminDashboardClientProps) {
                 description: result.message,
             });
         }
-        setProcessingId(null);
+        setProcessingState(null);
     });
   };
 
   const handleUpdateStatus = (applicationId: string, serviceCategory: UserApplication['serviceCategory'], newStatus: string) => {
     startTransition(async () => {
-        setProcessingId(applicationId);
+        setProcessingState({ id: applicationId, type: 'status' });
         const result = await updateApplicationStatus(applicationId, serviceCategory, newStatus);
         if (result.success) {
             toast({
@@ -102,12 +102,12 @@ export function AdminDashboardClient({}: AdminDashboardClientProps) {
                 description: result.message,
             });
         }
-        setProcessingId(null);
+        setProcessingState(null);
     });
   };
 
   const handleArchiveApplication = async (applicationId: string, serviceCategory: UserApplication['serviceCategory']) => {
-    setProcessingId(applicationId);
+    setProcessingState({ id: applicationId, type: 'delete' });
     const result = await archiveApplicationAction(applicationId, serviceCategory);
     if (result.success) {
         toast({
@@ -124,7 +124,7 @@ export function AdminDashboardClient({}: AdminDashboardClientProps) {
             description: result.message,
         });
     }
-    setProcessingId(null);
+    setProcessingState(null);
   };
 
 
@@ -147,7 +147,7 @@ export function AdminDashboardClient({}: AdminDashboardClientProps) {
                     <PendingPartnersTable 
                         partners={pendingPartners}
                         onApprove={handleApprovePartner}
-                        processingId={processingId}
+                        processingState={processingState}
                     />
                 )}
             </CardContent>
@@ -167,7 +167,7 @@ export function AdminDashboardClient({}: AdminDashboardClientProps) {
                         applications={applications} 
                         onUpdateStatus={handleUpdateStatus}
                         onArchive={handleArchiveApplication}
-                        processingId={processingId}
+                        processingState={processingState}
                     />
                 )}
             </CardContent>
