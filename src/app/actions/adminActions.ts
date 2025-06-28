@@ -50,6 +50,21 @@ function formatApplication(doc: DocumentData, defaultCategory: UserApplication['
 }
 
 
+function formatPartnerData(doc: DocumentData): PartnerData {
+    const data = doc.data();
+    const createdAtTimestamp = data.createdAt as Timestamp;
+    return {
+        id: doc.id,
+        fullName: data.fullName,
+        email: data.email,
+        mobileNumber: data.mobileNumber,
+        businessModel: data.businessModel,
+        createdAt: createdAtTimestamp?.toDate().toISOString() || new Date().toISOString(),
+        isApproved: data.isApproved,
+    };
+}
+
+
 export async function getAllApplications(): Promise<UserApplication[]> {
   await verifyAdmin();
   console.log('[AdminActions] Fetching all user applications...');
@@ -102,18 +117,7 @@ export async function getPendingPartners(): Promise<PartnerData[]> {
             return [];
         }
 
-        const pendingPartners = querySnapshot.docs.map(doc => {
-            const data = doc.data();
-            const createdAtTimestamp = data.createdAt as Timestamp;
-            return {
-                id: doc.id,
-                fullName: data.fullName,
-                email: data.email,
-                mobileNumber: data.mobileNumber,
-                createdAt: createdAtTimestamp?.toDate().toISOString() || new Date().toISOString(),
-                isApproved: data.isApproved,
-            };
-        });
+        const pendingPartners = querySnapshot.docs.map(formatPartnerData);
 
         console.log(`[AdminActions] Found ${pendingPartners.length} pending partners.`);
         return pendingPartners;
@@ -123,6 +127,34 @@ export async function getPendingPartners(): Promise<PartnerData[]> {
         return [];
     }
 }
+
+export async function getAllPartners(): Promise<PartnerData[]> {
+    await verifyAdmin();
+    console.log('[AdminActions] Fetching all approved partners...');
+
+    try {
+        const partnersRef = collection(db, 'partners');
+        const q = query(partnersRef, where('isApproved', '==', true));
+        const querySnapshot = await getDocs(q);
+
+        if (querySnapshot.empty) {
+            console.log('[AdminActions] No approved partners found.');
+            return [];
+        }
+
+        const allPartners = querySnapshot.docs.map(formatPartnerData);
+
+        allPartners.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+        console.log(`[AdminActions] Found ${allPartners.length} approved partners.`);
+        return allPartners;
+
+    } catch (error: any) {
+        console.error('[AdminActions] Error fetching all partners:', error.message, error.stack);
+        return [];
+    }
+}
+
 
 export async function approvePartner(partnerId: string): Promise<{ success: boolean; message: string }> {
     await verifyAdmin();

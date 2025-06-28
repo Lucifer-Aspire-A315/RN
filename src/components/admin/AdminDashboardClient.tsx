@@ -7,7 +7,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AdminApplicationsTable } from './AdminApplicationsTable';
 import { PendingPartnersTable } from './PendingPartnersTable';
-import { approvePartner, updateApplicationStatus, getAllApplications, getPendingPartners, archiveApplicationAction } from '@/app/actions/adminActions';
+import { AllPartnersTable } from './AllPartnersTable';
+import { approvePartner, updateApplicationStatus, getAllApplications, getPendingPartners, archiveApplicationAction, getAllPartners } from '@/app/actions/adminActions';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '../ui/skeleton';
 
@@ -29,6 +30,7 @@ function TableSkeleton() {
 export function AdminDashboardClient({}: AdminDashboardClientProps) {
   const [applications, setApplications] = useState<UserApplication[]>([]);
   const [pendingPartners, setPendingPartners] = useState<PartnerData[]>([]);
+  const [allPartners, setAllPartners] = useState<PartnerData[]>([]);
   const [isPending, startTransition] = useTransition();
   const [processingState, setProcessingState] = useState<{ id: string; type: 'delete' | 'status' | 'approve' } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -38,12 +40,14 @@ export function AdminDashboardClient({}: AdminDashboardClientProps) {
     async function fetchData() {
         setIsLoading(true);
         try {
-            const [apps, partners] = await Promise.all([
+            const [apps, pending, all] = await Promise.all([
                 getAllApplications(),
-                getPendingPartners()
+                getPendingPartners(),
+                getAllPartners()
             ]);
             setApplications(apps);
-            setPendingPartners(partners);
+            setPendingPartners(pending);
+            setAllPartners(all);
         } catch (error) {
             console.error("Failed to fetch admin dashboard data:", error);
             toast({
@@ -67,7 +71,14 @@ export function AdminDashboardClient({}: AdminDashboardClientProps) {
                 title: "Partner Approved",
                 description: result.message,
             });
-            // Optimistically update the UI
+            // Optimistically update the UI by moving partner from pending to all
+            const approvedPartner = pendingPartners.find(p => p.id === partnerId);
+            if(approvedPartner) {
+                setAllPartners(currentPartners => 
+                    [{ ...approvedPartner, isApproved: true }, ...currentPartners]
+                    .sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                );
+            }
             setPendingPartners(currentPartners => currentPartners.filter(p => p.id !== partnerId));
         } else {
              toast({
@@ -130,8 +141,9 @@ export function AdminDashboardClient({}: AdminDashboardClientProps) {
 
   return (
     <Tabs defaultValue="partners" className="space-y-4">
-      <TabsList>
+      <TabsList className="grid w-full grid-cols-3">
         <TabsTrigger value="partners">Pending Partners ({isLoading ? '...' : pendingPartners.length})</TabsTrigger>
+        <TabsTrigger value="all_partners">All Partners ({isLoading ? '...' : allPartners.length})</TabsTrigger>
         <TabsTrigger value="applications">All Applications ({isLoading ? '...' : applications.length})</TabsTrigger>
       </TabsList>
       <TabsContent value="partners">
@@ -149,6 +161,21 @@ export function AdminDashboardClient({}: AdminDashboardClientProps) {
                         onApprove={handleApprovePartner}
                         processingState={processingState}
                     />
+                )}
+            </CardContent>
+          </Card>
+      </TabsContent>
+      <TabsContent value="all_partners">
+         <Card>
+            <CardHeader>
+              <CardTitle>All Approved Partners</CardTitle>
+              <CardDescription>A list of all active partners on the platform.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                {isLoading ? (
+                    <TableSkeleton />
+                ) : (
+                    <AllPartnersTable partners={allPartners} />
                 )}
             </CardContent>
           </Card>

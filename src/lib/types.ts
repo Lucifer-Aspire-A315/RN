@@ -33,4 +33,5 @@ export interface PartnerData {
   mobileNumber: string;
   createdAt: string; // ISO string date
   isApproved: boolean;
+  businessModel?: 'referral' | 'dsa' | 'merchant';
 }

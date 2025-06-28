@@ -2,16 +2,12 @@
 "use client";
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Loader2 } from 'lucide-react';
 import type { PartnerData } from '@/lib/types';
 import { format } from 'date-fns';
 
-interface PendingPartnersTableProps {
+interface AllPartnersTableProps {
   partners: PartnerData[];
-  onApprove: (partnerId: string) => void;
-  processingState: { id: string; type: 'delete' | 'status' | 'approve' } | null;
 }
 
 const getBusinessModelDisplay = (model?: 'referral' | 'dsa' | 'merchant'): string => {
@@ -23,12 +19,12 @@ const getBusinessModelDisplay = (model?: 'referral' | 'dsa' | 'merchant'): strin
     }
 }
 
-export function PendingPartnersTable({ partners, onApprove, processingState }: PendingPartnersTableProps) {
+export function AllPartnersTable({ partners }: AllPartnersTableProps) {
   if (partners.length === 0) {
     return (
       <div className="text-center py-10 border-2 border-dashed rounded-lg">
-        <h3 className="text-lg font-medium text-muted-foreground">No Pending Partners</h3>
-        <p className="text-sm text-muted-foreground mt-1">There are no new partner registrations to approve.</p>
+        <h3 className="text-lg font-medium text-muted-foreground">No Approved Partners Found</h3>
+        <p className="text-sm text-muted-foreground mt-1">There are no approved partners on the platform yet.</p>
       </div>
     );
   }
@@ -43,7 +39,6 @@ export function PendingPartnersTable({ partners, onApprove, processingState }: P
             <TableHead>Mobile</TableHead>
             <TableHead>Business Model</TableHead>
             <TableHead>Registered On</TableHead>
-            <TableHead className="text-right">Action</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -53,19 +48,9 @@ export function PendingPartnersTable({ partners, onApprove, processingState }: P
               <TableCell>{partner.email}</TableCell>
               <TableCell>{partner.mobileNumber}</TableCell>
               <TableCell>
-                  <Badge variant="outline">{getBusinessModelDisplay(partner.businessModel)}</Badge>
+                  <Badge variant="secondary">{getBusinessModelDisplay(partner.businessModel)}</Badge>
               </TableCell>
               <TableCell>{format(new Date(partner.createdAt), 'PPp')}</TableCell>
-              <TableCell className="text-right">
-                <Button 
-                    size="sm" 
-                    onClick={() => onApprove(partner.id)} 
-                    disabled={!!processingState}
-                    variant="success"
-                >
-                  {processingState?.id === partner.id && processingState?.type === 'approve' ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Approve'}
-                </Button>
-              </TableCell>
             </TableRow>
           ))}
         </TableBody>
