@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -25,9 +24,6 @@ import { AuditAndAssuranceForm } from '@/components/forms/AuditAndAssuranceForm'
 import { Skeleton } from '@/components/ui/skeleton'; 
 import { useAuth } from '@/contexts/AuthContext';
 import { LoginPrompt } from '@/components/shared/LoginPrompt';
-import { HowItWorksSection } from '@/components/sections/HowItWorksSection';
-import { PartnerBanksSection } from '@/components/sections/PartnerBanksSection';
-import { CTASection } from '@/components/sections/CTASection';
 
 export type PageView = 
   'main' | 
@@ -127,9 +123,6 @@ export default function Home() {
           <>
             <HeroSection setCurrentPage={setCurrentPage} />
             <ServicesSection setCurrentPage={setCurrentPage} />
-            <HowItWorksSection />
-            <PartnerBanksSection />
-            <CTASection />
             <EMICalculatorSection />
           </>
         );
