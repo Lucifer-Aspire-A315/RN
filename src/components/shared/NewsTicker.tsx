@@ -63,9 +63,9 @@ export function NewsTicker({ items, duration = 5000, onContainerClick }: NewsTic
   return (
     <div
       onClick={onContainerClick}
-      className="relative w-full cursor-pointer rounded-xl bg-background p-4 shadow-lg border border-border transition-shadow hover:shadow-xl"
+      className="relative w-full cursor-pointer rounded-xl bg-background p-6 shadow-lg border border-border transition-shadow hover:shadow-xl"
     >
-      <div className="flex items-center justify-center min-h-[4rem]">
+      <div className="flex items-center justify-center min-h-[6rem]">
         <div
           className={cn(
             'transition-opacity duration-300 ease-in-out w-full',
