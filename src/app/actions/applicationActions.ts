@@ -9,15 +9,6 @@ import { getCollectionName } from '@/lib/utils';
 import { processFileUploads } from '@/lib/form-helpers';
 import { revalidatePath } from 'next/cache';
 
-async function verifyAdmin() {
-  const user = await checkSessionAction();
-  if (!user?.isAdmin) {
-    throw new Error('Unauthorized: You do not have permission to perform this action.');
-  }
-  return user;
-}
-
-
 export async function getApplicationDetails(
   applicationId: string,
   serviceCategory: UserApplication['serviceCategory']
@@ -72,39 +63,54 @@ export async function updateApplicationAction(
   serviceCategory: UserApplication['serviceCategory'],
   data: any
 ): Promise<{ success: boolean; message: string; errors?: Record<string, string[]> }> {
-  await verifyAdmin();
   console.log(`[AppUpdateAction] Updating app ${applicationId} in category ${serviceCategory}`);
+
+  const user = await checkSessionAction();
+  if (!user) {
+    throw new Error('Unauthorized: You must be logged in to update an application.');
+  }
 
   const collectionName = getCollectionName(serviceCategory);
   if (!collectionName) {
     return { success: false, message: 'Invalid service category.' };
   }
 
-  const payloadForServer = JSON.parse(JSON.stringify(data));
-  
-  // This helper finds the key for the document uploads object (e.g., 'documentUploads', 'dsaDocumentUploads')
-  const findDocumentUploadsKey = (obj: any): string | null => {
-    if (!obj || typeof obj !== 'object') return null;
-    for (const key in obj) {
-      if (key.toLowerCase().includes('documentuploads')) {
-        return key;
-      }
-    }
-    return null;
-  };
-
   try {
+    // Authorize user: Check if user is admin or original submitter
+    const appRef = doc(db, collectionName, applicationId);
+    const docSnap = await getDoc(appRef);
+
+    if (!docSnap.exists()) {
+      throw new Error('Application not found.');
+    }
+
+    const applicationData = docSnap.data();
+    const submitterId = applicationData.submittedBy?.userId;
+
+    if (user.id !== submitterId && !user.isAdmin) {
+      throw new Error('Unauthorized: You do not have permission to perform this action.');
+    }
+
+    // Proceed with update logic
+    const payloadForServer = JSON.parse(JSON.stringify(data));
+    
+    const findDocumentUploadsKey = (obj: any): string | null => {
+      if (!obj || typeof obj !== 'object') return null;
+      for (const key in obj) {
+        if (key.toLowerCase().includes('documentuploads')) {
+          return key;
+        }
+      }
+      return null;
+    };
+
     const documentUploadsKey = findDocumentUploadsKey(payloadForServer.formData);
 
     if (documentUploadsKey && payloadForServer.formData[documentUploadsKey]) {
-        // processFileUploads is smart enough to only upload new File objects and ignore existing URL strings
-        const uploadedUrls = await processFileUploads(payloadForServer.formData[documentUploadsKey], () => {}); // Using a dummy toast function
-        
-        // Merge new URLs with existing ones
+        const uploadedUrls = await processFileUploads(payloadForServer.formData[documentUploadsKey], () => {});
         Object.assign(payloadForServer.formData[documentUploadsKey], uploadedUrls);
     }
     
-    // Add applicant details based on form type (this logic is duplicated from create actions, might be refactored)
     if (serviceCategory === 'loan' && payloadForServer.formData.applicantDetails) {
         payloadForServer.applicantDetails = {
             userId: null, 
@@ -127,17 +133,18 @@ export async function updateApplicationAction(
 
     payloadForServer.updatedAt = Timestamp.now();
     
-    const appRef = doc(db, collectionName, applicationId);
     await updateDoc(appRef, payloadForServer);
 
     console.log(`[AppUpdateAction] Successfully updated application ${applicationId}`);
     revalidatePath('/admin/dashboard');
+    revalidatePath('/dashboard');
     revalidatePath(`/admin/application/${applicationId}`);
+    revalidatePath(`/dashboard/application/${applicationId}`);
     
     return { success: true, message: 'Application updated successfully!' };
 
   } catch (error: any) {
     console.error(`[AppUpdateAction] Error updating application ${applicationId}:`, error.message, error.stack);
-    return { success: false, message: 'Failed to update application.' };
+    return { success: false, message: error.message || 'Failed to update application.' };
   }
 }
