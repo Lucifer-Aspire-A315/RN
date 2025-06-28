@@ -12,32 +12,66 @@ interface HeroSectionProps {
   setCurrentPage: SetPageView;
 }
 
-const governmentSchemes: { icon: React.ReactNode; title: string; description: string; }[] = [
+const governmentSchemes: { 
+  icon: React.ReactNode; 
+  title: string; 
+  description: string;
+  imageSrc: string;
+  dataAiHint: string;
+  gradient: string;
+  textColor: string;
+}[] = [
   {
-    icon: <Banknote className="w-8 h-8 text-primary" />,
+    icon: <Banknote className="w-8 h-8" />,
     title: "PM Mudra Yojana (PMMY)",
-    description: "Financial support for non-corporate, non-farm small/micro enterprises with loans up to ₹10 lakh."
+    description: "Financial support for non-corporate, non-farm small/micro enterprises with loans up to ₹10 lakh.",
+    imageSrc: "https://placehold.co/200x200.png",
+    dataAiHint: "small business owner",
+    gradient: "from-blue-100 to-blue-200 dark:from-blue-900/50 dark:to-blue-950/50",
+    textColor: "text-blue-900 dark:text-blue-100"
   },
   {
-    icon: <Factory className="w-8 h-8 text-teal-500" />,
+    icon: <Factory className="w-8 h-8" />,
     title: "PMEGP (Khadi Board)",
-    description: "Credit-linked subsidies for new self-employment ventures and projects in the non-farm sector."
+    description: "Credit-linked subsidies for new self-employment ventures and projects in the non-farm sector.",
+    imageSrc: "https://placehold.co/200x200.png",
+    dataAiHint: "local artisan workshop",
+    gradient: "from-teal-100 to-green-200 dark:from-teal-900/50 dark:to-green-950/50",
+    textColor: "text-teal-900 dark:text-teal-100"
   },
   {
-    icon: <Users className="w-8 h-8 text-indigo-500" />,
+    icon: <Users className="w-8 h-8" />,
     title: "Stand-Up India",
-    description: "Promoting entrepreneurship among women and SC/ST communities with bank loans from ₹10 lakh to ₹1 Crore."
+    description: "Promoting entrepreneurship among women and SC/ST communities with bank loans from ₹10 lakh to ₹1 Crore.",
+    imageSrc: "https://placehold.co/200x200.png",
+    dataAiHint: "woman entrepreneur",
+    gradient: "from-indigo-100 to-purple-200 dark:from-indigo-900/50 dark:to-purple-950/50",
+    textColor: "text-indigo-900 dark:text-indigo-100"
   }
 ];
 
 const tickerItems: NewsTickerItem[] = governmentSchemes.map(scheme => ({
   text: (
-    <div className="flex flex-col items-center gap-3 text-center">
-        {scheme.icon}
-        <div>
-            <h4 className="text-lg font-semibold text-foreground">{scheme.title}</h4>
-            <p className="mt-1 text-sm text-muted-foreground max-w-md mx-auto">{scheme.description}</p>
+    <div className={`bg-gradient-to-br ${scheme.gradient} ${scheme.textColor} p-6 rounded-lg grid grid-cols-1 md:grid-cols-3 items-center gap-4 h-full`}>
+      <div className="md:col-span-2">
+        <div className={`mb-2 inline-block p-2 bg-white/50 rounded-full`}>
+          {React.cloneElement(scheme.icon, { className: 'w-8 h-8' })}
         </div>
+        <h4 className="text-xl font-bold">{scheme.title}</h4>
+        <p className="mt-1 text-sm opacity-90">{scheme.description}</p>
+      </div>
+      <div className="md:col-span-1 flex justify-center md:justify-end">
+        <div className="w-32 h-32 overflow-hidden rounded-full border-4 border-white/50 shadow-lg">
+          <Image 
+            src={scheme.imageSrc} 
+            alt={scheme.title} 
+            width={128} 
+            height={128} 
+            data-ai-hint={scheme.dataAiHint}
+            className="object-cover w-full h-full transition-transform duration-500 ease-in-out group-hover:scale-110"
+          />
+        </div>
+      </div>
     </div>
   )
 }));
@@ -53,6 +87,9 @@ export function HeroSection({ setCurrentPage }: HeroSectionProps) {
       id="home"
       className="relative bg-gradient-to-b from-primary/5 via-background to-background pt-16 pb-12 md:pt-24 md:pb-16 overflow-hidden"
     >
+      <div className="absolute inset-0 animate-[float_12s_ease-in-out_infinite] bg-accent/5 rounded-full blur-3xl w-96 h-96 top-20 left-10"></div>
+      <div className="absolute inset-0 animate-[float-delay_10s_ease-in-out_infinite] bg-primary/5 rounded-full blur-3xl w-80 h-80 bottom-0 right-10"></div>
+      
       <div className="container mx-auto px-6 z-10">
         <div className="grid md:grid-cols-2 gap-8 items-center">
             {/* Left Column: Text Content */}
@@ -100,7 +137,7 @@ export function HeroSection({ setCurrentPage }: HeroSectionProps) {
         <div className="mt-16 md:mt-24">
             <h3 className="text-center text-2xl font-bold text-foreground mb-2">Explore Government Schemes</h3>
             <p className="text-center text-muted-foreground mb-6">We provide expert assistance for various government loan schemes.</p>
-            <div className="max-w-2xl mx-auto" onClick={handleSchemesClick}>
+            <div className="max-w-4xl mx-auto" onClick={handleSchemesClick}>
                  <NewsTicker items={tickerItems} duration={5000} onContainerClick={handleSchemesClick} />
             </div>
             <div className="mt-8 text-center">

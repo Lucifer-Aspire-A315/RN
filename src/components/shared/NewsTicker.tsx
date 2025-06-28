@@ -64,14 +64,13 @@ export function NewsTicker({ items, duration = 5000, onContainerClick }: NewsTic
   return (
     <div
       onClick={onContainerClick}
-      className="relative w-full cursor-pointer rounded-xl bg-background p-8 shadow-lg border border-border transition-all duration-300 ease-in-out hover:-translate-y-2 hover:shadow-2xl"
+      className="group relative w-full cursor-pointer transition-all duration-300 ease-in-out hover:-translate-y-1 hover:shadow-2xl rounded-xl"
     >
-      <div className="flex items-center justify-center min-h-[8rem]">
+      <div className="flex items-center justify-center min-h-[14rem] overflow-hidden rounded-xl">
         <div
           className={cn(
-            'transition-opacity duration-300 ease-in-out w-full',
-            isFadingOut ? 'opacity-0' : 'opacity-100',
-            currentItem.textColor
+            'transition-opacity duration-300 ease-in-out w-full h-full',
+            isFadingOut ? 'opacity-0' : 'opacity-100'
           )}
         >
           {currentItem.text}
