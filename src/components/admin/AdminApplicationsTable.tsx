@@ -17,7 +17,7 @@ interface AdminApplicationsTableProps {
   applications: UserApplication[];
   onUpdateStatus: (applicationId: string, serviceCategory: UserApplication['serviceCategory'], newStatus: string) => void;
   onArchive: (applicationId: string, serviceCategory: UserApplication['serviceCategory']) => void;
-  isUpdating: boolean;
+  processingId: string | null;
 }
 
 const getStatusVariant = (status: string): "default" | "secondary" | "destructive" => {
@@ -46,7 +46,7 @@ const getCategoryDisplay = (category: UserApplication['serviceCategory']): strin
 
 const availableStatuses = ['Submitted', 'In Review', 'Approved', 'Rejected'];
 
-export function AdminApplicationsTable({ applications, onUpdateStatus, onArchive, isUpdating }: AdminApplicationsTableProps) {
+export function AdminApplicationsTable({ applications, onUpdateStatus, onArchive, processingId }: AdminApplicationsTableProps) {
   const router = useRouter();
   const [isAlertOpen, setIsAlertOpen] = useState(false);
   const [selectedAppForArchive, setSelectedAppForArchive] = useState<UserApplication | null>(null);
@@ -114,16 +114,16 @@ export function AdminApplicationsTable({ applications, onUpdateStatus, onArchive
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex items-center justify-end gap-2">
-                     <Button variant="outline" size="icon" onClick={() => handleEditClick(app)} title="Edit Application">
+                     <Button variant="outline" size="icon" onClick={() => handleEditClick(app)} title="Edit Application" disabled={!!processingId}>
                         <Edit className="h-4 w-4" />
                      </Button>
-                      <Button variant="destructive" size="icon" onClick={() => openArchiveDialog(app)} title="Delete Application">
-                        <Trash2 className="h-4 w-4" />
+                      <Button variant="destructive" size="icon" onClick={() => openArchiveDialog(app)} title="Delete Application" disabled={!!processingId}>
+                        {processingId === app.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
                      </Button>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" disabled={isUpdating}>
-                            {isUpdating ? <Loader2 className="h-4 w-4 animate-spin" /> : <MoreHorizontal className="h-4 w-4" />}
+                          <Button variant="ghost" size="icon" disabled={!!processingId}>
+                            {processingId === app.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <MoreHorizontal className="h-4 w-4" />}
                             <span className="sr-only">More actions</span>
                           </Button>
                         </DropdownMenuTrigger>
@@ -138,7 +138,7 @@ export function AdminApplicationsTable({ applications, onUpdateStatus, onArchive
                             <DropdownMenuItem
                               key={status}
                               onClick={() => onUpdateStatus(app.id, app.serviceCategory, status)}
-                              disabled={app.status.toLowerCase() === status.toLowerCase() || isUpdating}
+                              disabled={app.status.toLowerCase() === status.toLowerCase()}
                             >
                               {status}
                             </DropdownMenuItem>
@@ -163,8 +163,8 @@ export function AdminApplicationsTable({ applications, onUpdateStatus, onArchive
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel onClick={() => setIsAlertOpen(false)}>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmArchive} className="bg-destructive hover:bg-destructive/90">
-              {isUpdating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Yes, Delete'}
+            <AlertDialogAction onClick={confirmArchive} className="bg-destructive hover:bg-destructive/90" disabled={!!processingId}>
+              {processingId === selectedAppForArchive?.id ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Yes, Delete'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

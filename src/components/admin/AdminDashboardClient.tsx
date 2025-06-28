@@ -29,7 +29,8 @@ function TableSkeleton() {
 export function AdminDashboardClient({}: AdminDashboardClientProps) {
   const [applications, setApplications] = useState<UserApplication[]>([]);
   const [pendingPartners, setPendingPartners] = useState<PartnerData[]>([]);
-  const [isUpdating, startUpdateTransition] = useTransition();
+  const [isPending, startTransition] = useTransition();
+  const [processingId, setProcessingId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
@@ -58,7 +59,8 @@ export function AdminDashboardClient({}: AdminDashboardClientProps) {
   }, [toast]);
 
   const handleApprovePartner = (partnerId: string) => {
-    startUpdateTransition(async () => {
+    startTransition(async () => {
+        setProcessingId(partnerId);
         const result = await approvePartner(partnerId);
         if (result.success) {
             toast({
@@ -74,11 +76,13 @@ export function AdminDashboardClient({}: AdminDashboardClientProps) {
                 description: result.message,
             });
         }
+        setProcessingId(null);
     });
   };
 
   const handleUpdateStatus = (applicationId: string, serviceCategory: UserApplication['serviceCategory'], newStatus: string) => {
-    startUpdateTransition(async () => {
+    startTransition(async () => {
+        setProcessingId(applicationId);
         const result = await updateApplicationStatus(applicationId, serviceCategory, newStatus);
         if (result.success) {
             toast({
@@ -98,11 +102,13 @@ export function AdminDashboardClient({}: AdminDashboardClientProps) {
                 description: result.message,
             });
         }
+        setProcessingId(null);
     });
   };
 
   const handleArchiveApplication = (applicationId: string, serviceCategory: UserApplication['serviceCategory']) => {
-    startUpdateTransition(async () => {
+    startTransition(async () => {
+        setProcessingId(applicationId);
         const result = await archiveApplicationAction(applicationId, serviceCategory);
         if (result.success) {
             toast({
@@ -117,6 +123,7 @@ export function AdminDashboardClient({}: AdminDashboardClientProps) {
                 description: result.message,
             });
         }
+        setProcessingId(null);
     });
   };
 
@@ -140,7 +147,7 @@ export function AdminDashboardClient({}: AdminDashboardClientProps) {
                     <PendingPartnersTable 
                         partners={pendingPartners}
                         onApprove={handleApprovePartner}
-                        isApproving={isUpdating}
+                        processingId={processingId}
                     />
                 )}
             </CardContent>
@@ -160,7 +167,7 @@ export function AdminDashboardClient({}: AdminDashboardClientProps) {
                         applications={applications} 
                         onUpdateStatus={handleUpdateStatus}
                         onArchive={handleArchiveApplication}
-                        isUpdating={isUpdating}
+                        processingId={processingId}
                     />
                 )}
             </CardContent>

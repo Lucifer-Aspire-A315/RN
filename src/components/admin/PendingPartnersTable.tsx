@@ -11,10 +11,10 @@ import { format } from 'date-fns';
 interface PendingPartnersTableProps {
   partners: PartnerData[];
   onApprove: (partnerId: string) => void;
-  isApproving: boolean;
+  processingId: string | null;
 }
 
-export function PendingPartnersTable({ partners, onApprove, isApproving }: PendingPartnersTableProps) {
+export function PendingPartnersTable({ partners, onApprove, processingId }: PendingPartnersTableProps) {
   if (partners.length === 0) {
     return (
       <div className="text-center py-10 border-2 border-dashed rounded-lg">
@@ -47,10 +47,10 @@ export function PendingPartnersTable({ partners, onApprove, isApproving }: Pendi
                 <Button 
                     size="sm" 
                     onClick={() => onApprove(partner.id)} 
-                    disabled={isApproving}
+                    disabled={!!processingId}
                     variant="success"
                 >
-                  {isApproving ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Approve'}
+                  {processingId === partner.id ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Approve'}
                 </Button>
               </TableCell>
             </TableRow>
