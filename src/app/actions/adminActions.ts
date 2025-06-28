@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -142,11 +143,13 @@ export async function getAllPartners(): Promise<PartnerData[]> {
             return [];
         }
 
-        const allPartners = querySnapshot.docs.map(formatPartnerData);
+        const allPartners = querySnapshot.docs
+            .filter(doc => doc.data().isAdmin !== true) // Exclude admins from the partner list
+            .map(formatPartnerData);
 
         allPartners.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
-        console.log(`[AdminActions] Found ${allPartners.length} approved partners.`);
+        console.log(`[AdminActions] Found ${allPartners.length} approved partners (excluding admins).`);
         return allPartners;
 
     } catch (error: any) {
@@ -347,3 +350,4 @@ export async function removePartnerAction(partnerId: string): Promise<{ success:
         return { success: false, message: 'Failed to deactivate partner.' };
     }
 }
+
