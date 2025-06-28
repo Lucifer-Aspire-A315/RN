@@ -1,14 +1,68 @@
+
 import React from 'react';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 
-const partnerLogos = Array.from({ length: 14 }, (_, i) => ({
-  src: `https://placehold.co/150x75/e2e8f0/64748b?text=Bank+${i + 1}`,
-  alt: `Partner Bank ${i + 1}`,
-}));
+// --- How to Add Your Partner Logos ---
+// 1. Add your logo images to the `public/logos` folder.
+// 2. Replace the placeholder entries below with your actual logo information.
+//    - src: The path to your logo, starting with `/logos/`. For example: `/logos/your-bank-logo.png`
+//    - alt: The name of the bank for accessibility.
+// To add more or fewer logos, simply add or remove objects from this array.
+const partnerLogos = [
+  {
+    src: '/logos/hdfc.png',
+    alt: 'HDFC Bank',
+  },
+  {
+    src: '/logos/icici.png',
+    alt: 'ICICI Bank',
+  },
+  {
+    src: '/logos/sbi.png',
+    alt: 'State Bank of India',
+  },
+  {
+    src: '/logos/axis.png',
+    alt: 'Axis Bank',
+  },
+   {
+    src: 'https://placehold.co/150x75/e2e8f0/64748b?text=Bank+5',
+    alt: 'Partner Bank 5',
+  },
+   {
+    src: 'https://placehold.co/150x75/e2e8f0/64748b?text=Bank+6',
+    alt: 'Partner Bank 6',
+  },
+   {
+    src: 'https://placehold.co/150x75/e2e8f0/64748b?text=Bank+7',
+    alt: 'Partner Bank 7',
+  },
+   {
+    src: 'https://placehold.co/150x75/e2e8f0/64748b?text=Bank+8',
+    alt: 'Partner Bank 8',
+  },
+   {
+    src: 'https://placehold.co/150x75/e2e8f0/64748b?text=Bank+9',
+    alt: 'Partner Bank 9',
+  },
+   {
+    src: 'https://placehold.co/150x75/e2e8f0/64748b?text=Bank+10',
+    alt: 'Partner Bank 10',
+  },
+   {
+    src: 'https://placehold.co/150x75/e2e8f0/64748b?text=Bank+11',
+    alt: 'Partner Bank 11',
+  },
+  {
+    src: 'https://placehold.co/150x75/e2e8f0/64748b?text=Bank+12',
+    alt: 'Partner Bank 12',
+  },
+];
 
 export function PartnerBanksSection() {
-  const allLogos = [...partnerLogos, ...partnerLogos]; // Duplicate for seamless scroll
+  // We duplicate the logos to create a seamless, infinite scrolling effect.
+  const allLogos = [...partnerLogos, ...partnerLogos]; 
 
   return (
     <section className="py-16 md:py-24 bg-background">
