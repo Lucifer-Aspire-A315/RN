@@ -1,3 +1,4 @@
+
 "use client";
 
 import React from 'react';
@@ -13,17 +14,17 @@ interface HeroSectionProps {
 
 const governmentSchemes: { icon: React.ReactNode; title: string; description: string; }[] = [
   {
-    icon: <Banknote className="w-6 h-6 text-primary" />,
+    icon: <Banknote className="w-8 h-8 text-primary" />,
     title: "PM Mudra Yojana (PMMY)",
     description: "Financial support for non-corporate, non-farm small/micro enterprises with loans up to ₹10 lakh."
   },
   {
-    icon: <Factory className="w-6 h-6 text-teal-500" />,
+    icon: <Factory className="w-8 h-8 text-teal-500" />,
     title: "PMEGP (Khadi Board)",
     description: "Credit-linked subsidies for new self-employment ventures and projects in the non-farm sector."
   },
   {
-    icon: <Users className="w-6 h-6 text-indigo-500" />,
+    icon: <Users className="w-8 h-8 text-indigo-500" />,
     title: "Stand-Up India",
     description: "Promoting entrepreneurship among women and SC/ST communities with bank loans from ₹10 lakh to ₹1 Crore."
   }
@@ -31,12 +32,12 @@ const governmentSchemes: { icon: React.ReactNode; title: string; description: st
 
 const tickerItems: NewsTickerItem[] = governmentSchemes.map(scheme => ({
   text: (
-    <div className="flex items-center gap-4 text-left">
-      <div className="flex-shrink-0">{scheme.icon}</div>
-      <div>
-        <h4 className="font-bold text-foreground">{scheme.title}</h4>
-        <p className="text-sm text-muted-foreground">{scheme.description}</p>
-      </div>
+    <div className="flex flex-col items-center gap-3 text-center">
+        {scheme.icon}
+        <div>
+            <h4 className="text-lg font-semibold text-foreground">{scheme.title}</h4>
+            <p className="mt-1 text-sm text-muted-foreground max-w-md mx-auto">{scheme.description}</p>
+        </div>
     </div>
   )
 }));
