@@ -25,7 +25,7 @@ const governmentSchemes: {
     icon: <Banknote className="w-8 h-8" />,
     title: "PM Mudra Yojana (PMMY)",
     description: "Financial support for non-corporate, non-farm small/micro enterprises with loans up to ₹10 lakh.",
-    imageSrc: "https://placehold.co/200x200.png",
+    imageSrc: "https://placehold.co/128x128.png",
     dataAiHint: "small business owner",
     gradient: "from-blue-100 to-blue-200 dark:from-blue-900/50 dark:to-blue-950/50",
     textColor: "text-blue-900 dark:text-blue-100"
@@ -34,7 +34,7 @@ const governmentSchemes: {
     icon: <Factory className="w-8 h-8" />,
     title: "PMEGP (Khadi Board)",
     description: "Credit-linked subsidies for new self-employment ventures and projects in the non-farm sector.",
-    imageSrc: "https://placehold.co/200x200.png",
+    imageSrc: "https://placehold.co/128x128.png",
     dataAiHint: "local artisan workshop",
     gradient: "from-teal-100 to-green-200 dark:from-teal-900/50 dark:to-green-950/50",
     textColor: "text-teal-900 dark:text-teal-100"
@@ -43,7 +43,7 @@ const governmentSchemes: {
     icon: <Users className="w-8 h-8" />,
     title: "Stand-Up India",
     description: "Promoting entrepreneurship among women and SC/ST communities with bank loans from ₹10 lakh to ₹1 Crore.",
-    imageSrc: "https://placehold.co/200x200.png",
+    imageSrc: "https://placehold.co/128x128.png",
     dataAiHint: "woman entrepreneur",
     gradient: "from-indigo-100 to-purple-200 dark:from-indigo-900/50 dark:to-purple-950/50",
     textColor: "text-indigo-900 dark:text-indigo-100"
@@ -52,7 +52,7 @@ const governmentSchemes: {
 
 const tickerItems: NewsTickerItem[] = governmentSchemes.map(scheme => ({
   text: (
-    <div className={`bg-gradient-to-br ${scheme.gradient} ${scheme.textColor} p-6 rounded-lg grid grid-cols-1 md:grid-cols-3 items-center gap-4 h-full`}>
+    <div className={`bg-gradient-to-br ${scheme.gradient} ${scheme.textColor} p-6 grid grid-cols-1 md:grid-cols-3 items-center gap-4 h-full`}>
       <div className="md:col-span-2">
         <div className={`mb-2 inline-block p-2 bg-white/50 rounded-full`}>
           {React.cloneElement(scheme.icon, { className: 'w-8 h-8' })}
@@ -137,7 +137,7 @@ export function HeroSection({ setCurrentPage }: HeroSectionProps) {
         <div className="mt-16 md:mt-24">
             <h3 className="text-center text-2xl font-bold text-foreground mb-2">Explore Government Schemes</h3>
             <p className="text-center text-muted-foreground mb-6">We provide expert assistance for various government loan schemes.</p>
-            <div className="max-w-4xl mx-auto" onClick={handleSchemesClick}>
+            <div className="max-w-4xl mx-auto">
                  <NewsTicker items={tickerItems} duration={5000} onContainerClick={handleSchemesClick} />
             </div>
             <div className="mt-8 text-center">
