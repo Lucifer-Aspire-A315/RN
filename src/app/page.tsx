@@ -24,6 +24,7 @@ import { AuditAndAssuranceForm } from '@/components/forms/AuditAndAssuranceForm'
 import { Skeleton } from '@/components/ui/skeleton'; 
 import { useAuth } from '@/contexts/AuthContext';
 import { LoginPrompt } from '@/components/shared/LoginPrompt';
+import { HowItWorksSection } from '@/components/sections/HowItWorksSection';
 
 export type PageView = 
   'main' | 
@@ -123,6 +124,7 @@ export default function Home() {
           <>
             <HeroSection setCurrentPage={setCurrentPage} />
             <ServicesSection setCurrentPage={setCurrentPage} />
+            <HowItWorksSection />
             <EMICalculatorSection />
           </>
         );
