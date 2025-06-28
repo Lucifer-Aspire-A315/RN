@@ -3,7 +3,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { db } from '@/lib/firebase';
-import { collection, query, where, getDocs, Timestamp, doc, updateDoc, writeBatch, documentId } from 'firebase/firestore';
+import { collection, query, where, getDocs, Timestamp, doc, updateDoc, writeBatch, documentId, getDoc, deleteDoc } from 'firebase/firestore';
 import type { UserApplication, PartnerData } from '@/lib/types';
 import type { DocumentData } from 'firebase/firestore';
 import { checkSessionAction } from './authActions';
@@ -267,5 +267,81 @@ export async function archiveApplicationAction(
     } catch (error: any) {
         console.error(`[AdminActions] Error archiving application ${applicationId}:`, error.message, error.stack);
         return { success: false, message: 'Failed to archive application.' };
+    }
+}
+
+export async function getPartnerDetails(partnerId: string): Promise<PartnerData | null> {
+    await verifyAdmin();
+    console.log(`[AdminActions] Fetching details for partner ID: ${partnerId}`);
+
+    try {
+        const partnerRef = doc(db, 'partners', partnerId);
+        const docSnap = await getDoc(partnerRef);
+
+        if (!docSnap.exists()) {
+            console.warn(`[AdminActions] Partner not found: ${partnerId}`);
+            return null;
+        }
+
+        return formatPartnerData(docSnap);
+    } catch (error: any) {
+        console.error(`[AdminActions] Error fetching partner details for ${partnerId}:`, error.message, error.stack);
+        return null;
+    }
+}
+
+export async function getApplicationsByPartner(partnerId: string): Promise<UserApplication[]> {
+    await verifyAdmin();
+    console.log(`[AdminActions] Fetching applications for partner ID: ${partnerId}`);
+
+    try {
+        const loanApplicationsRef = collection(db, 'loanApplications');
+        const caServiceApplicationsRef = collection(db, 'caServiceApplications');
+        const governmentSchemeApplicationsRef = collection(db, 'governmentSchemeApplications');
+
+        const partnerQueryConstraints = [
+            where('submittedBy.userId', '==', partnerId)
+        ];
+
+        const qLoan = query(loanApplicationsRef, ...partnerQueryConstraints);
+        const qCa = query(caServiceApplicationsRef, ...partnerQueryConstraints);
+        const qGov = query(governmentSchemeApplicationsRef, ...partnerQueryConstraints);
+        
+        const [loanSnapshot, caSnapshot, govSnapshot] = await Promise.all([
+            getDocs(qLoan),
+            getDocs(qCa),
+            getDocs(qGov),
+        ]);
+
+        const loanApplications = loanSnapshot.docs.map(doc => formatApplication(doc, 'loan'));
+        const caApplications = caSnapshot.docs.map(doc => formatApplication(doc, 'caService'));
+        const govApplications = govSnapshot.docs.map(doc => formatApplication(doc, 'governmentScheme'));
+
+        const allApplications = [...loanApplications, ...caApplications, ...govApplications];
+        allApplications.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        
+        console.log(`[AdminActions] Found ${allApplications.length} applications for partner ${partnerId}.`);
+        return allApplications;
+
+    } catch (error: any) {
+        console.error(`[AdminActions] Error fetching applications for partner ${partnerId}:`, error.message, error.stack);
+        return [];
+    }
+}
+
+export async function removePartnerAction(partnerId: string): Promise<{ success: boolean; message: string }> {
+    await verifyAdmin();
+    console.log(`[AdminActions] Attempting to remove partner with ID: ${partnerId}`);
+
+    try {
+        const partnerRef = doc(db, 'partners', partnerId);
+        await deleteDoc(partnerRef);
+
+        console.log(`[AdminActions] Successfully removed partner: ${partnerId}`);
+        revalidatePath('/admin/dashboard');
+        return { success: true, message: 'Partner removed successfully.' };
+    } catch (error: any) {
+        console.error(`[AdminActions] Error removing partner ${partnerId}:`, error.message, error.stack);
+        return { success: false, message: 'Failed to remove partner.' };
     }
 }

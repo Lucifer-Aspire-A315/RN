@@ -5,6 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import type { PartnerData } from '@/lib/types';
 import { format } from 'date-fns';
+import { useRouter } from 'next/navigation';
 
 interface AllPartnersTableProps {
   partners: PartnerData[];
@@ -20,6 +21,12 @@ const getBusinessModelDisplay = (model?: 'referral' | 'dsa' | 'merchant'): strin
 }
 
 export function AllPartnersTable({ partners }: AllPartnersTableProps) {
+  const router = useRouter();
+
+  const handlePartnerClick = (partnerId: string) => {
+    router.push(`/admin/partner/${partnerId}`);
+  };
+
   if (partners.length === 0) {
     return (
       <div className="text-center py-10 border-2 border-dashed rounded-lg">
@@ -43,7 +50,11 @@ export function AllPartnersTable({ partners }: AllPartnersTableProps) {
         </TableHeader>
         <TableBody>
           {partners.map((partner) => (
-            <TableRow key={partner.id}>
+            <TableRow 
+              key={partner.id} 
+              onClick={() => handlePartnerClick(partner.id)}
+              className="cursor-pointer"
+            >
               <TableCell className="font-medium">{partner.fullName}</TableCell>
               <TableCell>{partner.email}</TableCell>
               <TableCell>{partner.mobileNumber}</TableCell>
