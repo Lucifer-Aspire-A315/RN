@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
@@ -16,7 +15,7 @@ interface NewsTickerProps {
   onContainerClick: () => void;
 }
 
-export function NewsTicker({ items, duration = 3000, onContainerClick }: NewsTickerProps) {
+export function NewsTicker({ items, duration = 5000, onContainerClick }: NewsTickerProps) {
   const [index, setIndex] = useState(0);
   const [isFadingOut, setIsFadingOut] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -64,12 +63,12 @@ export function NewsTicker({ items, duration = 3000, onContainerClick }: NewsTic
   return (
     <div
       onClick={onContainerClick}
-      className="relative w-full"
+      className="relative w-full cursor-pointer rounded-xl bg-background p-4 shadow-lg border border-border transition-shadow hover:shadow-xl"
     >
-      <div className="flex items-center justify-center min-h-[2rem]">
+      <div className="flex items-center justify-center min-h-[4rem]">
         <div
           className={cn(
-            'text-lg font-medium transition-opacity duration-300 ease-in-out',
+            'transition-opacity duration-300 ease-in-out w-full',
             isFadingOut ? 'opacity-0' : 'opacity-100',
             currentItem.textColor
           )}
@@ -78,7 +77,7 @@ export function NewsTicker({ items, duration = 3000, onContainerClick }: NewsTic
         </div>
       </div>
 
-       <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 flex items-center justify-center gap-2">
+       <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center justify-center gap-2">
           {items.map((_, i) => (
             <button
               key={i}
