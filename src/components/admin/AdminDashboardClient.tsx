@@ -62,16 +62,15 @@ export function AdminDashboardClient({}: AdminDashboardClientProps) {
     fetchData();
   }, [toast]);
 
-  const handleApprovePartner = (partnerId: string) => {
-    startTransition(async () => {
-        setProcessingState({ id: partnerId, type: 'approve' });
-        const result = await approvePartner(partnerId);
-        if (result.success) {
-            toast({
-                title: "Partner Approved",
-                description: result.message,
-            });
-            // Optimistically update the UI by moving partner from pending to all
+  const handleApprovePartner = async (partnerId: string) => {
+    setProcessingState({ id: partnerId, type: 'approve' });
+    const result = await approvePartner(partnerId);
+    if (result.success) {
+        toast({
+            title: "Partner Approved",
+            description: result.message,
+        });
+        startTransition(() => {
             const approvedPartner = pendingPartners.find(p => p.id === partnerId);
             if(approvedPartner) {
                 setAllPartners(currentPartners => 
@@ -80,41 +79,40 @@ export function AdminDashboardClient({}: AdminDashboardClientProps) {
                 );
             }
             setPendingPartners(currentPartners => currentPartners.filter(p => p.id !== partnerId));
-        } else {
-             toast({
-                variant: "destructive",
-                title: "Approval Failed",
-                description: result.message,
-            });
-        }
-        setProcessingState(null);
-    });
+        });
+    } else {
+         toast({
+            variant: "destructive",
+            title: "Approval Failed",
+            description: result.message,
+        });
+    }
+    setProcessingState(null);
   };
 
-  const handleUpdateStatus = (applicationId: string, serviceCategory: UserApplication['serviceCategory'], newStatus: string) => {
-    startTransition(async () => {
-        setProcessingState({ id: applicationId, type: 'status' });
-        const result = await updateApplicationStatus(applicationId, serviceCategory, newStatus);
-        if (result.success) {
-            toast({
-                title: "Status Updated",
-                description: result.message,
-            });
-            // Optimistically update the UI to reflect the change
+  const handleUpdateStatus = async (applicationId: string, serviceCategory: UserApplication['serviceCategory'], newStatus: string) => {
+    setProcessingState({ id: applicationId, type: 'status' });
+    const result = await updateApplicationStatus(applicationId, serviceCategory, newStatus);
+    if (result.success) {
+        toast({
+            title: "Status Updated",
+            description: result.message,
+        });
+        startTransition(() => {
             setApplications(currentApps => 
                 currentApps.map(app => 
                     app.id === applicationId ? { ...app, status: newStatus } : app
                 )
             );
-        } else {
-             toast({
-                variant: "destructive",
-                title: "Update Failed",
-                description: result.message,
-            });
-        }
-        setProcessingState(null);
-    });
+        });
+    } else {
+         toast({
+            variant: "destructive",
+            title: "Update Failed",
+            description: result.message,
+        });
+    }
+    setProcessingState(null);
   };
 
   const handleArchiveApplication = async (applicationId: string, serviceCategory: UserApplication['serviceCategory']) => {
