@@ -1,4 +1,3 @@
-
 "use client";
 
 import React from 'react';
@@ -6,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import type { SetPageView } from '@/app/page';
 import Image from 'next/image';
 import { NewsTicker, type NewsTickerItem } from '@/components/shared/NewsTicker';
-import { Banknote, Factory, Users } from 'lucide-react';
+import { Banknote, Factory, Users, LandPlot, Building } from 'lucide-react';
 
 interface HeroSectionProps {
   setCurrentPage: SetPageView;
@@ -100,8 +99,31 @@ export function HeroSection({ setCurrentPage }: HeroSectionProps) {
         <div className="mt-16 md:mt-24">
             <h3 className="text-center text-2xl font-bold text-foreground mb-2">Explore Government Schemes</h3>
             <p className="text-center text-muted-foreground mb-6">We provide expert assistance for various government loan schemes.</p>
-            <div className="max-w-2xl mx-auto">
+            <div className="max-w-2xl mx-auto" onClick={handleSchemesClick}>
                  <NewsTicker items={tickerItems} duration={5000} onContainerClick={handleSchemesClick} />
+            </div>
+            <div className="mt-8 text-center">
+                <p className="text-sm text-muted-foreground mb-4">Or explore our specialized services directly:</p>
+                <div className="flex flex-col sm:flex-row justify-center gap-4">
+                    <Button
+                        variant="outline"
+                        size="lg"
+                        onClick={() => setCurrentPage('governmentSchemes')}
+                        className="font-semibold"
+                    >
+                        <LandPlot className="mr-2 h-5 w-5" />
+                        All Government Schemes
+                    </Button>
+                    <Button
+                        variant="outline"
+                        size="lg"
+                        onClick={() => setCurrentPage('caServices')}
+                        className="font-semibold"
+                    >
+                        <Building className="mr-2 h-5 w-5" />
+                        CA Services
+                    </Button>
+                </div>
             </div>
         </div>
       </div>
