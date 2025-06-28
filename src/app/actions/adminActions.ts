@@ -150,7 +150,7 @@ export async function getAllPartners(): Promise<PartnerData[]> {
         return allPartners;
 
     } catch (error: any) {
-        console.error(`[AdminActions] Error fetching all partners:', error.message, error.stack);
+        console.error('[AdminActions] Error fetching all partners:', error.message, error.stack);
         return [];
     }
 }
