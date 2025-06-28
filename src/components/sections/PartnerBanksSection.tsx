@@ -17,8 +17,8 @@ export function PartnerBanksSection() {
         <p className="mt-2 text-muted-foreground max-w-2xl mx-auto">
           We are proud to be associated with over 150+ leading Banks and NBFCs to find you the best financial solutions.
         </p>
-        <div className="relative mt-12 w-full overflow-hidden">
-          <div className="animate-scroll-infinite flex w-max gap-16">
+        <div className="relative mt-12 w-full overflow-hidden group">
+          <div className="flex w-max gap-16 animate-scroll-infinite group-hover:[animation-play-state:paused]">
             {allLogos.map((logo, index) => (
               <div key={index} className="flex-shrink-0">
                 <Image
@@ -31,7 +31,7 @@ export function PartnerBanksSection() {
               </div>
             ))}
           </div>
-          <div className="absolute inset-0 bg-gradient-to-r from-background via-transparent to-background"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-background via-transparent to-background pointer-events-none"></div>
         </div>
       </div>
     </section>
