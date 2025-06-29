@@ -233,7 +233,7 @@ export function AdminDashboardClient({}: AdminDashboardClientProps) {
       <div className="mt-12">
         <h2 className="text-2xl font-bold tracking-tight text-foreground mb-2">Platform Analytics</h2>
         <p className="text-muted-foreground mb-6">A visual overview of platform activity.</p>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <AnalyticsCharts applications={applications} isLoading={isLoading} />
         </div>
       </div>

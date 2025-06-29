@@ -112,8 +112,8 @@ export function AnalyticsCharts({ applications, isLoading }: AnalyticsChartsProp
     return (
         <>
             <Card><CardHeader><Skeleton className="h-8 w-1/2" /></CardHeader><CardContent className="flex items-center justify-center"><Skeleton className="h-[250px] w-full" /></CardContent></Card>
-            <Card><CardHeader><Skeleton className="h-8 w-1/2" /></CardHeader><CardContent className="flex items-center justify-center"><Skeleton className="h-[250px] w-full" /></CardContent></Card>
             <Card className="lg:col-span-2"><CardHeader><Skeleton className="h-8 w-1/2" /></CardHeader><CardContent className="flex items-center justify-center"><Skeleton className="h-[250px] w-full" /></CardContent></Card>
+            <Card className="lg:col-span-3"><CardHeader><Skeleton className="h-8 w-1/2" /></CardHeader><CardContent className="flex items-center justify-center"><Skeleton className="h-[250px] w-full" /></CardContent></Card>
         </>
     )
   }
@@ -148,7 +148,7 @@ export function AnalyticsCharts({ applications, isLoading }: AnalyticsChartsProp
             </CardFooter>
         </Card>
 
-        <Card className="lg:col-span-1">
+        <Card className="lg:col-span-2">
             <CardHeader>
                 <CardTitle>Applications by Type</CardTitle>
                 <CardDescription>A breakdown of submitted application categories.</CardDescription>
@@ -170,7 +170,7 @@ export function AnalyticsCharts({ applications, isLoading }: AnalyticsChartsProp
             </CardContent>
         </Card>
         
-         <Card className="lg:col-span-2">
+         <Card className="lg:col-span-3">
             <CardHeader>
                 <CardTitle>Applications Over Last 30 Days</CardTitle>
                 <CardDescription>Daily submission trend for the past month.</CardDescription>
