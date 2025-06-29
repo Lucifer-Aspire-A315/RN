@@ -19,45 +19,54 @@ const partnerLogos = [
     alt: 'ICICI Bank',
   },
   {
-    src: '/logos/sbi.png',
-    alt: 'State Bank of India',
+    src: '/logos/bajaj.png',
+    alt: 'Bajaj Finserv',
   },
   {
     src: '/logos/axis.png',
     alt: 'Axis Bank',
   },
    {
-    src: 'https://placehold.co/150x75/e2e8f0/64748b?text=Bank+5',
-    alt: 'Partner Bank 5',
+    src: '/logos/kotak.png',
+    alt: 'Kotak Mahindra',
   },
    {
-    src: 'https://placehold.co/150x75/e2e8f0/64748b?text=Bank+6',
-    alt: 'Partner Bank 6',
-  },
-   {
-    src: 'https://placehold.co/150x75/e2e8f0/64748b?text=Bank+7',
-    alt: 'Partner Bank 7',
-  },
-   {
-    src: 'https://placehold.co/150x75/e2e8f0/64748b?text=Bank+8',
-    alt: 'Partner Bank 8',
-  },
-   {
-    src: 'https://placehold.co/150x75/e2e8f0/64748b?text=Bank+9',
-    alt: 'Partner Bank 9',
-  },
-   {
-    src: 'https://placehold.co/150x75/e2e8f0/64748b?text=Bank+10',
-    alt: 'Partner Bank 10',
-  },
-   {
-    src: 'https://placehold.co/150x75/e2e8f0/64748b?text=Bank+11',
-    alt: 'Partner Bank 11',
+    src: '/logos/idfc.png',
+    alt: 'IDFC Bank',
   },
   {
-    src: 'https://placehold.co/150x75/e2e8f0/64748b?text=Bank+12',
-    alt: 'Partner Bank 12',
+    src: '/logos/adityabirla.png',
+    alt: 'Aditya Birla',
   },
+  {
+    src: '/logos/sbibank.png',
+    alt: 'State Bank of India',
+  },
+  {
+    src: '/logos/muthoot.png',
+    alt: 'Muthoot Finance',
+  },
+  {
+    src: '/logos/shriram.png',
+    alt: 'Shriram Finance',
+  },
+  {
+    src: '/logos/tatacapital.png',
+    alt: 'Tata Capital',
+  },
+  {
+    src: '/logos/indusind.png',
+    alt: 'IndusInd Bank',
+  },
+  {
+    src: '/logos/chalomandalam.png',
+    alt: 'Chalomandalam Bank'
+  },
+  {
+    src: '/logos/dbs.png',
+    alt: 'DBS Bank'
+  }
+   
 ];
 
 export function PartnerBanksSection() {
@@ -65,27 +74,27 @@ export function PartnerBanksSection() {
   const allLogos = [...partnerLogos, ...partnerLogos]; 
 
   return (
-    <section className="py-16 md:py-24 bg-background">
+    <section className="py-16 md:py-24 bg-secondary">
       <div className="container mx-auto px-6 text-center">
         <h2 className="text-3xl font-bold text-foreground">Our Extensive Network</h2>
         <p className="mt-2 text-muted-foreground max-w-2xl mx-auto">
           We are proud to be associated with over 150+ leading Banks and NBFCs to find you the best financial solutions.
         </p>
         <div className="relative mt-12 w-full overflow-hidden group">
-          <div className="flex w-max gap-16 animate-scroll-infinite group-hover:[animation-play-state:paused]">
+          <div className="flex w-max animate-scroll-infinite group-hover:[animation-play-state:paused]">
             {allLogos.map((logo, index) => (
-              <div key={index} className="flex-shrink-0">
+              <div key={index} className="flex-shrink-0 w-48 h-20 flex items-center justify-center p-2 mx-4 transition-opacity duration-300 opacity-60 hover:opacity-100">
                 <Image
                   src={logo.src}
                   alt={logo.alt}
                   width={150}
                   height={75}
-                  className="object-contain grayscale hover:grayscale-0 transition-all duration-300"
+                  className="object-contain"
                 />
               </div>
             ))}
           </div>
-          <div className="absolute inset-0 bg-gradient-to-r from-background via-transparent to-background pointer-events-none"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-secondary via-transparent to-secondary pointer-events-none"></div>
         </div>
       </div>
     </section>
