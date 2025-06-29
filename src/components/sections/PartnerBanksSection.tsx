@@ -75,14 +75,14 @@ export function PartnerBanksSection() {
             {partnerLogos.map((logo, index) => (
               <div
                 key={index}
-                className="bg-background p-4 rounded-lg flex items-center justify-center h-24 transition-all duration-300 ease-in-out hover:shadow-xl hover:-translate-y-1 border border-border"
+                className="bg-background p-2 rounded-lg flex items-center justify-center h-20 transition-all duration-300 ease-in-out hover:shadow-xl hover:-translate-y-1 border"
               >
                 <Image
                   src={logo.src}
                   alt={logo.alt}
                   width={150}
                   height={75}
-                  className="h-auto w-full max-w-full max-h-12 object-contain"
+                  className="max-h-full max-w-full object-contain"
                 />
               </div>
             ))}
