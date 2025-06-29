@@ -121,15 +121,18 @@ export function HeroSection({ setCurrentPage }: HeroSectionProps) {
 
             {/* Right Column: Image */}
             <div className="relative flex justify-center items-center">
-                 <Image
-                    src="/right-side.png"
-                    alt="Financial advisor with a family"
-                    width={550}
-                    height={450}
-                    priority
-                    className="object-contain animate-float"
-                    data-ai-hint="family financial advisor"
-                />
+                <div className="relative">
+                    <Image
+                        src="/right-side.png"
+                        alt="Financial advisor with a family"
+                        width={550}
+                        height={450}
+                        priority
+                        className="object-contain animate-float z-10 relative"
+                        data-ai-hint="family financial advisor"
+                    />
+                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-4/5 h-8 bg-black/20 rounded-full animate-shadow-float z-0" />
+                </div>
             </div>
         </div>
         
