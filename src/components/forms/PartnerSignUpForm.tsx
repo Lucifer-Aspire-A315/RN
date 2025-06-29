@@ -13,7 +13,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, useFormField } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
-import { uploadFileAction } from '@/app/actions/fileUploadActions';
+import { processFileUploads } from '@/lib/form-helpers';
 import { Loader2, UserPlus, Handshake, Store, Users, UploadCloud } from 'lucide-react';
 import { FormSection, FormFieldWrapper } from './FormSection';
 import { partnerSignUpAction } from '@/app/actions/authActions';
@@ -97,35 +97,13 @@ export function PartnerSignUpForm() {
     try {
         // Handle file uploads for DSA
         if (data.businessModel === 'dsa' && data.dsaDocumentUploads) {
-            for (const [key, file] of Object.entries(data.dsaDocumentUploads)) {
-                if (file instanceof File) {
-                    toast({ title: `Uploading ${key}...`, description: "Please wait." });
-                    const formData = new FormData();
-                    formData.append('file', file);
-                    formData.append('fileName', file.name);
-                    const uploadResult = await uploadFileAction(formData);
-                    if (!uploadResult.success || !uploadResult.url) {
-                        throw new Error(`Failed to upload ${key}: ${uploadResult.error}`);
-                    }
-                    dataToSubmit.dsaDocumentUploads[key] = uploadResult.url;
-                }
-            }
+            const uploadedUrls = await processFileUploads(data.dsaDocumentUploads, toast);
+            Object.assign(dataToSubmit.dsaDocumentUploads, uploadedUrls);
         }
         // Handle file uploads for Merchant
         if (data.businessModel === 'merchant' && data.merchantDocumentUploads) {
-            for (const [key, file] of Object.entries(data.merchantDocumentUploads)) {
-                if (file instanceof File) {
-                    toast({ title: `Uploading ${key}...`, description: "Please wait." });
-                    const formData = new FormData();
-                    formData.append('file', file);
-                    formData.append('fileName', file.name);
-                    const uploadResult = await uploadFileAction(formData);
-                    if (!uploadResult.success || !uploadResult.url) {
-                        throw new Error(`Failed to upload ${key}: ${uploadResult.error}`);
-                    }
-                    dataToSubmit.merchantDocumentUploads[key] = uploadResult.url;
-                }
-            }
+            const uploadedUrls = await processFileUploads(data.merchantDocumentUploads, toast);
+            Object.assign(dataToSubmit.merchantDocumentUploads, uploadedUrls);
         }
 
       const result = await partnerSignUpAction(dataToSubmit);
