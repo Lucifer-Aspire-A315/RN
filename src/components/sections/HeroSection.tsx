@@ -1,21 +1,14 @@
+
 "use client";
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import type { SetPageView } from '@/app/page';
 import { HeroSlider } from './HeroSlider';
-import { NewsTicker, type NewsTickerItem } from '../shared/NewsTicker';
 
 interface HeroSectionProps {
   setCurrentPage: SetPageView;
 }
-
-const newsItems: NewsTickerItem[] = [
-  { text: "Now offering assistance with PM Mudra Yojana for small businesses." },
-  { text: "Explore new opportunities with the Stand-Up India Scheme for SC/ST & Women Entrepreneurs." },
-  { text: "Get support for your new venture with the PMEGP (Khadi Board) Scheme." },
-];
-
 
 export function HeroSection({ setCurrentPage }: HeroSectionProps) {
 
@@ -37,12 +30,8 @@ export function HeroSection({ setCurrentPage }: HeroSectionProps) {
                 <p className="mt-6 text-lg text-muted-foreground max-w-lg mx-auto md:mx-0">
                 Empowering your dreams with transparent, technology-driven financial services. From personal loans to business solutions, we're here to help you grow.
                 </p>
-
-                <div className="my-6">
-                    <NewsTicker items={newsItems} onContainerClick={() => setCurrentPage('governmentSchemes')} />
-                </div>
                 
-                <div className="flex flex-col sm:flex-row justify-center md:justify-start gap-4">
+                <div className="mt-8 flex flex-col sm:flex-row justify-center md:justify-start gap-4">
                     <Button
                         size="lg"
                         className="cta-button"

@@ -27,6 +27,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { LoginPrompt } from '@/components/shared/LoginPrompt';
 import { HowItWorksSection } from '@/components/sections/HowItWorksSection';
 import { PartnerBanksSection } from '@/components/sections/PartnerBanksSection';
+import { GovernmentSchemeHighlights } from '@/components/sections/GovernmentSchemeHighlights';
 
 export type PageView = 
   'main' | 
@@ -127,6 +128,7 @@ export default function Home() {
           <>
             <HeroSection setCurrentPage={setCurrentPage} />
             <PartnerBanksSection />
+            <GovernmentSchemeHighlights setCurrentPage={setCurrentPage} />
             <ServicesSection setCurrentPage={setCurrentPage} />
             <HowItWorksSection />
             <EMICalculatorSection />
