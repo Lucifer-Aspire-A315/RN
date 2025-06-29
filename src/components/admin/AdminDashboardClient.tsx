@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState, useTransition, useEffect } from 'react';
+import React, { useState, useTransition, useEffect, useMemo } from 'react';
 import type { UserApplication, PartnerData } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -11,6 +11,9 @@ import { AllPartnersTable } from './AllPartnersTable';
 import { approvePartner, updateApplicationStatus, getAllApplications, getPendingPartners, archiveApplicationAction, getAllPartners } from '@/app/actions/adminActions';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '../ui/skeleton';
+import { StatCard } from './StatCard';
+import { AnalyticsCharts } from './AnalyticsCharts';
+import { FolderKanban, Clock, UserPlus, Users } from 'lucide-react';
 
 interface AdminDashboardClientProps {
     // No initial props needed, will fetch data itself
@@ -61,6 +64,19 @@ export function AdminDashboardClient({}: AdminDashboardClientProps) {
     }
     fetchData();
   }, [toast]);
+
+  const analyticsData = useMemo(() => {
+    const totalApplications = applications.length;
+    const pendingApplications = applications.filter(app => app.status === 'Submitted' || app.status === 'In Review').length;
+    
+    return {
+        totalApplications,
+        pendingApplications,
+        pendingPartnerCount: pendingPartners.length,
+        totalPartnerCount: allPartners.length,
+    }
+  }, [applications, pendingPartners, allPartners]);
+
 
   const handleApprovePartner = async (partnerId: string) => {
     setProcessingState({ id: partnerId, type: 'approve' });
@@ -138,66 +154,131 @@ export function AdminDashboardClient({}: AdminDashboardClientProps) {
 
 
   return (
-    <Tabs defaultValue="partners" className="space-y-4">
-      <TabsList className="grid w-full grid-cols-3">
-        <TabsTrigger value="partners">Pending Partners ({isLoading ? '...' : pendingPartners.length})</TabsTrigger>
-        <TabsTrigger value="all_partners">All Partners ({isLoading ? '...' : allPartners.length})</TabsTrigger>
-        <TabsTrigger value="applications">All Applications ({isLoading ? '...' : applications.length})</TabsTrigger>
-      </TabsList>
-      <TabsContent value="partners">
-         <Card>
-            <CardHeader>
-              <CardTitle>Pending Partner Approvals</CardTitle>
-              <CardDescription>Review and approve new partner registrations.</CardDescription>
-            </CardHeader>
-            <CardContent>
-                {isLoading ? (
-                    <TableSkeleton />
-                ) : (
-                    <PendingPartnersTable 
-                        partners={pendingPartners}
-                        onApprove={handleApprovePartner}
-                        processingState={processingState}
-                    />
-                )}
-            </CardContent>
-          </Card>
-      </TabsContent>
-      <TabsContent value="all_partners">
-         <Card>
-            <CardHeader>
-              <CardTitle>All Approved Partners</CardTitle>
-              <CardDescription>A list of all active partners on the platform.</CardDescription>
-            </CardHeader>
-            <CardContent>
-                {isLoading ? (
-                    <TableSkeleton />
-                ) : (
-                    <AllPartnersTable partners={allPartners} />
-                )}
-            </CardContent>
-          </Card>
-      </TabsContent>
-      <TabsContent value="applications">
-          <Card>
-            <CardHeader>
-              <CardTitle>All Submitted Applications</CardTitle>
-              <CardDescription>A list of all applications submitted across the platform.</CardDescription>
-            </CardHeader>
-            <CardContent>
-                {isLoading ? (
-                    <TableSkeleton />
-                ) : (
-                    <AdminApplicationsTable 
-                        applications={applications} 
-                        onUpdateStatus={handleUpdateStatus}
-                        onArchive={handleArchiveApplication}
-                        processingState={processingState}
-                    />
-                )}
-            </CardContent>
-          </Card>
-      </TabsContent>
-    </Tabs>
+    <>
+      {/* Analytics Section */}
+      <div className="space-y-4">
+        <h2 className="text-xl font-bold tracking-tight text-foreground">Analytics Overview</h2>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+           <StatCard 
+              title="Total Applications" 
+              value={isLoading ? '...' : analyticsData.totalApplications}
+              icon={FolderKanban}
+              description="All applications across the platform"
+           />
+           <StatCard 
+              title="Pending Applications" 
+              value={isLoading ? '...' : analyticsData.pendingApplications}
+              icon={Clock}
+              description="Applications needing review"
+            />
+            <StatCard 
+              title="Pending Partners" 
+              value={isLoading ? '...' : analyticsData.pendingPartnerCount}
+              icon={UserPlus}
+              description="Partners awaiting approval"
+            />
+        </div>
+        
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2">
+            {isLoading ? (
+                <Card><CardHeader><Skeleton className="h-8 w-1/2" /></CardHeader><CardContent><Skeleton className="h-[250px] w-full" /></CardContent></Card>
+            ) : (
+                <AnalyticsCharts applications={applications} />
+            )}
+             <Card>
+                <CardHeader>
+                    <CardTitle>Partner Network</CardTitle>
+                    <CardDescription>An overview of your partner ecosystem.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6 pt-4">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                            <div className="p-3 bg-secondary rounded-full">
+                                <Users className="h-6 w-6 text-secondary-foreground" />
+                            </div>
+                            <div>
+                                <p className="text-sm text-muted-foreground">Total Approved Partners</p>
+                                <p className="text-2xl font-bold">{isLoading ? '...' : analyticsData.totalPartnerCount}</p>
+                            </div>
+                        </div>
+                    </div>
+                     <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                             <div className="p-3 bg-secondary rounded-full">
+                                <UserPlus className="h-6 w-6 text-secondary-foreground" />
+                            </div>
+                            <div>
+                                <p className="text-sm text-muted-foreground">Pending Partner Approvals</p>
+                                <p className="text-2xl font-bold">{isLoading ? '...' : analyticsData.pendingPartnerCount}</p>
+                            </div>
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+        </div>
+      </div>
+
+      <Tabs defaultValue="applications" className="space-y-4 mt-8">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="applications">All Applications ({isLoading ? '...' : applications.length})</TabsTrigger>
+          <TabsTrigger value="pending_partners">Pending Partners ({isLoading ? '...' : pendingPartners.length})</TabsTrigger>
+          <TabsTrigger value="all_partners">All Partners ({isLoading ? '...' : allPartners.length})</TabsTrigger>
+        </TabsList>
+        <TabsContent value="applications">
+            <Card>
+              <CardHeader>
+                <CardTitle>All Submitted Applications</CardTitle>
+                <CardDescription>A list of all applications submitted across the platform.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                  {isLoading ? (
+                      <TableSkeleton />
+                  ) : (
+                      <AdminApplicationsTable 
+                          applications={applications} 
+                          onUpdateStatus={handleUpdateStatus}
+                          onArchive={handleArchiveApplication}
+                          processingState={processingState}
+                      />
+                  )}
+              </CardContent>
+            </Card>
+        </TabsContent>
+        <TabsContent value="pending_partners">
+           <Card>
+              <CardHeader>
+                <CardTitle>Pending Partner Approvals</CardTitle>
+                <CardDescription>Review and approve new partner registrations.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                  {isLoading ? (
+                      <TableSkeleton />
+                  ) : (
+                      <PendingPartnersTable 
+                          partners={pendingPartners}
+                          onApprove={handleApprovePartner}
+                          processingState={processingState}
+                      />
+                  )}
+              </CardContent>
+            </Card>
+        </TabsContent>
+        <TabsContent value="all_partners">
+           <Card>
+              <CardHeader>
+                <CardTitle>All Approved Partners</CardTitle>
+                <CardDescription>A list of all active partners on the platform.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                  {isLoading ? (
+                      <TableSkeleton />
+                  ) : (
+                      <AllPartnersTable partners={allPartners} />
+                  )}
+              </CardContent>
+            </Card>
+        </TabsContent>
+      </Tabs>
+    </>
   );
 }
