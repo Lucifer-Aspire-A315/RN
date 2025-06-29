@@ -5,7 +5,7 @@
 import React, { useState, useTransition, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { format } from 'date-fns';
-import { ArrowLeft, Loader2, FileText, Edit, Trash2, User, FileClock, Check, CircleX } from 'lucide-react';
+import { ArrowLeft, Loader2, FileText, Edit, Trash2, User, FileClock, Check, CircleX, Briefcase, Building, HandCoins, Info } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -33,10 +33,33 @@ const hasVisibleContent = (value: any): boolean => {
 
 // Helper to format keys for display (e.g., 'fullName' -> 'Full Name')
 const formatKey = (key: string) => {
+  // Special handling for specific keys to make them more readable
+  const keyMappings: { [key: string]: string } = {
+    dob: "Date of Birth",
+    pan: "PAN Number",
+    aadhaar: "Aadhaar Number",
+    pincode: "Pincode",
+    isPermanentAddressSame: "Permanent Address Same as Current?",
+    emiAmount: "EMI Amount",
+    bankName: "Bank Name(s)",
+    outstandingAmount: "Outstanding Amount",
+    applicantDetailsGov: "Applicant Details",
+    addressInformationGov: "Address Information",
+    businessInformationGov: "Business Information",
+    loanDetailsGov: "Loan Details",
+    documentUploadsGov: "Document Uploads",
+  };
+
+  if (keyMappings[key]) {
+    return keyMappings[key];
+  }
+
   return key
     .replace(/([A-Z])/g, ' $1')
+    .replace(/Gov$/, ' (Govt. Scheme)')
     .replace(/^./, (str) => str.toUpperCase());
 };
+
 
 // Helper to render different value types
 const renderValue = (value: any) => {
@@ -71,31 +94,19 @@ const renderValue = (value: any) => {
   return String(value);
 };
 
-// Recursive component to render nested objects and values
+// Simplified component to render a single key-value pair.
 const DetailItem = ({ itemKey, itemValue }: { itemKey: string; itemValue: any }) => {
-  const isTimestampObject = itemValue && typeof itemValue.seconds === 'number' && typeof itemValue.nanoseconds === 'number';
-
-  if (typeof itemValue === 'object' && itemValue !== null && !Array.isArray(itemValue) && !(itemValue instanceof Date) && !(itemValue instanceof File) && !isTimestampObject) {
-    if (!hasVisibleContent(itemValue)) return null;
+    if (!hasVisibleContent(itemValue)) {
+        return null;
+    }
     return (
-      <Card className="col-span-1 md:col-span-2 shadow-sm">
-        <CardHeader><CardTitle className="text-lg">{formatKey(itemKey)}</CardTitle></CardHeader>
-        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 pt-0">
-          {Object.entries(itemValue).map(([key, value]) => (
-            <DetailItem key={key} itemKey={key} itemValue={value} />
-          ))}
-        </CardContent>
-      </Card>
+        <div className="flex flex-col space-y-1.5">
+            <dt className="text-sm font-medium text-muted-foreground">{formatKey(itemKey)}</dt>
+            <dd className="text-base text-foreground break-words">{renderValue(itemValue)}</dd>
+        </div>
     );
-  }
-
-  return (
-    <div className="flex flex-col space-y-1.5">
-      <dt className="text-sm font-medium text-muted-foreground">{formatKey(itemKey)}</dt>
-      <dd className="text-base text-foreground break-words">{renderValue(itemValue)}</dd>
-    </div>
-  );
 };
+
 
 interface ApplicationDetailsViewProps {
   applicationId: string;
@@ -117,6 +128,15 @@ const getStatusVariant = (status: string): "default" | "secondary" | "destructiv
     default: return 'default';
   }
 };
+
+const getCategoryIcon = (category: UserApplication['serviceCategory']) => {
+    switch (category) {
+        case 'loan': return <HandCoins className="w-12 h-12 text-primary" />;
+        case 'caService': return <Briefcase className="w-12 h-12 text-primary" />;
+        case 'governmentScheme': return <Building className="w-12 h-12 text-primary" />;
+        default: return <Info className="w-12 h-12 text-primary" />;
+    }
+}
 
 const ApplicationDetailsSkeleton = () => (
     <div className="grid lg:grid-cols-3 gap-6">
@@ -210,24 +230,19 @@ export function ApplicationDetailsView({ applicationId, serviceCategory, title, 
         setIsAlertOpen(false);
     };
 
-    // Prepare data for rendering
-    const { status, applicationType, formData, submittedBy, createdAt, updatedAt, ...restOfData } = applicationData;
+    // Prepare data for rendering by destructuring and cleaning it up.
+    const { formData, submittedBy, createdAt, updatedAt } = applicationData;
+    const applicationTypeInfo = applicationData.schemeNameForDisplay || applicationData.applicationType;
 
-    const displayData = { ...restOfData, ...formData };
+    // Isolate the applicant info, which can be under different keys
+    const applicantInfo = formData.applicantDetails || formData.applicantDetailsGov || formData.applicantFounderDetails;
     
-    delete displayData.id;
-    delete displayData.partnerId;
-    delete displayData.serviceCategory;
-    delete displayData.schemeNameForDisplay;
+    // Create a new object for the rest of the form data to avoid mutating the original
+    const otherFormData = {...formData};
+    delete otherFormData.applicantDetails;
+    delete otherFormData.applicantDetailsGov;
+    delete otherFormData.applicantFounderDetails;
 
-    const applicantInfo = displayData.applicantDetails || displayData.applicantDetailsGov || displayData.applicantFounderDetails;
-    const submitterInfo = submittedBy;
-    const applicationTypeInfo = applicationData.schemeNameForDisplay || applicationType;
-    
-    delete displayData.applicantDetails;
-    delete displayData.applicantDetailsGov;
-    delete displayData.applicantFounderDetails;
-    
 
   return (
     <>
@@ -259,7 +274,7 @@ export function ApplicationDetailsView({ applicationId, serviceCategory, title, 
             <div className="lg:col-span-1 space-y-6 lg:sticky lg:top-24">
                 <Card className="shadow-lg">
                     <CardHeader className="text-center items-center">
-                         <FileClock className="w-12 h-12 text-primary" />
+                         {getCategoryIcon(serviceCategory)}
                          <CardTitle className="text-xl">{applicationTypeInfo}</CardTitle>
                          <CardDescription>{applicationData.id}</CardDescription>
                          <Badge variant={getStatusVariant(currentStatus)} className="capitalize text-sm mt-2">{currentStatus}</Badge>
@@ -271,7 +286,7 @@ export function ApplicationDetailsView({ applicationId, serviceCategory, title, 
                          </div>
                          <div>
                             <p className="font-semibold text-foreground">Submitted By:</p>
-                            <p className="text-muted-foreground">{submitterInfo?.userName || 'N/A'}</p>
+                            <p className="text-muted-foreground">{submittedBy?.userName || 'N/A'}</p>
                          </div>
                          <div>
                             <p className="font-semibold text-foreground">Created On:</p>
@@ -305,17 +320,39 @@ export function ApplicationDetailsView({ applicationId, serviceCategory, title, 
 
             {/* Right Column - Details */}
             <div className="lg:col-span-2 space-y-6">
-                <Card className="shadow-sm">
-                    <CardHeader><CardTitle className="text-lg flex items-center gap-2"><User className="w-5 h-5"/> Applicant & Submitter Info</CardTitle></CardHeader>
-                    <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 pt-0">
-                         {applicantInfo && Object.entries(applicantInfo).map(([key, value]) => (<DetailItem key={key} itemKey={key} itemValue={value} />))}
-                         {submitterInfo && Object.entries(submitterInfo).map(([key, value]) => (<DetailItem key={key} itemKey={`Submitter ${key}`} itemValue={value} />))}
-                    </CardContent>
-                </Card>
                 
-                {Object.entries(displayData).map(([key, value]) => (
-                    hasVisibleContent(value) && <DetailItem key={key} itemKey={key} itemValue={value} />
-                ))}
+                {/* Applicant & Submitter Info Card */}
+                {(applicantInfo || submittedBy) && (
+                     <Card className="shadow-sm">
+                        <CardHeader><CardTitle className="text-lg flex items-center gap-2"><User className="w-5 h-5"/> Applicant & Submitter Info</CardTitle></CardHeader>
+                        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 pt-0">
+                             {applicantInfo && Object.entries(applicantInfo).map(([key, value]) => (<DetailItem key={key} itemKey={key} itemValue={value} />))}
+                             {submittedBy && Object.entries(submittedBy).map(([key, value]) => (<DetailItem key={`submitter_${key}`} itemKey={`Submitter ${formatKey(key)}`} itemValue={value} />))}
+                        </CardContent>
+                    </Card>
+                )}
+                
+                {/* Dynamically created cards for other sections of the form */}
+                {Object.entries(otherFormData).map(([sectionKey, sectionValue]) => {
+                    if (typeof sectionValue === 'object' && sectionValue !== null && hasVisibleContent(sectionValue)) {
+                        return (
+                            <Card key={sectionKey} className="shadow-sm">
+                                <CardHeader>
+                                    <CardTitle className="text-lg flex items-center gap-2">
+                                        <FileClock className="w-5 h-5" />
+                                        {formatKey(sectionKey)}
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 pt-0">
+                                    {Object.entries(sectionValue).map(([key, value]) => (
+                                        <DetailItem key={key} itemKey={key} itemValue={value} />
+                                    ))}
+                                </CardContent>
+                            </Card>
+                        );
+                    }
+                    return null;
+                })}
             </div>
         </div>
 
@@ -336,3 +373,5 @@ export function ApplicationDetailsView({ applicationId, serviceCategory, title, 
     </>
   );
 }
+
+
