@@ -1,3 +1,6 @@
+
+"use client"
+
 import React from 'react';
 import Image from 'next/image';
 
@@ -26,25 +29,25 @@ export function PartnerBanksSection() {
         <p className="mt-2 text-muted-foreground max-w-2xl mx-auto">
           We are proud to be associated with over 150+ leading Banks and NBFCs to find you the best financial solutions.
         </p>
-        <div className="mt-12">
-          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-4 md:gap-5">
-            {partnerLogos.map((logo, index) => (
+        <div 
+          className="group relative mt-12 w-full overflow-hidden"
+          style={{
+            maskImage: 'linear-gradient(to right, transparent, black 10%, black 90%, transparent)'
+          }}
+        >
+          <div className="flex w-max animate-scroll-infinite group-hover:[animation-play-state:paused]">
+            {[...partnerLogos, ...partnerLogos].map((logo, index) => (
               <div
                 key={index}
-                className="bg-card rounded-lg overflow-hidden group transition-all duration-300 ease-in-out hover:shadow-xl hover:-translate-y-1 border"
+                className="flex-shrink-0 w-64 h-24 flex items-center justify-center p-4"
               >
-                <div className="bg-background flex items-center justify-center p-4 aspect-video">
-                   <Image
-                      src={logo.src}
-                      alt={logo.alt}
-                      width={140}
-                      height={60}
-                      className="h-full w-full object-contain"
-                    />
-                </div>
-                <div className="p-3 bg-card border-t">
-                     <p className="text-sm font-semibold text-foreground truncate">{logo.name}</p>
-                </div>
+                <Image
+                  src={logo.src}
+                  alt={logo.alt}
+                  width={140}
+                  height={60}
+                  className="h-full w-auto object-contain"
+                />
               </div>
             ))}
           </div>
