@@ -39,13 +39,13 @@ export function PartnerBanksSection() {
             {[...partnerLogos, ...partnerLogos].map((logo, index) => (
               <div
                 key={index}
-                className="flex-shrink-0 w-64 h-24 flex items-center justify-center p-4"
+                className="flex-shrink-0 w-52 h-32 flex items-center justify-center p-4"
               >
                 <Image
                   src={logo.src}
                   alt={logo.alt}
-                  width={140}
-                  height={60}
+                  width={160}
+                  height={90}
                   className="h-full w-auto object-contain"
                 />
               </div>
