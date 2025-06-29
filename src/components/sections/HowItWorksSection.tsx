@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -109,76 +110,41 @@ const partnerSteps = [
 ];
 
 
-const TimelineItem = ({ step, index }: { step: (typeof customerSteps)[0]; index: number; }) => {
-  const isRightSideOnDesktop = index % 2 !== 0;
-
-  return (
-    <div className="md:flex items-center w-full">
-      {/* This container reverses for the zig-zag effect on desktop */}
-      <div className={cn(
-        "flex w-full items-center",
-        isRightSideOnDesktop && "md:flex-row-reverse"
-      )}>
-        {/* Left/Right Content Block */}
-        <div className="w-full md:w-5/12">
-          <div className="rounded-lg bg-card p-6 shadow-lg border hover:shadow-xl transition-all duration-300">
-            <p className={cn(
-              "text-sm font-semibold text-muted-foreground",
-              !isRightSideOnDesktop && "md:text-right"
-            )}>
-              STEP {index + 1}
-            </p>
-            <h3 className={cn(
-              "text-xl font-bold text-foreground mt-1",
-              !isRightSideOnDesktop && "md:text-right"
-            )}>
-              {step.title}
-            </h3>
-            <p className={cn(
-              "mt-2 text-muted-foreground",
-              !isRightSideOnDesktop && "md:text-right"
-            )}>
-              {step.description}
-            </p>
-          </div>
-        </div>
-
-        {/* Spacer for desktop */}
-        <div className="hidden md:block w-2/12"></div>
-      </div>
-    </div>
-  );
-}
-
 export function HowItWorksSection() {
+
   const renderTimeline = (steps: typeof customerSteps | typeof partnerSteps) => (
-    <div className="relative py-8">
-      {/* This is the central timeline line for desktop */}
-      <div className="hidden md:block absolute top-0 left-1/2 w-0.5 h-full bg-border -translate-x-1/2"></div>
-      
-      <div className="space-y-16">
-        {steps.map((step, index) => {
-          const Icon = step.icon; // Correct way to get the component type
-          return (
-            <div key={index} className="relative">
-              {/* The icon, positioned absolutely in the center on desktop */}
-              <div className="hidden md:block absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 z-10">
-                <div className={cn("w-16 h-16 rounded-full flex items-center justify-center transition-all duration-300 group-hover:scale-110", step.bg)}>
-                   <Icon className={cn("w-8 h-8", step.color)} />
-                </div>
+    <div className="mt-10">
+      {steps.map((step, index) => {
+        const Icon = step.icon;
+        return (
+          <div key={index} className="flex">
+            {/* Timeline graphics */}
+            <div className="flex flex-col items-center mr-6">
+              <div
+                className={cn(
+                  'flex h-14 w-14 items-center justify-center rounded-full z-10',
+                  step.bg
+                )}
+              >
+                <Icon className={cn('h-7 w-7', step.color)} />
               </div>
-              {/* On mobile, the icon is part of the normal flow, so we draw it differently */}
-               <div className="md:hidden flex items-center gap-4 mb-4">
-                 <div className={cn("w-16 h-16 rounded-full flex items-center justify-center transition-all duration-300 group-hover:scale-110 flex-shrink-0", step.bg)}>
-                    <Icon className={cn("w-8 h-8", step.color)} />
-                  </div>
-                  <div className="border-t flex-grow"></div>
-               </div>
-              <TimelineItem step={step} index={index} />
+              {index < steps.length - 1 && (
+                <div className="h-full w-px bg-border -mt-1" />
+              )}
             </div>
-          )
-        })}
-      </div>
+            {/* Content */}
+            <div className={cn("pb-12 pt-2 transform transition-all duration-300 hover:scale-[1.02]", index < steps.length - 1 ? "-mt-2" : "")}>
+              <p className="mb-1 text-sm font-semibold text-primary">
+                STEP {index + 1}
+              </p>
+              <h3 className="text-xl font-bold text-foreground">{step.title}</h3>
+              <p className="mt-2 text-muted-foreground">
+                {step.description}
+              </p>
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 
@@ -192,17 +158,17 @@ export function HowItWorksSection() {
             </p>
         </div>
 
-        <Tabs defaultValue="customers" className="max-w-4xl mx-auto mt-12">
+        <Tabs defaultValue="customers" className="max-w-3xl mx-auto mt-12">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="customers">For Our Customers</TabsTrigger>
             <TabsTrigger value="partners">For Our Partners</TabsTrigger>
           </TabsList>
           
-          <TabsContent value="customers" className="mt-10">
+          <TabsContent value="customers">
             {renderTimeline(customerSteps)}
           </TabsContent>
           
-          <TabsContent value="partners" className="mt-10">
+          <TabsContent value="partners">
             {renderTimeline(partnerSteps)}
           </TabsContent>
         </Tabs>
