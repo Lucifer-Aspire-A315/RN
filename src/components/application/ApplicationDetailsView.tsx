@@ -3,9 +3,8 @@
 
 import React, { useState, useTransition, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
 import { format } from 'date-fns';
-import { ArrowLeft, Loader2, FileText, Edit, Trash2 } from 'lucide-react';
+import { ArrowLeft, Loader2, FileText, Edit, Trash2, User, FileClock, Check, CircleX } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -21,59 +20,48 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 
 // Helper to check for visible content in nested objects
 const hasVisibleContent = (value: any): boolean => {
-  if (value === null || value === undefined || value === '') {
+  if (value === null || value === undefined || value === '' || (Array.isArray(value) && value.length === 0)) {
     return false;
   }
-  // Check if it's a plain object to recurse into
   if (typeof value === 'object' && !Array.isArray(value) && !(value instanceof Date) && !(value instanceof File)) {
-     if (Object.keys(value).length === 0) return false; // Handle empty objects {}
+     if (Object.keys(value).length === 0) return false;
      return Object.values(value).some(hasVisibleContent);
   }
-  // It's a primitive with a value or a File/Date object
   return true;
 };
 
 // Helper to format keys for display (e.g., 'fullName' -> 'Full Name')
 const formatKey = (key: string) => {
   return key
-    .replace(/([A-Z])/g, ' $1') // insert a space before all caps
-    .replace(/^./, (str) => str.toUpperCase()); // uppercase the first character
+    .replace(/([A-Z])/g, ' $1')
+    .replace(/^./, (str) => str.toUpperCase());
 };
 
 // Helper to render different value types
 const renderValue = (value: any) => {
   if (typeof value === 'boolean') {
-    return value ? 'Yes' : 'No';
+    return value ? <Check className="text-success w-5 h-5" /> : <CircleX className="text-destructive w-5 h-5" />;
   }
   if (typeof value === 'string' && (value.startsWith('http') || value.startsWith('data:'))) {
     const isFileLink = value.includes('firebasestorage.googleapis.com');
     const fileName = isFileLink ? decodeURIComponent(value.split('/').pop()?.split('?')[0] ?? 'Download').split('-').slice(2).join('-') : 'View Document';
     return (
-      <Link
-        href={value}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="text-primary hover:underline font-medium break-all flex items-center gap-1.5"
-      >
-        <FileText size={16} />
-        <span>{fileName || "View Uploaded File"}</span>
-      </Link>
+      <Button asChild variant="outline" size="sm">
+        <Link href={value} target="_blank" rel="noopener noreferrer" className="font-medium break-all">
+            <FileText size={16} className="mr-2"/>
+            <span>{fileName || "View Uploaded File"}</span>
+        </Link>
+      </Button>
     );
   }
   if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(value)) {
-      try {
-          return format(new Date(value), 'PPp');
-      } catch {
-          return value;
-      }
+      try { return format(new Date(value), 'PPp'); } catch { return value; }
   }
   if (value && typeof value.seconds === 'number' && typeof value.nanoseconds === 'number') {
     try {
       const date = new Date(value.seconds * 1000 + value.nanoseconds / 1000000);
       return format(date, 'PPp');
-    } catch {
-      return 'Invalid Date';
-    }
+    } catch { return 'Invalid Date'; }
   }
 
   if (value === null || value === undefined || value === '') {
@@ -87,24 +75,19 @@ const DetailItem = ({ itemKey, itemValue }: { itemKey: string; itemValue: any })
   const isTimestampObject = itemValue && typeof itemValue.seconds === 'number' && typeof itemValue.nanoseconds === 'number';
 
   if (typeof itemValue === 'object' && itemValue !== null && !Array.isArray(itemValue) && !(itemValue instanceof Date) && !(itemValue instanceof File) && !isTimestampObject) {
-    if (!hasVisibleContent(itemValue)) {
-        return null;
-    }
+    if (!hasVisibleContent(itemValue)) return null;
     return (
-      <div className="md:col-span-2">
-        <h3 className="text-lg font-semibold text-primary mt-6 mb-4 border-b border-primary/20 pb-2">{formatKey(itemKey)}</h3>
-        <dl className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
-          {Object.entries(itemValue)
-            .filter(([, value]) => hasVisibleContent(value))
-            .map(([key, value]) => (
+      <Card className="col-span-1 md:col-span-2 shadow-sm">
+        <CardHeader><CardTitle className="text-lg">{formatKey(itemKey)}</CardTitle></CardHeader>
+        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 pt-0">
+          {Object.entries(itemValue).map(([key, value]) => (
             <DetailItem key={key} itemKey={key} itemValue={value} />
           ))}
-        </dl>
-      </div>
+        </CardContent>
+      </Card>
     );
   }
 
-  // Simple key-value pair rendering
   return (
     <div className="flex flex-col space-y-1.5">
       <dt className="text-sm font-medium text-muted-foreground">{formatKey(itemKey)}</dt>
@@ -121,13 +104,13 @@ interface ApplicationDetailsViewProps {
   isAdmin: boolean;
 }
 
-const availableStatuses = ['Submitted', 'In Review', 'Approved', 'Rejected', 'Archived'];
+const availableStatuses = ['Submitted', 'In Review', 'Approved', 'Rejected'];
 
-const getStatusVariant = (status: string): "default" | "secondary" | "destructive" => {
+const getStatusVariant = (status: string): "default" | "secondary" | "destructive" | "success" => {
   switch (status?.toLowerCase()) {
     case 'submitted': return 'default';
     case 'in review': return 'secondary';
-    case 'approved': return 'secondary'; // Consider a 'success' variant in the theme
+    case 'approved': return 'success';
     case 'rejected': return 'destructive';
     case 'archived': return 'destructive';
     default: return 'default';
@@ -135,33 +118,16 @@ const getStatusVariant = (status: string): "default" | "secondary" | "destructiv
 };
 
 const ApplicationDetailsSkeleton = () => (
-    <Card className="max-w-4xl mx-auto shadow-lg">
-        <CardHeader className="bg-muted/30">
-            <Skeleton className="h-8 w-1/4" />
-            <Skeleton className="h-6 w-1/2 mt-2" />
-        </CardHeader>
-        <CardContent className="p-6 space-y-6">
-            <div className="p-4 bg-background rounded-lg border space-y-4">
-                <Skeleton className="h-6 w-1/3" />
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="space-y-2"><Skeleton className="h-4 w-1/2" /><Skeleton className="h-5 w-3/4" /></div>
-                    <div className="space-y-2"><Skeleton className="h-4 w-1/2" /><Skeleton className="h-5 w-3/4" /></div>
-                    <div className="space-y-2"><Skeleton className="h-4 w-1/2" /><Skeleton className="h-5 w-3/4" /></div>
-                </div>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
-                <div className="space-y-2"><Skeleton className="h-4 w-1/2" /><Skeleton className="h-5 w-3/4" /></div>
-                <div className="space-y-2"><Skeleton className="h-4 w-1/2" /><Skeleton className="h-5 w-3/4" /></div>
-                <div className="md:col-span-2 space-y-4">
-                    <Skeleton className="h-7 w-1/4 mt-4" />
-                     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
-                        <div className="space-y-2"><Skeleton className="h-4 w-1/2" /><Skeleton className="h-5 w-3/4" /></div>
-                        <div className="space-y-2"><Skeleton className="h-4 w-1/2" /><Skeleton className="h-5 w-3/4" /></div>
-                     </div>
-                </div>
-            </div>
-        </CardContent>
-    </Card>
+    <div className="grid lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-1 space-y-6">
+            <Card><CardHeader><Skeleton className="h-6 w-1/2" /></CardHeader><CardContent className="space-y-4"><Skeleton className="h-5 w-3/4" /><Skeleton className="h-5 w-1/2" /></CardContent></Card>
+             <Card><CardHeader><Skeleton className="h-6 w-1/2" /></CardHeader><CardContent className="space-y-4"><Skeleton className="h-10 w-full" /><Skeleton className="h-10 w-full" /></CardContent></Card>
+        </div>
+        <div className="lg:col-span-2 space-y-6">
+            <Card><CardHeader><Skeleton className="h-7 w-1/4" /></CardHeader><CardContent className="grid md:grid-cols-2 gap-4"><Skeleton className="h-12 w-full" /><Skeleton className="h-12 w-full" /></CardContent></Card>
+             <Card><CardHeader><Skeleton className="h-7 w-1/4" /></CardHeader><CardContent className="grid md:grid-cols-2 gap-4"><Skeleton className="h-12 w-full" /><Skeleton className="h-12 w-full" /></CardContent></Card>
+        </div>
+    </div>
 );
 
 
@@ -220,23 +186,12 @@ export function ApplicationDetailsView({ applicationId, serviceCategory, title, 
         if (!selectedStatus || selectedStatus === currentStatus) return;
 
         startUpdateTransition(async () => {
-            const result = await updateApplicationStatus(
-                applicationId, 
-                applicationData.serviceCategory as UserApplication['serviceCategory'], 
-                selectedStatus
-            );
+            const result = await updateApplicationStatus(applicationId, serviceCategory, selectedStatus);
             if (result.success) {
-                toast({
-                    title: "Status Updated",
-                    description: result.message,
-                });
+                toast({ title: "Status Updated", description: result.message });
                 setCurrentStatus(selectedStatus);
             } else {
-                 toast({
-                    variant: "destructive",
-                    title: "Update Failed",
-                    description: result.message,
-                });
+                 toast({ variant: "destructive", title: "Update Failed", description: result.message });
             }
         });
     };
@@ -255,168 +210,122 @@ export function ApplicationDetailsView({ applicationId, serviceCategory, title, 
     };
 
     // Prepare data for rendering
-    const {
-      status,
-      applicationType,
-      formData,
-      submittedBy,
-      createdAt,
-      updatedAt,
-      ...restOfData
-    } = applicationData;
+    const { status, applicationType, formData, submittedBy, createdAt, updatedAt, ...restOfData } = applicationData;
 
-    const displayData = { ...restOfData };
-    if (formData) {
-        Object.assign(displayData, formData);
-    }
+    const displayData = { ...restOfData, ...formData };
     
     delete displayData.id;
     delete displayData.partnerId;
     delete displayData.serviceCategory;
     delete displayData.schemeNameForDisplay;
 
-    const sectionOrder = [
-        'applicantDetails', 'applicantDetailsGov', 'applicantFounderDetails', 'personalDetails',
-        'addressDetails', 'addressInformationGov',
-        'businessDetails', 'businessInformation', 'businessInformationGov', 'companyDetails',
-        'employmentIncome', 'professionalFinancial',
-        'loanDetails', 'loanPropertyDetails', 'machineryLoanDetails', 'creditCardPreferences', 'loanDetailsGov', 'gstServiceRequired', 'incomeSourceType', 'servicesRequired', 'advisoryServicesRequired', 'optionalServices', 'businessScope', 'directorsPartners', 'currentFinancialOverview',
-        'existingLoans',
-        'documentUploads', 'documentUploadsGov', 'dsaDocumentUploads', 'merchantDocumentUploads',
-        'declaration'
-    ];
-
-    const sortedDataKeys = Object.keys(displayData).sort((a, b) => {
-        const indexA = sectionOrder.indexOf(a);
-        const indexB = sectionOrder.indexOf(b);
-        if (indexA === -1 && indexB === -1) return 0;
-        if (indexA === -1) return 1;
-        if (indexB === -1) return -1;
-        return indexA - indexB;
-    });
+    const applicantInfo = displayData.applicantDetails || displayData.applicantDetailsGov || displayData.applicantFounderDetails;
+    const submitterInfo = submittedBy;
+    const applicationTypeInfo = applicationData.schemeNameForDisplay || applicationType;
+    
+    delete displayData.applicantDetails;
+    delete displayData.applicantDetailsGov;
+    delete displayData.applicantFounderDetails;
+    
 
   return (
     <>
-    <Card className="max-w-4xl mx-auto shadow-lg">
-      <CardHeader className="bg-muted/30">
-         <Button onClick={() => router.back()} variant="ghost" className="self-start -ml-4 mb-2">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Dashboard
-        </Button>
-        <div className="pt-2 flex justify-between items-start">
-            <div>
-                <CardTitle className="text-2xl">{title}</CardTitle>
-                <CardDescription>{subtitle}</CardDescription>
-            </div>
-            <div className="flex gap-2">
-                {isAdmin ? (
+        <div className="flex items-center justify-between mb-6">
+            <Button onClick={() => router.back()} variant="outline">
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Back
+            </Button>
+            <div className="flex items-center gap-2">
+                 {isAdmin ? (
                     <>
                         <Button asChild variant="outline">
-                            <Link href={`/admin/application/${applicationId}/edit?category=${serviceCategory}`}>
-                                <Edit className="mr-2 h-4 w-4" />
-                                Edit
-                            </Link>
+                            <Link href={`/admin/application/${applicationId}/edit?category=${serviceCategory}`}><Edit className="mr-2 h-4 w-4" /> Edit</Link>
                         </Button>
                          <Button variant="destructive" onClick={() => setIsAlertOpen(true)} disabled={isUpdating}>
-                            {isUpdating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
-                            Delete
+                            {isUpdating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />} Delete
                         </Button>
                     </>
                 ) : (
                     <Button asChild variant="outline">
-                        <Link href={`/dashboard/application/${applicationId}/edit?category=${serviceCategory}`}>
-                            <Edit className="mr-2 h-4 w-4" />
-                            Edit Application
-                        </Link>
+                        <Link href={`/dashboard/application/${applicationId}/edit?category=${serviceCategory}`}><Edit className="mr-2 h-4 w-4" /> Edit Application</Link>
                     </Button>
                 )}
             </div>
         </div>
-      </CardHeader>
-      <CardContent className="p-6 space-y-6">
-        
-        {isAdmin && (
-            <div className="bg-muted/50 p-4 rounded-lg border border-border">
-                <h4 className="text-md font-semibold text-foreground mb-3">Admin Actions: Update Status</h4>
-                <div className="flex items-center space-x-4">
-                    <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-                        <SelectTrigger className="w-[200px]">
-                            <SelectValue placeholder="Select a status" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {availableStatuses.map(status => (
-                                <SelectItem key={status} value={status}>{status}</SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                    <Button onClick={handleUpdateStatus} disabled={isUpdating || selectedStatus === currentStatus}>
-                        {isUpdating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                        Update Status
-                    </Button>
-                </div>
-            </div>
-        )}
 
-        {/* Application Summary */}
-        <div className="p-4 bg-background rounded-lg border">
-            <h3 className="text-lg font-semibold text-primary mb-4">Application Summary</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="flex flex-col space-y-1.5">
-                    <dt className="text-sm font-medium text-muted-foreground">Application Type</dt>
-                    <dd className="text-base text-foreground">{applicationData.schemeNameForDisplay || applicationType}</dd>
-                </div>
-                 <div className="flex flex-col space-y-1.5">
-                    <dt className="text-sm font-medium text-muted-foreground">Service Category</dt>
-                    <dd className="text-base text-foreground">{applicationData.serviceCategory}</dd>
-                </div>
-                 <div className="flex flex-col space-y-1.5">
-                    <dt className="text-sm font-medium text-muted-foreground">Status</dt>
-                    <dd className="text-base text-foreground">
-                        <Badge variant={getStatusVariant(currentStatus)} className="capitalize text-sm">{currentStatus}</Badge>
-                    </dd>
-                </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+            {/* Left Column - Summary & Actions */}
+            <div className="lg:col-span-1 space-y-6 lg:sticky lg:top-24">
+                <Card className="shadow-lg">
+                    <CardHeader className="text-center items-center">
+                         <FileClock className="w-12 h-12 text-primary" />
+                         <CardTitle className="text-xl">{applicationTypeInfo}</CardTitle>
+                         <CardDescription>{applicationData.id}</CardDescription>
+                         <Badge variant={getStatusVariant(currentStatus)} className="capitalize text-sm mt-2">{currentStatus}</Badge>
+                    </CardHeader>
+                    <CardContent className="text-sm space-y-3">
+                         <div>
+                            <p className="font-semibold text-foreground">Applicant:</p>
+                            <p className="text-muted-foreground">{applicantInfo?.fullName || 'N/A'}</p>
+                         </div>
+                         <div>
+                            <p className="font-semibold text-foreground">Submitted By:</p>
+                            <p className="text-muted-foreground">{submitterInfo?.userName || 'N/A'}</p>
+                         </div>
+                         <div>
+                            <p className="font-semibold text-foreground">Created On:</p>
+                            <p className="text-muted-foreground">{format(new Date(createdAt), 'PPp')}</p>
+                         </div>
+                    </CardContent>
+                </Card>
+                 {isAdmin && (
+                    <Card className="shadow-lg">
+                        <CardHeader><CardTitle>Admin Actions</CardTitle></CardHeader>
+                        <CardContent className="space-y-4">
+                             <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+                                <SelectTrigger><SelectValue placeholder="Select a status" /></SelectTrigger>
+                                <SelectContent>
+                                    {availableStatuses.map(status => (<SelectItem key={status} value={status}>{status}</SelectItem>))}
+                                </SelectContent>
+                            </Select>
+                            <Button onClick={handleUpdateStatus} disabled={isUpdating || selectedStatus === currentStatus} className="w-full">
+                                {isUpdating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Update Status
+                            </Button>
+                        </CardContent>
+                    </Card>
+                )}
+            </div>
+
+            {/* Right Column - Details */}
+            <div className="lg:col-span-2 space-y-6">
+                <Card className="shadow-sm">
+                    <CardHeader><CardTitle className="text-lg flex items-center gap-2"><User className="w-5 h-5"/> Applicant & Submitter Info</CardTitle></CardHeader>
+                    <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 pt-0">
+                         {applicantInfo && Object.entries(applicantInfo).map(([key, value]) => (<DetailItem key={key} itemKey={key} itemValue={value} />))}
+                         {submitterInfo && Object.entries(submitterInfo).map(([key, value]) => (<DetailItem key={key} itemKey={`Submitter ${key}`} itemValue={value} />))}
+                    </CardContent>
+                </Card>
+                
+                {Object.entries(displayData).map(([key, value]) => (
+                    hasVisibleContent(value) && <DetailItem key={key} itemKey={key} itemValue={value} />
+                ))}
             </div>
         </div>
 
-        {/* Render all other form data */}
-        <dl className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
-            {sortedDataKeys.map((key) => (
-                <DetailItem key={key} itemKey={key} itemValue={displayData[key]} />
-            ))}
-        </dl>
-        
-        {/* Submission Info Section at the bottom */}
-        {(submittedBy || createdAt || updatedAt) && (
-            <div className="mt-8 pt-6 border-t">
-                <div className="md:col-span-2">
-                    <h3 className="text-lg font-semibold text-primary mb-4 border-b border-primary/20 pb-2">Submission Info</h3>
-                    <dl className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
-                        {submittedBy && <DetailItem itemKey="Submitted By" itemValue={submittedBy} />}
-                        {createdAt && <DetailItem itemKey="Created At" itemValue={createdAt} />}
-                        {updatedAt && <DetailItem itemKey="Last Updated At" itemValue={updatedAt} />}
-                    </dl>
-                </div>
-            </div>
-        )}
-      </CardContent>
-    </Card>
-
-    <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure you want to delete this application?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This will archive the application record and permanently delete all associated documents from storage. This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmArchive} className="bg-destructive hover:bg-destructive/90">
-              {isUpdating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Yes, Delete'}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+        <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                    <AlertDialogTitle>Are you sure you want to delete this application?</AlertDialogTitle>
+                    <AlertDialogDescription>This will archive the application record and permanently delete all associated documents from storage. This action cannot be undone.</AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={confirmArchive} variant="destructive">
+                        {isUpdating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Yes, Delete'}
+                    </AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
     </>
   );
 }

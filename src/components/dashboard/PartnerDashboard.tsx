@@ -1,14 +1,16 @@
 
 'use client';
 
+import { useMemo } from 'react';
 import type { UserData, UserApplication } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Handshake, UserPlus, Store, PlusCircle } from 'lucide-react';
+import { Handshake, UserPlus, Store, PlusCircle, FolderKanban, Clock, CheckCircle2 } from 'lucide-react';
 import { PartnerNewApplicationPortal } from './PartnerNewApplicationPortal';
 import { ApplicationsTable } from './ApplicationsTable';
 import { Skeleton } from '../ui/skeleton';
+import { StatCard } from '../admin/StatCard';
 
 interface PartnerDashboardViewProps {
     user: UserData;
@@ -50,70 +52,63 @@ const NewApplicationButton = ({ buttonText }: { buttonText: string }) => (
 );
 
 
-const ReferralDashboard = ({ user, applications, isLoading }: PartnerDashboardViewProps) => (
-    <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-            <div>
-                <CardTitle>Referral Activity</CardTitle>
-                <CardDescription>
-                    A list of all applications you have submitted.
-                </CardDescription>
+const DashboardContent = ({ user, applications, isLoading }: PartnerDashboardViewProps) => {
+    const analyticsData = useMemo(() => {
+        const totalApplications = applications.length;
+        const pendingApplications = applications.filter(app => app.status === 'Submitted' || app.status === 'In Review').length;
+        const approvedApplications = applications.filter(app => app.status === 'Approved').length;
+        return { totalApplications, pendingApplications, approvedApplications };
+    }, [applications]);
+
+    const modelToTitle: Record<string, string> = {
+        referral: 'Referral Partner Dashboard',
+        dsa: 'DSA Partner Dashboard',
+        merchant: 'Merchant Partner Dashboard',
+    };
+    const buttonText = user.businessModel === 'referral' ? "Start New Referral" : "New Client Application";
+    const title = user.businessModel ? modelToTitle[user.businessModel] : "Partner Dashboard";
+
+    return (
+        <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <h1 className="text-3xl font-bold tracking-tight text-foreground">{title}</h1>
+                    <p className="text-muted-foreground">Welcome, {user.fullName}! Manage your partner activities here.</p>
+                </div>
+                <NewApplicationButton buttonText={buttonText} />
             </div>
-             <NewApplicationButton buttonText="Start New Referral" />
-        </CardHeader>
-        <CardContent>
-            {isLoading ? <ApplicationsTableSkeleton /> : <ApplicationsTable applications={applications} />}
-        </CardContent>
-    </Card>
-);
 
-const DsaDashboard = ({ user, applications, isLoading }: PartnerDashboardViewProps) => (
-    <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-             <div>
-                <CardTitle>Applications Submitted by You</CardTitle>
-                <CardDescription>A list of all applications you have submitted for clients.</CardDescription>
-             </div>
-             <NewApplicationButton buttonText="New Client Application" />
-        </CardHeader>
-        <CardContent>
-            {isLoading ? <ApplicationsTableSkeleton /> : <ApplicationsTable applications={applications} />}
-        </CardContent>
-    </Card>
-);
-
-const MerchantDashboard = ({ user, applications, isLoading }: PartnerDashboardViewProps) => (
-     <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-             <div>
-                <CardTitle>Applications Submitted by You</CardTitle>
-                <CardDescription>A list of all applications you have submitted for your customers.</CardDescription>
-             </div>
-             <NewApplicationButton buttonText="New Customer Application" />
-        </CardHeader>
-        <CardContent>
-            {isLoading ? <ApplicationsTableSkeleton /> : <ApplicationsTable applications={applications} />}
-        </CardContent>
-    </Card>
-);
-
-const modelToComponent: Record<string, React.FC<PartnerDashboardViewProps>> = {
-    referral: ReferralDashboard,
-    dsa: DsaDashboard,
-    merchant: MerchantDashboard
+            <div className="grid gap-4 md:grid-cols-3">
+                <StatCard 
+                    title="Total Submissions" 
+                    value={isLoading ? '...' : analyticsData.totalApplications}
+                    icon={FolderKanban}
+                />
+                <StatCard 
+                    title="Pending Approval" 
+                    value={isLoading ? '...' : analyticsData.pendingApplications}
+                    icon={Clock}
+                />
+                <StatCard 
+                    title="Approved Applications" 
+                    value={isLoading ? '...' : analyticsData.approvedApplications}
+                    icon={CheckCircle2}
+                />
+            </div>
+            
+            <Card>
+                <CardHeader>
+                    <CardTitle>Submitted Applications</CardTitle>
+                    <CardDescription>A list of all applications you have submitted for clients.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    {isLoading ? <ApplicationsTableSkeleton /> : <ApplicationsTable applications={applications} />}
+                </CardContent>
+            </Card>
+        </div>
+    );
 };
 
-const modelToIcon: Record<string, React.ReactNode> = {
-    referral: <Handshake className="w-6 h-6 mr-2 text-primary" />,
-    dsa: <UserPlus className="w-6 h-6 mr-2 text-primary" />,
-    merchant: <Store className="w-6 h-6 mr-2 text-primary" />,
-};
-
-const modelToTitle: Record<string, string> = {
-    referral: 'Referral Partner',
-    dsa: 'DSA Partner',
-    merchant: 'Merchant Partner',
-}
 
 export function PartnerDashboard({ user, applications, isLoading }: PartnerDashboardViewProps) {
     if (!user.businessModel) {
@@ -126,23 +121,6 @@ export function PartnerDashboard({ user, applications, isLoading }: PartnerDashb
             </Card>
         );
     }
-
-    const DashboardComponent = modelToComponent[user.businessModel];
-    const DashboardIcon = modelToIcon[user.businessModel];
-    const DashboardTitle = modelToTitle[user.businessModel];
-
-    return (
-         <div>
-            <div className="flex justify-between items-center mb-8">
-                <div>
-                    <div className="flex items-center">
-                        {DashboardIcon}
-                        <h1 className="text-3xl font-bold tracking-tight text-foreground">{DashboardTitle} Dashboard</h1>
-                    </div>
-                    <p className="text-muted-foreground">Welcome, {user.fullName}! Manage your partner activities here.</p>
-                </div>
-            </div>
-            {DashboardComponent ? <DashboardComponent user={user} applications={applications} isLoading={isLoading} /> : <p>Dashboard for your partner type is not available yet.</p>}
-        </div>
-    );
+    
+    return <DashboardContent user={user} applications={applications} isLoading={isLoading} />;
 }

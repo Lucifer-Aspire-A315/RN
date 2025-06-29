@@ -20,18 +20,13 @@ interface AdminApplicationsTableProps {
   processingState: { id: string; type: 'delete' | 'status' | 'approve' } | null;
 }
 
-const getStatusVariant = (status: string): "default" | "secondary" | "destructive" => {
+const getStatusVariant = (status: string): "default" | "secondary" | "destructive" | "success" => {
   switch (status.toLowerCase()) {
-    case 'submitted':
-      return 'default';
-    case 'in review':
-      return 'secondary';
-    case 'approved':
-      return 'secondary';
-    case 'rejected':
-      return 'destructive';
-    default:
-      return 'default';
+    case 'submitted': return 'default';
+    case 'in review': return 'secondary';
+    case 'approved': return 'success';
+    case 'rejected': return 'destructive';
+    default: return 'default';
   }
 };
 
@@ -85,7 +80,7 @@ export function AdminApplicationsTable({ applications, onUpdateStatus, onArchive
     <>
       <div className="border rounded-lg overflow-hidden">
         <Table>
-          <TableHeader>
+          <TableHeader className="bg-muted/50">
             <TableRow>
               <TableHead>Applicant</TableHead>
               <TableHead>Application Type</TableHead>
@@ -114,10 +109,13 @@ export function AdminApplicationsTable({ applications, onUpdateStatus, onArchive
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex items-center justify-end gap-2">
-                     <Button variant="outline" size="icon" onClick={() => handleEditClick(app)} title="Edit Application" disabled={!!processingState}>
+                     <Button variant="ghost" size="icon" onClick={() => handleViewClick(app)} title="View Application" disabled={!!processingState}>
+                        <Eye className="h-4 w-4" />
+                     </Button>
+                     <Button variant="ghost" size="icon" onClick={() => handleEditClick(app)} title="Edit Application" disabled={!!processingState}>
                         <Edit className="h-4 w-4" />
                      </Button>
-                      <Button variant="destructive" size="icon" onClick={() => openArchiveDialog(app)} title="Delete Application" disabled={!!processingState}>
+                      <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive" onClick={() => openArchiveDialog(app)} title="Delete Application" disabled={!!processingState}>
                         {processingState?.id === app.id && processingState?.type === 'delete' ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
                      </Button>
                       <DropdownMenu>
@@ -128,11 +126,6 @@ export function AdminApplicationsTable({ applications, onUpdateStatus, onArchive
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                           <DropdownMenuItem onClick={() => handleViewClick(app)}>
-                            <Eye className="mr-2 h-4 w-4" />
-                            View Details
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
                            <DropdownMenuLabel>Set Status</DropdownMenuLabel>
                           {availableStatuses.map((status) => (
                             <DropdownMenuItem
@@ -163,7 +156,7 @@ export function AdminApplicationsTable({ applications, onUpdateStatus, onArchive
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel onClick={() => setIsAlertOpen(false)}>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmArchive} className="bg-destructive hover:bg-destructive/90" disabled={!!processingState}>
+            <AlertDialogAction onClick={confirmArchive} variant="destructive" disabled={!!processingState}>
               {processingState?.id === selectedAppForArchive?.id && processingState?.type === 'delete' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Yes, Delete'}
             </AlertDialogAction>
           </AlertDialogFooter>

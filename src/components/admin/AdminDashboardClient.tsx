@@ -155,10 +155,11 @@ export function AdminDashboardClient({}: AdminDashboardClientProps) {
 
   return (
     <>
-      {/* Analytics Section */}
-      <div className="space-y-4">
-        <h2 className="text-xl font-bold tracking-tight text-foreground">Analytics Overview</h2>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        <div className="lg:col-span-2">
+            <AnalyticsCharts applications={applications} isLoading={isLoading} />
+        </div>
+        <div className="space-y-6">
            <StatCard 
               title="Total Applications" 
               value={isLoading ? '...' : analyticsData.totalApplications}
@@ -177,49 +178,17 @@ export function AdminDashboardClient({}: AdminDashboardClientProps) {
               icon={UserPlus}
               description="Partners awaiting approval"
             />
-        </div>
-        
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2">
-            {isLoading ? (
-                <Card><CardHeader><Skeleton className="h-8 w-1/2" /></CardHeader><CardContent><Skeleton className="h-[250px] w-full" /></CardContent></Card>
-            ) : (
-                <AnalyticsCharts applications={applications} />
-            )}
-             <Card>
-                <CardHeader>
-                    <CardTitle>Partner Network</CardTitle>
-                    <CardDescription>An overview of your partner ecosystem.</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6 pt-4">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                            <div className="p-3 bg-secondary rounded-full">
-                                <Users className="h-6 w-6 text-secondary-foreground" />
-                            </div>
-                            <div>
-                                <p className="text-sm text-muted-foreground">Total Approved Partners</p>
-                                <p className="text-2xl font-bold">{isLoading ? '...' : analyticsData.totalPartnerCount}</p>
-                            </div>
-                        </div>
-                    </div>
-                     <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                             <div className="p-3 bg-secondary rounded-full">
-                                <UserPlus className="h-6 w-6 text-secondary-foreground" />
-                            </div>
-                            <div>
-                                <p className="text-sm text-muted-foreground">Pending Partner Approvals</p>
-                                <p className="text-2xl font-bold">{isLoading ? '...' : analyticsData.pendingPartnerCount}</p>
-                            </div>
-                        </div>
-                    </div>
-                </CardContent>
-            </Card>
+            <StatCard 
+              title="Total Partners" 
+              value={isLoading ? '...' : analyticsData.totalPartnerCount}
+              icon={Users}
+              description="Total approved partners in the network"
+            />
         </div>
       </div>
 
       <Tabs defaultValue="applications" className="space-y-4 mt-8">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList>
           <TabsTrigger value="applications">All Applications ({isLoading ? '...' : applications.length})</TabsTrigger>
           <TabsTrigger value="pending_partners">Pending Partners ({isLoading ? '...' : pendingPartners.length})</TabsTrigger>
           <TabsTrigger value="all_partners">All Partners ({isLoading ? '...' : allPartners.length})</TabsTrigger>

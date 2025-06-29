@@ -19,21 +19,48 @@ interface PartnerDetailsViewProps {
 }
 
 const PartnerProfileSkeleton = () => (
-    <Card className="max-w-4xl mx-auto shadow-lg">
-        <CardHeader className="text-center">
-            <Skeleton className="w-24 h-24 mx-auto mb-4 rounded-full" />
-            <Skeleton className="h-8 w-1/2 mx-auto" />
-            <Skeleton className="h-6 w-1/3 mx-auto mt-2" />
-        </CardHeader>
-        <CardContent className="mt-6 space-y-6">
-            <div className="space-y-4">
-                <Skeleton className="h-10 w-full" />
-                <Skeleton className="h-10 w-full" />
-                <Skeleton className="h-10 w-full" />
-            </div>
-        </CardContent>
-    </Card>
+    <div className="grid lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-1">
+            <Card className="shadow-lg">
+                <CardHeader className="items-center text-center">
+                    <Skeleton className="w-24 h-24 rounded-full mb-4" />
+                    <Skeleton className="h-8 w-40" />
+                    <Skeleton className="h-5 w-24 mt-2" />
+                </CardHeader>
+                <CardContent className="space-y-4 pt-4">
+                    <Skeleton className="h-12 w-full" />
+                    <Skeleton className="h-12 w-full" />
+                    <Skeleton className="h-12 w-full" />
+                    <Skeleton className="h-10 w-full mt-4" />
+                </CardContent>
+            </Card>
+        </div>
+        <div className="lg:col-span-2">
+            <Card>
+                <CardHeader>
+                    <Skeleton className="h-8 w-1/3" />
+                </CardHeader>
+                <CardContent>
+                    <div className="space-y-4">
+                        <Skeleton className="h-10 w-full" />
+                        <Skeleton className="h-10 w-full" />
+                    </div>
+                </CardContent>
+            </Card>
+        </div>
+    </div>
 );
+
+const PartnerInfoItem = ({ icon: Icon, label, value }: { icon: React.ElementType, label: string, value: string }) => (
+    <div className="flex items-start gap-4 p-4 rounded-lg bg-background border">
+        <Icon className="w-5 h-5 text-muted-foreground mt-1" />
+        <div>
+            <p className="text-sm font-medium text-muted-foreground">{label}</p>
+            <p className="font-semibold text-foreground break-all">{value}</p>
+        </div>
+    </div>
+);
+
 
 export function PartnerDetailsView({ partnerId }: PartnerDetailsViewProps) {
     const router = useRouter();
@@ -103,22 +130,7 @@ export function PartnerDetailsView({ partnerId }: PartnerDetailsViewProps) {
     };
 
     if (isLoading) {
-        return (
-            <div className="space-y-8">
-                <PartnerProfileSkeleton />
-                <Card>
-                    <CardHeader>
-                        <Skeleton className="h-8 w-1/3" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="space-y-4">
-                            <Skeleton className="h-10 w-full" />
-                            <Skeleton className="h-10 w-full" />
-                        </div>
-                    </CardContent>
-                </Card>
-            </div>
-        );
+        return <PartnerProfileSkeleton />;
     }
     
     if (!partner) {
@@ -139,72 +151,67 @@ export function PartnerDetailsView({ partnerId }: PartnerDetailsViewProps) {
     }
     
     return (
-        <div className="space-y-8">
-            <Card className="max-w-4xl mx-auto shadow-lg">
-                <CardHeader className="text-center">
-                    <Avatar className="w-24 h-24 mx-auto mb-4 border-4 border-primary">
-                        <AvatarImage src={`https://api.dicebear.com/8.x/initials/svg?seed=${partner.fullName}`} alt={partner.fullName} />
-                        <AvatarFallback className="text-3xl">{getInitials(partner.fullName)}</AvatarFallback>
-                    </Avatar>
-                    <CardTitle className="text-3xl">{partner.fullName}</CardTitle>
-                    <CardDescription className="text-lg text-muted-foreground">
-                        {partnerTypeDisplay} Profile
-                    </CardDescription>
-                </CardHeader>
-                <CardContent className="mt-6 space-y-6">
-                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <div className="flex items-center space-x-4 p-4 rounded-lg bg-background">
-                            <User className="w-6 h-6 text-primary" />
-                            <div><p className="text-sm text-muted-foreground">Full Name</p><p className="font-medium text-foreground">{partner.fullName}</p></div>
-                        </div>
-                        <div className="flex items-center space-x-4 p-4 rounded-lg bg-background">
-                            <Mail className="w-6 h-6 text-primary" />
-                            <div><p className="text-sm text-muted-foreground">Email Address</p><p className="font-medium text-foreground">{partner.email}</p></div>
-                        </div>
-                        <div className="flex items-center space-x-4 p-4 rounded-lg bg-background">
-                            <Phone className="w-6 h-6 text-primary" />
-                            <div><p className="text-sm text-muted-foreground">Mobile</p><p className="font-medium text-foreground">{partner.mobileNumber}</p></div>
-                        </div>
-                        <div className="flex items-center space-x-4 p-4 rounded-lg bg-background">
-                            <BadgeCheck className="w-6 h-6 text-primary" />
-                            <div><p className="text-sm text-muted-foreground">Account Type</p><p className="font-medium text-foreground">{partnerTypeDisplay}</p></div>
-                        </div>
-                    </div>
-                     <div className="border-t pt-6 flex justify-end">
-                        <Button variant="destructive" onClick={() => setIsAlertOpen(true)} disabled={isRemoving}>
-                            {isRemoving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
-                            Deactivate Partner
-                        </Button>
-                    </div>
-                </CardContent>
-            </Card>
-            
-            <Card>
-                <CardHeader>
-                    <CardTitle>Applications Submitted by {partner.fullName}</CardTitle>
-                    <CardDescription>A list of all applications submitted by this partner.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <ApplicationsTable applications={applications} />
-                </CardContent>
-            </Card>
+        <>
+            <div className="flex items-center justify-between mb-6">
+                <Button onClick={() => router.back()} variant="outline">
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Back
+                </Button>
+                 <Button variant="destructive" onClick={() => setIsAlertOpen(true)} disabled={isRemoving}>
+                    {isRemoving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
+                    Deactivate Partner
+                </Button>
+            </div>
+            <div className="grid lg:grid-cols-3 gap-6 items-start">
+                <div className="lg:col-span-1 space-y-6">
+                    <Card className="shadow-lg">
+                        <CardHeader className="items-center text-center pb-4">
+                            <Avatar className="w-24 h-24 mb-4 border-4 border-primary">
+                                <AvatarImage src={`https://api.dicebear.com/8.x/initials/svg?seed=${partner.fullName}`} alt={partner.fullName} />
+                                <AvatarFallback className="text-3xl">{getInitials(partner.fullName)}</AvatarFallback>
+                            </Avatar>
+                            <CardTitle className="text-2xl">{partner.fullName}</CardTitle>
+                            <CardDescription className="text-base text-muted-foreground">
+                                <Badge variant="secondary" className="mt-1">{partnerTypeDisplay}</Badge>
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-3">
+                           <PartnerInfoItem icon={Mail} label="Email Address" value={partner.email} />
+                           <PartnerInfoItem icon={Phone} label="Mobile Number" value={partner.mobileNumber} />
+                           <PartnerInfoItem icon={Briefcase} label="Business Model" value={partnerTypeDisplay} />
+                        </CardContent>
+                    </Card>
+                </div>
+                
+                <div className="lg:col-span-2">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Applications Submitted by {partner.fullName}</CardTitle>
+                            <CardDescription>A list of all applications submitted by this partner.</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <ApplicationsTable applications={applications} />
+                        </CardContent>
+                    </Card>
+                </div>
 
-            <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Are you sure you want to deactivate this partner?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      This will revoke the partner's access and move them to the pending list. They will not be able to log in until approved again. Their data will be preserved.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleRemovePartner} className="bg-destructive hover:bg-destructive/90" disabled={isRemoving}>
-                      {isRemoving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Yes, Deactivate'}
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-        </div>
+                <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Are you sure you want to deactivate this partner?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This will revoke the partner's access and move them to the pending list. They will not be able to log in until approved again. Their data will be preserved.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleRemovePartner} variant="destructive" disabled={isRemoving}>
+                          {isRemoving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Yes, Deactivate'}
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+            </div>
+        </>
     );
 }
