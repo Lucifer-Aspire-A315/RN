@@ -1,98 +1,39 @@
-
 "use client";
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React from 'react';
 import { cn } from '@/lib/utils';
+import { Sparkles } from 'lucide-react';
 
 export interface NewsTickerItem {
-  text: React.ReactNode;
-  textColor?: string;
-  bgColor?: string;
+  text: string;
 }
 
 interface NewsTickerProps {
   items: NewsTickerItem[];
-  duration?: number;
   onContainerClick: () => void;
 }
 
-export function NewsTicker({ items, duration = 5000, onContainerClick }: NewsTickerProps) {
-  const [index, setIndex] = useState(0);
-  const [isFadingOut, setIsFadingOut] = useState(false);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
-
-  const goToNext = useCallback(() => {
-    setIsFadingOut(true);
-    setTimeout(() => {
-      setIndex((prevIndex) => (prevIndex + 1) % items.length);
-      setIsFadingOut(false);
-    }, 300);
-  }, [items.length]);
-
-  const resetTimer = useCallback(() => {
-    if (timerRef.current) {
-      clearInterval(timerRef.current);
-    }
-    timerRef.current = setInterval(goToNext, duration);
-  }, [duration, goToNext]);
-
-  const goToIndex = (newIndex: number) => {
-    if (newIndex === index) return;
-    setIsFadingOut(true);
-    setTimeout(() => {
-      setIndex(newIndex);
-      setIsFadingOut(false);
-    }, 300);
-    resetTimer();
-  };
-
-  useEffect(() => {
-    resetTimer();
-    return () => {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-      }
-    };
-  }, [resetTimer]);
-
+export function NewsTicker({ items, onContainerClick }: NewsTickerProps) {
   if (!items || items.length === 0) {
     return null;
   }
 
-  const currentItem = items[index];
-
+  // The 'animation-play-state' property is not directly available in Tailwind by default, so we add a class
+  // `group-hover:[animation-play-state:paused]` which is a valid arbitrary property in modern Tailwind.
   return (
     <div
       onClick={onContainerClick}
-      className="group relative w-full cursor-pointer transition-all duration-300 ease-in-out hover:-translate-y-1 hover:shadow-2xl rounded-xl"
+      className="group relative w-full bg-primary/10 border-y border-primary/20 cursor-pointer overflow-hidden flex items-center"
     >
-      <div className="flex items-center justify-center min-h-[14rem] overflow-hidden rounded-xl">
-        <div
-          className={cn(
-            'transition-opacity duration-300 ease-in-out w-full h-full',
-            isFadingOut ? 'opacity-0' : 'opacity-100'
-          )}
-        >
-          {currentItem.text}
-        </div>
+      <div className="flex w-max animate-marquee group-hover:[animation-play-state:paused]">
+        {/* We duplicate the items to create a seamless loop */}
+        {[...items, ...items].map((item, index) => (
+          <div key={index} className="flex items-center mx-6 h-12">
+            <Sparkles className="w-5 h-5 mr-3 text-accent flex-shrink-0" />
+            <span className="text-sm font-medium text-foreground whitespace-nowrap">{item.text}</span>
+          </div>
+        ))}
       </div>
-
-       <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center justify-center gap-2">
-          {items.map((_, i) => (
-            <button
-              key={i}
-              onClick={(e) => {
-                e.stopPropagation();
-                goToIndex(i);
-              }}
-              className={cn(
-                'h-1.5 w-1.5 rounded-full transition-all duration-300',
-                i === index ? 'w-4 bg-primary' : 'bg-muted-foreground/50 hover:bg-muted-foreground'
-              )}
-              aria-label={`Go to slide ${i + 1}`}
-            />
-          ))}
-        </div>
     </div>
   );
 }
