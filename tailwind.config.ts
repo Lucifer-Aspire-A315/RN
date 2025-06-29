@@ -1,3 +1,4 @@
+
 import type {Config} from 'tailwindcss';
 
 export default {
@@ -99,10 +100,6 @@ export default {
             height: '0',
           },
         },
-        'scroll-infinite': {
-            '0%': { transform: 'translateX(0)' },
-            '100%': { transform: 'translateX(-50%)' },
-        },
         'marquee': {
           '0%': { transform: 'translateX(0)' },
           '100%': { transform: 'translateX(-50%)' },
@@ -124,19 +121,23 @@ export default {
                 opacity: '0.3'
             }
         },
-        'fade-in-out': {
-          '0%, 100%': { opacity: '0' },
-          '10%, 90%': { opacity: '1' },
+        'fade-in-up': {
+          '0%': { opacity: '0', transform: 'translateY(20px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
         },
+        'zoom-in-out': {
+          '0%, 100%': { transform: 'scale(1)' },
+          '50%': { transform: 'scale(1.05)' },
+        }
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
-        'scroll-infinite': 'scroll-infinite 60s linear infinite',
         'marquee': 'marquee 60s linear infinite',
         'float': 'float 6s ease-in-out infinite',
         'shadow-float': 'shadow-float 6s ease-in-out infinite',
-        'fade-in-out': 'fade-in-out 5s ease-in-out infinite',
+        'fade-in-up': 'fade-in-up 0.8s ease-out forwards',
+        'zoom-in-out': 'zoom-in-out 10s ease-in-out infinite',
       },
     },
   },

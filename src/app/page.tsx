@@ -126,7 +126,7 @@ export default function Home() {
       case 'main':
         return (
           <>
-            <HeroSection setCurrentPage={setCurrentPage} />
+            <HeroSection />
             <PartnerBanksSection />
             <GovernmentSchemeHighlights setCurrentPage={setCurrentPage} />
             <ServicesSection setCurrentPage={setCurrentPage} />
