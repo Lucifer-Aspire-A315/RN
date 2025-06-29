@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState, useTransition, useEffect } from 'react';
+import React, { useState, useTransition, useEffect, useMemo } from 'react';
 import type { UserApplication, PartnerData } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -62,6 +62,13 @@ export function AdminDashboardClient({}: AdminDashboardClientProps) {
     }
     fetchData();
   }, [toast]);
+  
+  const pendingApplications = useMemo(() => {
+    return applications.filter(app => 
+      app.status.toLowerCase() === 'submitted' || 
+      app.status.toLowerCase() === 'in review'
+    );
+  }, [applications]);
 
   const handleApprovePartner = async (partnerId: string) => {
     setProcessingState({ id: partnerId, type: 'approve' });
@@ -143,6 +150,7 @@ export function AdminDashboardClient({}: AdminDashboardClientProps) {
       <Tabs defaultValue="applications" className="space-y-4">
         <TabsList>
           <TabsTrigger value="applications">All Applications ({isLoading ? '...' : applications.length})</TabsTrigger>
+          <TabsTrigger value="pending_applications">Pending Applications ({isLoading ? '...' : pendingApplications.length})</TabsTrigger>
           <TabsTrigger value="pending_partners">Pending Partners ({isLoading ? '...' : pendingPartners.length})</TabsTrigger>
           <TabsTrigger value="all_partners">All Partners ({isLoading ? '...' : allPartners.length})</TabsTrigger>
         </TabsList>
@@ -158,6 +166,26 @@ export function AdminDashboardClient({}: AdminDashboardClientProps) {
                   ) : (
                       <AdminApplicationsTable 
                           applications={applications} 
+                          onUpdateStatus={handleUpdateStatus}
+                          onArchive={handleArchiveApplication}
+                          processingState={processingState}
+                      />
+                  )}
+              </CardContent>
+            </Card>
+        </TabsContent>
+         <TabsContent value="pending_applications">
+           <Card>
+              <CardHeader>
+                <CardTitle>Pending Applications</CardTitle>
+                <CardDescription>Review and process applications that require action.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                  {isLoading ? (
+                      <TableSkeleton />
+                  ) : (
+                      <AdminApplicationsTable 
+                          applications={pendingApplications} 
                           onUpdateStatus={handleUpdateStatus}
                           onArchive={handleArchiveApplication}
                           processingState={processingState}
