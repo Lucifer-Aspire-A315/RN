@@ -202,7 +202,7 @@ export function ApplicationDetailsView({ applicationId, serviceCategory, title, 
             const result = await archiveApplicationAction(applicationId, serviceCategory as UserApplication['serviceCategory']);
             if (result.success) {
                 toast({ title: "Application Archived", description: result.message });
-                router.push('/admin/dashboard');
+                router.push(isAdmin ? '/admin/dashboard' : '/dashboard');
             } else {
                 toast({ variant: "destructive", title: "Archive Failed", description: result.message });
             }
