@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useForm, type UseFormReturn } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { ZodType, ZodTypeDef } from 'zod';
@@ -105,7 +105,7 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<Record<string, File | null>>({});
   const { currentUser } = useAuth();
-  const [currentSection, setCurrentSection] = useState(0);
+  const [currentStep, setCurrentStep] = useState(0);
 
   const form = useForm<TData>({
     resolver: zodResolver(schema),
@@ -116,6 +116,24 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
   const { control, handleSubmit, reset, watch, setValue, setError, trigger } = form;
 
   const getNestedValue = (obj: any, path: string) => path.split('.').reduce((o, i) => (o ? o[i] : undefined), obj);
+  
+  const watchedValues = watch();
+
+  const visibleSections = useMemo(() => {
+    return sections.filter(section => 
+      section.fields.some(field => {
+        if (!field.dependsOn) return true;
+        const dependentValue = getNestedValue(watchedValues, field.dependsOn.field);
+        return dependentValue === field.dependsOn.value;
+      })
+    );
+  }, [sections, watchedValues]);
+
+  useEffect(() => {
+    if (currentStep >= visibleSections.length) {
+      setCurrentStep(Math.max(0, visibleSections.length - 1));
+    }
+  }, [visibleSections, currentStep]);
 
   const getFirstDocumentUploadsKey = (): string | null => {
     for (const section of sections) {
@@ -182,11 +200,13 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
   }
 
   const handleNextClick = async () => {
-    const currentFields = sections[currentSection].fields.map(field => field.name);
+    const currentFields = visibleSections[currentStep].fields.map(field => field.name);
     const isValid = await trigger(currentFields as any);
 
     if(isValid) {
-      setCurrentSection(prev => prev + 1);
+       if (currentStep < visibleSections.length - 1) {
+          setCurrentStep(prev => prev + 1);
+       }
     } else {
       toast({
         variant: "destructive",
@@ -197,10 +217,10 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
   };
 
   const handlePreviousClick = () => {
-    setCurrentSection(prev => Math.max(0, prev - 1));
+    setCurrentStep(prev => Math.max(0, prev - 1));
   };
   
-  const progress = sections.length > 1 ? ((currentSection + 1) / sections.length) * 100 : 100;
+  const progress = visibleSections.length > 1 ? ((currentStep + 1) / visibleSections.length) * 100 : 100;
 
   const renderField = (fieldConfig: FieldConfig, form: UseFormReturn<TData>) => {
     return (
@@ -284,7 +304,7 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
 
           <div className="my-8">
             <div className="flex justify-between mb-1">
-                <span className="text-sm font-medium text-primary">Section {currentSection + 1} of {sections.length}</span>
+                <span className="text-sm font-medium text-primary">Section {currentStep + 1} of {visibleSections.length}</span>
                 <span className="text-sm font-medium text-primary">{Math.round(progress)}% Complete</span>
             </div>
             <Progress value={progress} className="w-full" />
@@ -293,8 +313,8 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
 
           <Form {...form}>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-10">
-              {sections.map((section, idx) => (
-                 <div key={idx} className={currentSection === idx ? 'block' : 'hidden'}>
+              {visibleSections.map((section, idx) => (
+                 <div key={idx} className={currentStep === idx ? 'block' : 'hidden'}>
                     <FormSection title={section.title} subtitle={section.subtitle}>
                       {section.fields.map(fieldConfig => {
                         if (fieldConfig.dependsOn) {
@@ -311,18 +331,18 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
                 </div>
               ))}
               <div className="mt-10 pt-6 border-t border-border flex items-center justify-between">
-                {currentSection > 0 && (
+                {currentStep > 0 && (
                     <Button type="button" variant="outline" onClick={handlePreviousClick}>
                         Previous
                     </Button>
                 )}
                 <div className="flex-grow" />
-                {currentSection < sections.length - 1 && (
+                {currentStep < visibleSections.length - 1 && (
                     <Button type="button" className="cta-button" onClick={handleNextClick}>
                         Next
                     </Button>
                 )}
-                {currentSection === sections.length - 1 && (
+                {currentStep === visibleSections.length - 1 && (
                     <Button type="submit" className="w-full md:w-auto cta-button" size="lg" disabled={isSubmitting}>
                         {isSubmitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> {mode === 'edit' ? 'Updating...' : 'Submitting...'}</> : (mode === 'edit' ? 'Update Application' : 'Submit Application')}
                     </Button>
