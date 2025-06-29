@@ -46,7 +46,7 @@ export function PartnerBanksSection() {
                   alt={logo.alt}
                   width={160}
                   height={80}
-                  className="h-full w-auto object-contain opacity-80 transition-all duration-300 ease-in-out hover:opacity-100 hover:scale-110 hover:drop-shadow-lg"
+                  className="h-full w-auto object-contain opacity-80 grayscale transition-all duration-300 ease-in-out hover:opacity-100 hover:grayscale-0 hover:scale-110 hover:drop-shadow-lg"
                 />
               </div>
             ))}
