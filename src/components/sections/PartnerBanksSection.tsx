@@ -34,7 +34,7 @@ export function PartnerBanksSection() {
                 key={index}
                 className="bg-card rounded-lg overflow-hidden flex flex-col group transition-all duration-300 ease-in-out hover:shadow-xl hover:-translate-y-1 border border-border"
               >
-                <div className="aspect-video bg-background flex items-center justify-center p-6">
+                <div className="h-24 bg-background flex items-center justify-center p-4">
                    <Image
                       src={logo.src}
                       alt={logo.alt}
