@@ -1,5 +1,4 @@
-
-"use client";
+"use client"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
@@ -29,32 +28,32 @@ type Step = {
 const customerSteps: Step[] = [
     {
       icon: UserPlus,
-      title: 'Create Your Account',
-      description: 'A quick sign-up gives you access to all our services in just a few clicks.',
+      title: 'Create an Account',
+      description: 'A quick sign-up gives you access to all our services.',
       color: 'blue',
     },
     {
       icon: Search,
-      title: 'Explore & Apply',
-      description: 'Browse our services, choose what you need, and fill out a simple online application.',
+      title: 'Find Your Service',
+      description: 'Browse our services and fill out a simple online application.',
       color: 'teal',
     },
     {
       icon: UploadCloud,
       title: 'Upload Documents',
-      description: 'Securely upload the required documents through our encrypted portal. It’s fast and safe.',
+      description: 'Securely upload the required documents through our encrypted portal.',
       color: 'indigo',
     },
     {
       icon: LineChart,
       title: 'Track Your Status',
-      description: 'Easily monitor the real-time status of your application from your personal dashboard.',
+      description: 'Monitor the real-time status of your application from your personal dashboard.',
       color: 'amber',
     },
     {
       icon: CheckCircle2,
       title: 'Get Approved',
-      description: 'Receive your loan disbursal or service confirmation promptly upon approval.',
+      description: 'Receive your loan or service confirmation promptly upon approval.',
       color: 'emerald',
     },
   ];
@@ -63,31 +62,31 @@ const customerSteps: Step[] = [
     {
       icon: Handshake,
       title: 'Register as a Partner',
-      description: 'Choose your partnership model and complete the simple, guided registration process.',
+      description: 'Choose your partnership model and complete the simple registration.',
       color: 'blue',
     },
     {
       icon: ShieldCheck,
       title: 'Verification Process',
-      description: 'Our team will review your application to ensure our quality and trust standards are met.',
+      description: 'Our team will review your application to ensure quality and trust.',
       color: 'teal',
     },
     {
       icon: LayoutDashboard,
       title: 'Access Your Dashboard',
-      description: 'Once approved, get access to a powerful partner dashboard to manage all your activities.',
+      description: 'Get access to a powerful dashboard to manage all your activities.',
       color: 'indigo',
     },
     {
       icon: FilePlus2,
       title: 'Submit Client Apps',
-      description: 'Use your dedicated portal to easily submit and manage applications for your clients.',
+      description: 'Use your dedicated portal to easily submit and manage client applications.',
       color: 'amber',
     },
     {
       icon: TrendingUp,
       title: 'Track & Succeed',
-      description: 'Monitor application progress, track your earnings, and grow your business with our support.',
+      description: 'Monitor application progress, track earnings, and grow your business.',
       color: 'emerald',
     },
   ];
@@ -126,11 +125,11 @@ export function HowItWorksSection() {
   const renderTimeline = (steps: Step[]) => (
     <div className="relative mt-12">
       {/* Central timeline line - for desktop */}
-      <div className="absolute left-1/2 top-0 hidden h-full w-0.5 -translate-x-1/2 bg-border md:block" aria-hidden="true" />
+      <div className="absolute left-1/2 top-4 hidden h-full w-0.5 -translate-x-1/2 bg-border md:block" aria-hidden="true" />
       {/* Mobile timeline line */}
-      <div className="absolute left-8 top-0 h-full w-0.5 -translate-x-1/2 bg-border md:hidden" aria-hidden="true" />
+      <div className="absolute left-8 top-4 h-full w-0.5 -translate-x-1/2 bg-border md:hidden" aria-hidden="true" />
 
-      <div className="space-y-12 md:space-y-16">
+      <div className="flex flex-col gap-y-20">
         {steps.map((step, index) => {
           const Icon = step.icon;
           const isRightContent = index % 2 !== 0;
@@ -139,19 +138,19 @@ export function HowItWorksSection() {
           return (
             <div key={index} className="relative w-full">
               {/* Desktop layout */}
-              <div className="hidden md:grid md:grid-cols-[1fr_auto_1fr] md:gap-x-12 md:items-center">
-                {/* Text Content */}
-                <div className={cn(
-                  "text-left",
-                  isRightContent ? "col-start-3" : "col-start-1 text-right"
-                )}>
-                  <h3 className="text-xl font-bold text-foreground">{step.title}</h3>
-                  <p className="mt-2 text-muted-foreground">{step.description}</p>
-                </div>
-                
-                {/* Icon Card */}
-                <div className="col-start-2 row-start-1 relative z-10 flex justify-center">
-                  <div className={cn(
+              <div className="hidden md:flex items-center">
+                {/* Left-side Content */}
+                { !isRightContent ? (
+                  <div className="w-5/12 text-right pr-12">
+                     <h3 className="text-xl font-bold text-foreground">{step.title}</h3>
+                     <p className="mt-2 text-muted-foreground">{step.description}</p>
+                  </div>
+                ) : <div className="w-5/12"></div> }
+
+                {/* Icon Card in the middle */}
+                <div className="relative z-10 w-2/12 flex justify-center">
+                   <div className="absolute top-1/2 -translate-y-1/2 h-4 w-4 rounded-full border-4 border-secondary bg-primary"></div>
+                   <div className={cn(
                     "flex w-40 items-center overflow-hidden rounded-lg bg-card shadow-lg",
                     colors.bg
                   )}>
@@ -163,10 +162,15 @@ export function HowItWorksSection() {
                     </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Timeline Dot (Desktop) */}
-               <div className="absolute left-1/2 top-1/2 hidden h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-4 border-secondary bg-primary md:block" />
+                {/* Right-side Content */}
+                { isRightContent ? (
+                    <div className="w-5/12 text-left pl-12">
+                        <h3 className="text-xl font-bold text-foreground">{step.title}</h3>
+                        <p className="mt-2 text-muted-foreground">{step.description}</p>
+                    </div>
+                ) : <div className="w-5/12"></div> }
+              </div>
 
               {/* Mobile layout */}
               <div className="ml-16 md:hidden">
@@ -194,7 +198,6 @@ export function HowItWorksSection() {
     </div>
   );
 
-
   return (
     <section id="how-it-works" className="py-16 md:py-24 bg-secondary/50 overflow-hidden">
       <div className="container mx-auto px-6">
@@ -211,11 +214,11 @@ export function HowItWorksSection() {
             <TabsTrigger value="partners">For Our Partners</TabsTrigger>
           </TabsList>
           
-          <TabsContent value="customers" className="pt-4">
+          <TabsContent value="customers" className="pt-8">
             {renderTimeline(customerSteps)}
           </TabsContent>
           
-          <TabsContent value="partners" className="pt-4">
+          <TabsContent value="partners" className="pt-8">
             {renderTimeline(partnerSteps)}
           </TabsContent>
         </Tabs>
