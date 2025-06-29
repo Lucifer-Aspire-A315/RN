@@ -40,7 +40,14 @@ export function AnalyticsCharts({ applications, isLoading }: AnalyticsChartsProp
   const statusCounts = React.useMemo(() => {
     const counts: { [key: string]: number } = { Submitted: 0, 'In Review': 0, Approved: 0, Rejected: 0 };
     applications.forEach(app => {
-      if (counts[app.status] !== undefined) counts[app.status]++;
+      const normalizedStatus = app.status.charAt(0).toUpperCase() + app.status.slice(1).toLowerCase();
+      if (counts[normalizedStatus] !== undefined) {
+        counts[normalizedStatus]++;
+      } else if (app.status.toLowerCase() === 'in review') {
+         counts['In Review']++;
+      } else if (counts[app.status] !== undefined) {
+        counts[app.status]++;
+      }
     });
     return Object.entries(counts)
       .map(([name, value]) => ({ name, value, fill: statusChartConfig[name as keyof typeof statusChartConfig]?.color }))
@@ -81,19 +88,24 @@ export function AnalyticsCharts({ applications, isLoading }: AnalyticsChartsProp
             </CardHeader>
             <CardContent className="flex-1 pb-0">
                 {statusCounts.length > 0 ? (
-                    <ChartContainer config={statusChartConfig} className="mx-auto aspect-square h-[250px]">
+                    <ChartContainer config={statusChartConfig} className="mx-auto aspect-square h-[300px]">
                         <PieChart>
                             <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
                             <Pie data={statusCounts} dataKey="value" nameKey="name" innerRadius={60} strokeWidth={5}>
                                 {statusCounts.map((entry) => (<Cell key={`cell-${entry.name}`} fill={entry.fill} />))}
                             </Pie>
+                             <ChartLegend
+                                content={<ChartLegendContent nameKey="name" />}
+                                verticalAlign="bottom"
+                                align="center"
+                                wrapperStyle={{ paddingTop: '20px' }}
+                            />
                         </PieChart>
                     </ChartContainer>
                 ) : ( <div className="flex items-center justify-center h-[250px] text-muted-foreground">No application data.</div> )}
             </CardContent>
-            <CardFooter className="flex-col gap-2 text-sm pt-4">
-                <div className="flex w-full items-center justify-center gap-2 font-medium leading-none">Total Applications: {totalApplications}</div>
-                <ChartLegend content={<ChartLegendContent nameKey="name" />} className="flex justify-center" />
+            <CardFooter className="flex justify-center text-sm pt-4">
+                 <div className="font-medium leading-none">Total Applications: {totalApplications}</div>
             </CardFooter>
         </Card>
 
