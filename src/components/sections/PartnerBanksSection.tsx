@@ -23,8 +23,12 @@ const partnerLogos = [
 
 export function PartnerBanksSection() {
   return (
-    <section className="py-16 md:py-24 bg-secondary/50">
-      <div className="container mx-auto px-6 text-center">
+    <section className="relative py-12 md:py-20 bg-background overflow-hidden">
+        {/* Decorative blobs for modern background */}
+        <div className="absolute inset-0 animate-[float_15s_ease-in-out_infinite] bg-primary/5 rounded-full blur-3xl w-80 h-80 top-10 right-20 opacity-50"></div>
+        <div className="absolute inset-0 animate-[float-delay_12s_ease-in-out_infinite] bg-accent/5 rounded-full blur-3xl w-72 h-72 bottom-5 left-10 opacity-50"></div>
+
+      <div className="container mx-auto px-6 text-center relative z-10">
         <h2 className="text-3xl font-bold text-foreground">Our Extensive Network</h2>
         <p className="mt-2 text-muted-foreground max-w-2xl mx-auto">
           We are proud to be associated with over 150+ leading Banks and NBFCs to find you the best financial solutions.
