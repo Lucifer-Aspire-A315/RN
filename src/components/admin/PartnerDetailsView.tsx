@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useTransition } from 'react';
@@ -9,6 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { User, Mail, Shield, BadgeCheck, Phone, Briefcase, Trash2, Loader2, ArrowLeft } from 'lucide-react';
 import { ApplicationsTable } from '@/components/dashboard/ApplicationsTable';
