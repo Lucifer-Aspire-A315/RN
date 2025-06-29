@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -152,30 +151,33 @@ const TimelineItem = ({ step, index }: { step: (typeof customerSteps)[0]; index:
 }
 
 export function HowItWorksSection() {
-  const renderTimeline = (steps: typeof customerSteps) => (
+  const renderTimeline = (steps: typeof customerSteps | typeof partnerSteps) => (
     <div className="relative py-8">
       {/* This is the central timeline line for desktop */}
       <div className="hidden md:block absolute top-0 left-1/2 w-0.5 h-full bg-border -translate-x-1/2"></div>
       
       <div className="space-y-16">
-        {steps.map((step, index) => (
-          <div key={index} className="relative">
-            {/* The icon, positioned absolutely in the center on desktop */}
-            <div className="hidden md:block absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 z-10">
-              <div className={cn("w-16 h-16 rounded-full flex items-center justify-center transition-all duration-300 group-hover:scale-110", step.bg)}>
-                {React.cloneElement(step.icon, { className: cn("w-8 h-8", step.color) })}
-              </div>
-            </div>
-            {/* On mobile, the icon is part of the normal flow, so we draw it differently */}
-             <div className="md:hidden flex items-center gap-4 mb-4">
-               <div className={cn("w-16 h-16 rounded-full flex items-center justify-center transition-all duration-300 group-hover:scale-110 flex-shrink-0", step.bg)}>
-                  {React.cloneElement(step.icon, { className: cn("w-8 h-8", step.color) })}
+        {steps.map((step, index) => {
+          const Icon = step.icon; // Correct way to get the component type
+          return (
+            <div key={index} className="relative">
+              {/* The icon, positioned absolutely in the center on desktop */}
+              <div className="hidden md:block absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 z-10">
+                <div className={cn("w-16 h-16 rounded-full flex items-center justify-center transition-all duration-300 group-hover:scale-110", step.bg)}>
+                   <Icon className={cn("w-8 h-8", step.color)} />
                 </div>
-                <div className="border-t flex-grow"></div>
-             </div>
-            <TimelineItem step={step} index={index} />
-          </div>
-        ))}
+              </div>
+              {/* On mobile, the icon is part of the normal flow, so we draw it differently */}
+               <div className="md:hidden flex items-center gap-4 mb-4">
+                 <div className={cn("w-16 h-16 rounded-full flex items-center justify-center transition-all duration-300 group-hover:scale-110 flex-shrink-0", step.bg)}>
+                    <Icon className={cn("w-8 h-8", step.color)} />
+                  </div>
+                  <div className="border-t flex-grow"></div>
+               </div>
+              <TimelineItem step={step} index={index} />
+            </div>
+          )
+        })}
       </div>
     </div>
   );
