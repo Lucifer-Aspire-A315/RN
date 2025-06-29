@@ -122,62 +122,81 @@ const colorVariants = {
 
 
 export function HowItWorksSection() {
-
+    
   const renderTimeline = (steps: Step[]) => (
-    <div className="relative mt-12 space-y-8 md:space-y-0 md:-my-8">
-      {/* Central timeline line for desktop */}
+    <div className="relative mt-12">
+      {/* Central timeline line - for desktop */}
       <div className="absolute left-1/2 top-0 hidden h-full w-0.5 -translate-x-1/2 bg-border md:block" aria-hidden="true" />
+      {/* Mobile timeline line */}
+      <div className="absolute left-8 top-0 h-full w-0.5 -translate-x-1/2 bg-border md:hidden" aria-hidden="true" />
 
-      {steps.map((step, index) => {
-        const Icon = step.icon;
-        const isRightContent = index % 2 !== 0;
-        const colors = colorVariants[step.color] ?? colorVariants.blue;
+      <div className="space-y-12 md:space-y-16">
+        {steps.map((step, index) => {
+          const Icon = step.icon;
+          const isRightContent = index % 2 !== 0;
+          const colors = colorVariants[step.color] ?? colorVariants.blue;
 
-        return (
-          <div key={index} className="relative md:my-8">
-            {/* Timeline Dot (Desktop) */}
-            <div className="absolute left-1/2 top-14 hidden -translate-x-1/2 md:block">
-              <div className={cn('h-3 w-3 rounded-full', colors.dot)} />
-            </div>
-
-            <div className="grid grid-cols-1 items-center gap-y-4 md:grid-cols-2 md:gap-x-16">
-              {/* Text Content */}
-              <div className={cn(
-                "text-center md:text-left",
-                isRightContent && 'md:order-2 md:text-right'
-              )}>
-                <h3 className="text-2xl font-bold text-foreground">{step.title}</h3>
-                <p className="mt-2 text-muted-foreground">{step.description}</p>
-              </div>
-
-              {/* Icon Box */}
-              <div className={cn(
-                  "flex justify-center",
-                  isRightContent ? "md:order-1 md:justify-end" : "md:justify-start"
-              )}>
-                 <div className={cn(
-                      "flex items-center rounded-2xl bg-card shadow-lg w-full max-w-xs md:w-auto transition-transform duration-300 hover:scale-105 hover:shadow-xl",
-                      colors.bg
-                    )}>
-                    <div className="px-5 py-6">
-                      <span className={cn('text-4xl font-bold opacity-60', colors.text)}>
-                        {String(index + 1).padStart(2, '0')}
-                      </span>
+          return (
+            <div key={index} className="relative w-full">
+              {/* Desktop layout */}
+              <div className="hidden md:grid md:grid-cols-[1fr_auto_1fr] md:gap-x-12 md:items-center">
+                {/* Text Content */}
+                <div className={cn(
+                  "text-left",
+                  isRightContent ? "col-start-3" : "col-start-1 text-right"
+                )}>
+                  <h3 className="text-xl font-bold text-foreground">{step.title}</h3>
+                  <p className="mt-2 text-muted-foreground">{step.description}</p>
+                </div>
+                
+                {/* Icon Card */}
+                <div className="col-start-2 row-start-1 relative z-10 flex justify-center">
+                  <div className={cn(
+                    "flex w-40 items-center overflow-hidden rounded-lg bg-card shadow-lg",
+                    colors.bg
+                  )}>
+                    <div className={cn("flex h-full items-center justify-center p-4", colors.text)}>
+                      <span className="text-3xl font-bold">{String(index + 1).padStart(2, '0')}</span>
                     </div>
-                    <div className="flex-grow flex items-center justify-center bg-card rounded-r-2xl p-5 h-full">
-                      <Icon className={cn('h-10 w-10', colors.text)} />
+                    <div className="flex flex-grow items-center justify-center bg-card p-4 h-full">
+                      <Icon className={cn('h-8 w-8', colors.text)} />
                     </div>
                   </div>
+                </div>
+              </div>
+
+              {/* Timeline Dot (Desktop) */}
+               <div className="absolute left-1/2 top-1/2 hidden h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-4 border-secondary bg-primary md:block" />
+
+              {/* Mobile layout */}
+              <div className="ml-16 md:hidden">
+                <div className="absolute left-8 top-0 -translate-x-1/2 z-10">
+                  <div className="h-4 w-4 rounded-full border-4 border-secondary bg-primary" />
+                </div>
+                 <div className={cn(
+                  "flex w-40 items-center overflow-hidden rounded-lg bg-card shadow-lg mb-2",
+                   colors.bg
+                 )}>
+                   <div className={cn("flex h-full items-center justify-center p-4", colors.text)}>
+                     <span className="text-3xl font-bold">{String(index + 1).padStart(2, '0')}</span>
+                   </div>
+                   <div className="flex flex-grow items-center justify-center bg-card p-4 h-full">
+                     <Icon className={cn('h-8 w-8', colors.text)} />
+                   </div>
+                 </div>
+                 <h3 className="text-xl font-bold text-foreground">{step.title}</h3>
+                 <p className="mt-2 text-muted-foreground">{step.description}</p>
               </div>
             </div>
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
     </div>
   );
 
+
   return (
-    <section id="how-it-works" className="py-16 md:py-24 bg-secondary/50">
+    <section id="how-it-works" className="py-16 md:py-24 bg-secondary/50 overflow-hidden">
       <div className="container mx-auto px-6">
         <div className="text-center">
             <h2 className="text-3xl font-bold text-foreground">A Clear Path to Your Financial Goals</h2>
