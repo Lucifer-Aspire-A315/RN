@@ -1,3 +1,4 @@
+
 import { getApplicationDetails } from '@/app/actions/applicationActions';
 import { Header } from '@/components/layout/Header';
 import { ApplicationDetailsView } from '@/components/application/ApplicationDetailsView';

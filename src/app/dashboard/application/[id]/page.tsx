@@ -1,3 +1,4 @@
+
 import { Header } from '@/components/layout/Header';
 import { ApplicationDetailsView } from '@/components/application/ApplicationDetailsView';
 import type { UserApplication } from '@/lib/types';
