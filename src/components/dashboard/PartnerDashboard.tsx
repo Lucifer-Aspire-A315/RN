@@ -1,16 +1,14 @@
 
 'use client';
 
-import { useMemo } from 'react';
 import type { UserData, UserApplication } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Handshake, UserPlus, Store, PlusCircle, FolderKanban, Clock, CheckCircle2 } from 'lucide-react';
+import { PlusCircle } from 'lucide-react';
 import { PartnerNewApplicationPortal } from './PartnerNewApplicationPortal';
 import { ApplicationsTable } from './ApplicationsTable';
 import { Skeleton } from '../ui/skeleton';
-import { StatCard } from '../admin/StatCard';
 
 interface PartnerDashboardViewProps {
     user: UserData;
@@ -52,14 +50,18 @@ const NewApplicationButton = ({ buttonText }: { buttonText: string }) => (
 );
 
 
-const DashboardContent = ({ user, applications, isLoading }: PartnerDashboardViewProps) => {
-    const analyticsData = useMemo(() => {
-        const totalApplications = applications.length;
-        const pendingApplications = applications.filter(app => app.status === 'Submitted' || app.status === 'In Review').length;
-        const approvedApplications = applications.filter(app => app.status === 'Approved').length;
-        return { totalApplications, pendingApplications, approvedApplications };
-    }, [applications]);
-
+export function PartnerDashboard({ user, applications, isLoading }: PartnerDashboardViewProps) {
+    if (!user.businessModel) {
+        return (
+            <Card>
+                <CardHeader>
+                    <CardTitle className="text-destructive">Configuration Error</CardTitle>
+                    <CardDescription>Business model not found for this partner account. Please contact support.</CardDescription>
+                </CardHeader>
+            </Card>
+        );
+    }
+    
     const modelToTitle: Record<string, string> = {
         referral: 'Referral Partner Dashboard',
         dsa: 'DSA Partner Dashboard',
@@ -77,24 +79,6 @@ const DashboardContent = ({ user, applications, isLoading }: PartnerDashboardVie
                 </div>
                 <NewApplicationButton buttonText={buttonText} />
             </div>
-
-            <div className="grid gap-4 md:grid-cols-3">
-                <StatCard 
-                    title="Total Submissions" 
-                    value={isLoading ? '...' : analyticsData.totalApplications}
-                    icon={FolderKanban}
-                />
-                <StatCard 
-                    title="Pending Approval" 
-                    value={isLoading ? '...' : analyticsData.pendingApplications}
-                    icon={Clock}
-                />
-                <StatCard 
-                    title="Approved Applications" 
-                    value={isLoading ? '...' : analyticsData.approvedApplications}
-                    icon={CheckCircle2}
-                />
-            </div>
             
             <Card>
                 <CardHeader>
@@ -108,19 +92,3 @@ const DashboardContent = ({ user, applications, isLoading }: PartnerDashboardVie
         </div>
     );
 };
-
-
-export function PartnerDashboard({ user, applications, isLoading }: PartnerDashboardViewProps) {
-    if (!user.businessModel) {
-        return (
-            <Card>
-                <CardHeader>
-                    <CardTitle className="text-destructive">Configuration Error</CardTitle>
-                    <CardDescription>Business model not found for this partner account. Please contact support.</CardDescription>
-                </CardHeader>
-            </Card>
-        );
-    }
-    
-    return <DashboardContent user={user} applications={applications} isLoading={isLoading} />;
-}
