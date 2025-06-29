@@ -22,11 +22,11 @@ export function ServiceCard({
   setCurrentPage,
 }: ServiceCardProps) {
   const colors = {
-    1: { shadow: 'group-hover:shadow-[0_0_20px_hsl(var(--chart-1))]', iconBg: 'bg-chart-1/10', iconText: 'text-chart-1', 'conic-from': 'from-chart-1' },
-    2: { shadow: 'group-hover:shadow-[0_0_20px_hsl(var(--chart-2))]', iconBg: 'bg-chart-2/10', iconText: 'text-chart-2', 'conic-from': 'from-chart-2' },
-    3: { shadow: 'group-hover:shadow-[0_0_20px_hsl(var(--chart-3))]', iconBg: 'bg-chart-3/10', iconText: 'text-chart-3', 'conic-from': 'from-chart-3' },
-    4: { shadow: 'group-hover:shadow-[0_0_20px_hsl(var(--chart-4))]', iconBg: 'bg-chart-4/10', iconText: 'text-chart-4', 'conic-from': 'from-chart-4' },
-    5: { shadow: 'group-hover:shadow-[0_0_20px_hsl(var(--chart-5))]', iconBg: 'bg-chart-5/10', iconText: 'text-chart-5', 'conic-from': 'from-chart-5' },
+    1: { shadow: 'group-hover:shadow-[0_0_20px_hsl(var(--chart-1))]', iconBg: 'bg-chart-1/10', iconText: 'text-chart-1', gradientFrom: 'from-chart-1/20' },
+    2: { shadow: 'group-hover:shadow-[0_0_20px_hsl(var(--chart-2))]', iconBg: 'bg-chart-2/10', iconText: 'text-chart-2', gradientFrom: 'from-chart-2/20' },
+    3: { shadow: 'group-hover:shadow-[0_0_20px_hsl(var(--chart-3))]', iconBg: 'bg-chart-3/10', iconText: 'text-chart-3', gradientFrom: 'from-chart-3/20' },
+    4: { shadow: 'group-hover:shadow-[0_0_20px_hsl(var(--chart-4))]', iconBg: 'bg-chart-4/10', iconText: 'text-chart-4', gradientFrom: 'from-chart-4/20' },
+    5: { shadow: 'group-hover:shadow-[0_0_20px_hsl(var(--chart-5))]', iconBg: 'bg-chart-5/10', iconText: 'text-chart-5', gradientFrom: 'from-chart-5/20' },
   };
 
   const colorClasses = colors[colorIndex] || colors[1];
@@ -38,14 +38,11 @@ export function ServiceCard({
         "group relative cursor-pointer overflow-hidden bg-card p-6 rounded-2xl shadow-lg flex flex-col text-center items-center border border-border/10 transition-all duration-300 hover:shadow-2xl hover:-translate-y-2"
       )}
     >
-      {/* New Aurora background */}
+      {/* New bottom-up gradient effect */}
       <div
         className={cn(
-          "absolute -inset-24 z-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100",
-          "bg-gradient-conic blur-3xl", // conic gradient with a heavy blur
-          colorClasses['conic-from'],   // from-color
-          "via-transparent",            // fades to transparent in the middle
-          colorClasses['conic-from']    // loops back to the from-color
+          "absolute bottom-0 left-0 right-0 z-5 h-0 bg-gradient-to-t to-transparent transition-all duration-500 ease-in-out group-hover:h-full",
+          colorClasses.gradientFrom
         )}
       />
 
