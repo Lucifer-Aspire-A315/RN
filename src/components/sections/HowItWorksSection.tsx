@@ -1,9 +1,10 @@
+
 "use client"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
 import {
-  FileText,
+  FilePlus2,
   CheckCircle2,
   UploadCloud,
   UserPlus,
@@ -11,7 +12,6 @@ import {
   ShieldCheck,
   Handshake,
   TrendingUp,
-  FilePlus2,
   Search,
   LineChart,
 } from 'lucide-react';
@@ -28,26 +28,26 @@ type Step = {
 const customerSteps: Step[] = [
     {
       icon: UserPlus,
-      title: 'Create an Account',
-      description: 'A quick sign-up gives you access to all our services.',
+      title: 'Sign Up Fast',
+      description: 'A quick sign-up gives you access to all our financial services.',
       color: 'blue',
     },
     {
       icon: Search,
-      title: 'Find Your Service',
-      description: 'Browse our services and fill out a simple online application.',
+      title: 'Apply Online',
+      description: 'Choose your desired service and fill out a simple, secure online form.',
       color: 'teal',
     },
     {
       icon: UploadCloud,
-      title: 'Upload Documents',
-      description: 'Securely upload the required documents through our encrypted portal.',
+      title: 'Submit Documents',
+      description: 'Upload the required documents easily through our encrypted portal.',
       color: 'indigo',
     },
     {
       icon: LineChart,
       title: 'Track Your Status',
-      description: 'Monitor the real-time status of your application from your personal dashboard.',
+      description: 'Monitor your application’s real-time status from your dashboard.',
       color: 'amber',
     },
     {
@@ -61,32 +61,32 @@ const customerSteps: Step[] = [
   const partnerSteps: Step[] = [
     {
       icon: Handshake,
-      title: 'Register as a Partner',
-      description: 'Choose your partnership model and complete the simple registration.',
+      title: 'Register as Partner',
+      description: 'Choose your model and complete the simple registration to join our network.',
       color: 'blue',
     },
     {
       icon: ShieldCheck,
-      title: 'Verification Process',
+      title: 'Quick Verification',
       description: 'Our team will review your application to ensure quality and trust.',
       color: 'teal',
     },
     {
       icon: LayoutDashboard,
-      title: 'Access Your Dashboard',
-      description: 'Get access to a powerful dashboard to manage all your activities.',
+      title: 'Access Dashboard',
+      description: 'Get a powerful dashboard to manage your clients and track earnings.',
       color: 'indigo',
     },
     {
       icon: FilePlus2,
-      title: 'Submit Client Apps',
-      description: 'Use your dedicated portal to easily submit and manage client applications.',
+      title: 'Submit Applications',
+      description: 'Use your portal to easily submit and manage applications for your clients.',
       color: 'amber',
     },
     {
       icon: TrendingUp,
       title: 'Track & Succeed',
-      description: 'Monitor application progress, track earnings, and grow your business.',
+      description: 'Monitor progress, see your earnings, and grow your business with us.',
       color: 'emerald',
     },
   ];
@@ -124,79 +124,76 @@ export function HowItWorksSection() {
     
   const renderTimeline = (steps: Step[]) => (
     <div className="relative mt-12">
-      {/* Central timeline line - for desktop */}
-      <div className="absolute left-1/2 top-4 hidden h-full w-0.5 -translate-x-1/2 bg-border md:block" aria-hidden="true" />
-      {/* Mobile timeline line */}
-      <div className="absolute left-8 top-4 h-full w-0.5 -translate-x-1/2 bg-border md:hidden" aria-hidden="true" />
+        {/* Central line for desktop */}
+        <div className="absolute left-1/2 top-4 hidden h-full w-0.5 -translate-x-1/2 bg-border md:block" />
+        
+        <div className="space-y-16">
+            {steps.map((step, index) => {
+                const isTextLeft = index % 2 === 0;
+                const Icon = step.icon;
+                const colors = colorVariants[step.color];
 
-      <div className="flex flex-col gap-y-20">
-        {steps.map((step, index) => {
-          const Icon = step.icon;
-          const isRightContent = index % 2 !== 0;
-          const colors = colorVariants[step.color] ?? colorVariants.blue;
+                return (
+                    <div key={index} className="relative">
+                        {/* Desktop Layout */}
+                        <div className="hidden md:grid md:grid-cols-2 md:gap-x-16 items-center">
+                            {/* Text Block */}
+                            <div className={cn('space-y-2', isTextLeft ? 'text-right' : 'order-last text-left')}>
+                                <h3 className="text-xl font-bold text-foreground">{step.title}</h3>
+                                <p className="text-muted-foreground">{step.description}</p>
+                            </div>
+                            {/* Icon Card Block */}
+                            <div className={cn('flex', isTextLeft ? 'justify-start' : 'order-first justify-end')}>
+                                 <div className="flex items-center bg-card rounded-2xl shadow-lg h-20 w-56 overflow-hidden">
+                                    <div className={cn("relative flex items-center justify-center w-20 h-full", colors.bg)}>
+                                        <div className="absolute top-0 right-0 w-10 h-10 bg-card/20 rounded-full -translate-y-1/3 translate-x-1/3 z-0" />
+                                        <span className={cn("text-3xl font-bold z-10", colors.text)}>
+                                            {String(index + 1).padStart(2, '0')}
+                                        </span>
+                                    </div>
+                                    <div className="flex-1 flex items-center justify-center">
+                                        <Icon className={cn("h-8 w-8", colors.text)} />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
-          return (
-            <div key={index} className="relative w-full">
-              {/* Desktop layout */}
-              <div className="hidden md:flex items-center">
-                {/* Left-side Content */}
-                { !isRightContent ? (
-                  <div className="w-5/12 text-right pr-12">
-                     <h3 className="text-xl font-bold text-foreground">{step.title}</h3>
-                     <p className="mt-2 text-muted-foreground">{step.description}</p>
-                  </div>
-                ) : <div className="w-5/12"></div> }
-
-                {/* Icon Card in the middle */}
-                <div className="relative z-10 w-2/12 flex justify-center">
-                   <div className="absolute top-1/2 -translate-y-1/2 h-4 w-4 rounded-full border-4 border-secondary bg-primary"></div>
-                   <div className={cn(
-                    "flex w-40 items-center overflow-hidden rounded-lg bg-card shadow-lg",
-                    colors.bg
-                  )}>
-                    <div className={cn("flex h-full items-center justify-center p-4", colors.text)}>
-                      <span className="text-3xl font-bold">{String(index + 1).padStart(2, '0')}</span>
+                        {/* Timeline Dot (Desktop) */}
+                        <div className={cn("hidden md:flex absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 rounded-full border-4 border-secondary", colors.dot)} />
+                        
+                        {/* Mobile Layout */}
+                        <div className="md:hidden flex items-start gap-4">
+                            {/* Dot and Line for Mobile */}
+                            <div className="relative pt-1">
+                                <div className={cn("w-4 h-4 rounded-full border-4 border-secondary", colors.dot)} />
+                                {index < steps.length - 1 && <div className="absolute top-4 left-1/2 w-0.5 h-full bg-border -translate-x-1/2" />}
+                            </div>
+                            
+                            {/* Content for Mobile */}
+                            <div className="flex-1 space-y-4">
+                                 <div className="flex items-center bg-card rounded-2xl shadow-lg h-20 w-56 overflow-hidden">
+                                    <div className={cn("relative flex items-center justify-center w-20 h-full", colors.bg)}>
+                                        <div className="absolute top-0 right-0 w-10 h-10 bg-card/20 rounded-full -translate-y-1/3 translate-x-1/3 z-0" />
+                                        <span className={cn("text-3xl font-bold z-10", colors.text)}>
+                                            {String(index + 1).padStart(2, '0')}
+                                        </span>
+                                    </div>
+                                    <div className="flex-1 flex items-center justify-center">
+                                        <Icon className={cn("h-8 w-8", colors.text)} />
+                                    </div>
+                                </div>
+                                 <div className="space-y-1">
+                                    <h3 className="text-xl font-bold text-foreground">{step.title}</h3>
+                                    <p className="text-muted-foreground">{step.description}</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div className="flex flex-grow items-center justify-center bg-card p-4 h-full">
-                      <Icon className={cn('h-8 w-8', colors.text)} />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Right-side Content */}
-                { isRightContent ? (
-                    <div className="w-5/12 text-left pl-12">
-                        <h3 className="text-xl font-bold text-foreground">{step.title}</h3>
-                        <p className="mt-2 text-muted-foreground">{step.description}</p>
-                    </div>
-                ) : <div className="w-5/12"></div> }
-              </div>
-
-              {/* Mobile layout */}
-              <div className="ml-16 md:hidden">
-                <div className="absolute left-8 top-0 -translate-x-1/2 z-10">
-                  <div className="h-4 w-4 rounded-full border-4 border-secondary bg-primary" />
-                </div>
-                 <div className={cn(
-                  "flex w-40 items-center overflow-hidden rounded-lg bg-card shadow-lg mb-2",
-                   colors.bg
-                 )}>
-                   <div className={cn("flex h-full items-center justify-center p-4", colors.text)}>
-                     <span className="text-3xl font-bold">{String(index + 1).padStart(2, '0')}</span>
-                   </div>
-                   <div className="flex flex-grow items-center justify-center bg-card p-4 h-full">
-                     <Icon className={cn('h-8 w-8', colors.text)} />
-                   </div>
-                 </div>
-                 <h3 className="text-xl font-bold text-foreground">{step.title}</h3>
-                 <p className="mt-2 text-muted-foreground">{step.description}</p>
-              </div>
-            </div>
-          );
-        })}
-      </div>
+                );
+            })}
+        </div>
     </div>
-  );
+);
 
   return (
     <section id="how-it-works" className="py-16 md:py-24 bg-secondary/50 overflow-hidden">
