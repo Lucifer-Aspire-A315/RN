@@ -28,13 +28,15 @@ export function PartnerBanksSection() {
           We are proud to be associated with over 150+ leading Banks and NBFCs to find you the best financial solutions.
         </p>
         <div className="mt-12">
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 gap-4 md:gap-6">
+          {/* Changed grid to be less dense, giving each item more width and a better rectangular shape */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 md:gap-6">
             {partnerLogos.map((logo, index) => (
               <div
                 key={index}
-                className="bg-card rounded-lg overflow-hidden flex flex-col group transition-all duration-300 ease-in-out hover:shadow-xl hover:-translate-y-1 border border-border"
+                className="bg-card rounded-lg overflow-hidden group transition-all duration-300 ease-in-out hover:shadow-xl hover:-translate-y-1 border"
               >
-                <div className="h-24 bg-background flex items-center justify-center p-4">
+                {/* aspect-video enforces a 16:9 ratio, which looks rectangular in a wider grid */}
+                <div className="aspect-video bg-background flex items-center justify-center p-6">
                    <Image
                       src={logo.src}
                       alt={logo.alt}
