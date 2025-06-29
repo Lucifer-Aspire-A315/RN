@@ -23,7 +23,7 @@ const partnerLogos = [
 
 export function PartnerBanksSection() {
   return (
-    <section className="relative py-12 md:py-16 bg-secondary overflow-hidden">
+    <section className="relative py-12 bg-gradient-to-b from-background to-secondary/20 overflow-hidden">
       <div className="container mx-auto px-6 text-center relative z-10">
         <h2 className="text-3xl font-bold text-foreground">Our Extensive Network</h2>
         <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
@@ -39,14 +39,14 @@ export function PartnerBanksSection() {
             {[...partnerLogos, ...partnerLogos].map((logo, index) => (
               <div
                 key={index}
-                className="flex-shrink-0 w-44 mx-8 flex items-center justify-center h-28"
+                className="flex-shrink-0 w-48 mx-4 flex items-center justify-center h-20"
               >
                 <Image
                   src={logo.src}
                   alt={logo.alt}
                   width={160}
-                  height={112}
-                  className="h-full w-auto object-contain grayscale transition-all duration-300 ease-in-out hover:grayscale-0 hover:scale-110 hover:drop-shadow-xl"
+                  height={80}
+                  className="h-full w-auto object-contain opacity-80 transition-all duration-300 ease-in-out hover:opacity-100 hover:scale-110 hover:drop-shadow-lg"
                 />
               </div>
             ))}
