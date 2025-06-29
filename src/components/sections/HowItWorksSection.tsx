@@ -11,7 +11,6 @@ import {
   LayoutDashboard,
   ShieldCheck,
   Handshake,
-  Users,
   TrendingUp,
   FilePlus2,
   Search,
@@ -19,136 +18,157 @@ import {
 } from 'lucide-react';
 import React from 'react';
 
-const customerSteps = [
-  {
-    icon: UserPlus,
-    title: 'Create Your Account',
-    description: 'A quick and easy sign-up gives you access to all our services in just a few clicks.',
-    color: 'text-blue-600 dark:text-blue-400',
-    bg: 'bg-blue-100 dark:bg-blue-900/30',
-  },
-  {
-    icon: Search,
-    title: 'Explore Services',
-    description: 'Browse our wide range of loan products and CA services to find exactly what you need.',
-    color: 'text-teal-600 dark:text-teal-400',
-    bg: 'bg-teal-100 dark:bg-teal-900/30',
-  },
-  {
-    icon: FileText,
-    title: 'Fill Application',
-    description: 'Select a service and fill out our simple, guided online application form with your details.',
-    color: 'text-indigo-600 dark:text-indigo-400',
-    bg: 'bg-indigo-100 dark:bg-indigo-900/30',
-  },
-  {
-    icon: UploadCloud,
-    title: 'Upload Documents',
-    description: 'Securely upload the required documents through our encrypted portal. It’s fast and safe.',
-    color: 'text-sky-600 dark:text-sky-400',
-    bg: 'bg-sky-100 dark:bg-sky-900/30',
-  },
-  {
-    icon: LineChart,
-    title: 'Track Progress',
-    description: 'Once submitted, easily monitor the real-time status of your application from your personal dashboard.',
-    color: 'text-amber-600 dark:text-amber-400',
-    bg: 'bg-amber-100 dark:bg-amber-900/30',
-  },
-  {
-    icon: CheckCircle2,
-    title: 'Goal Achieved',
-    description: 'Receive your loan disbursal, credit card, or service confirmation promptly upon approval.',
-    color: 'text-emerald-600 dark:text-emerald-400',
-    bg: 'bg-emerald-100 dark:bg-emerald-900/30',
-  },
-];
+// Common step type
+type Step = {
+  icon: React.ElementType;
+  title: string;
+  description: string;
+  color: keyof typeof colorVariants;
+};
 
-const partnerSteps = [
-  {
-    icon: Handshake,
-    title: 'Register as Partner',
-    description: 'Choose your partnership model (DSA, Merchant, or Referral) and complete the registration.',
-    color: 'text-blue-600 dark:text-blue-400',
-    bg: 'bg-blue-100 dark:bg-blue-900/30',
+const customerSteps: Step[] = [
+    {
+      icon: UserPlus,
+      title: 'Create Your Account',
+      description: 'A quick sign-up gives you access to all our services in just a few clicks.',
+      color: 'blue',
+    },
+    {
+      icon: Search,
+      title: 'Explore & Apply',
+      description: 'Browse our services, choose what you need, and fill out a simple online application.',
+      color: 'teal',
+    },
+    {
+      icon: UploadCloud,
+      title: 'Upload Documents',
+      description: 'Securely upload the required documents through our encrypted portal. It’s fast and safe.',
+      color: 'indigo',
+    },
+    {
+      icon: LineChart,
+      title: 'Track Your Status',
+      description: 'Easily monitor the real-time status of your application from your personal dashboard.',
+      color: 'amber',
+    },
+    {
+      icon: CheckCircle2,
+      title: 'Get Approved',
+      description: 'Receive your loan disbursal or service confirmation promptly upon approval.',
+      color: 'emerald',
+    },
+  ];
+
+  const partnerSteps: Step[] = [
+    {
+      icon: Handshake,
+      title: 'Register as a Partner',
+      description: 'Choose your partnership model and complete the simple, guided registration process.',
+      color: 'blue',
+    },
+    {
+      icon: ShieldCheck,
+      title: 'Verification Process',
+      description: 'Our team will review your application to ensure our quality and trust standards are met.',
+      color: 'teal',
+    },
+    {
+      icon: LayoutDashboard,
+      title: 'Access Your Dashboard',
+      description: 'Once approved, get access to a powerful partner dashboard to manage all your activities.',
+      color: 'indigo',
+    },
+    {
+      icon: FilePlus2,
+      title: 'Submit Client Apps',
+      description: 'Use your dedicated portal to easily submit and manage applications for your clients.',
+      color: 'amber',
+    },
+    {
+      icon: TrendingUp,
+      title: 'Track & Succeed',
+      description: 'Monitor application progress, track your earnings, and grow your business with our support.',
+      color: 'emerald',
+    },
+  ];
+  
+const colorVariants = {
+  blue: {
+    bg: 'bg-blue-100 dark:bg-blue-900/40',
+    text: 'text-blue-600 dark:text-blue-400',
+    dot: 'bg-blue-500',
   },
-  {
-    icon: FilePlus2,
-    title: 'Submit Your Details',
-    description: 'Provide your business or personal information and upload the necessary verification documents.',
-    color: 'text-teal-600 dark:text-teal-400',
-    bg: 'bg-teal-100 dark:bg-teal-900/30',
+  teal: {
+    bg: 'bg-teal-100 dark:bg-teal-900/40',
+    text: 'text-teal-600 dark:text-teal-400',
+    dot: 'bg-teal-500',
   },
-  {
-    icon: ShieldCheck,
-    title: 'Admin Verification',
-    description: 'Our expert team will review your application. We ensure all our partners meet our trust standards.',
-    color: 'text-indigo-600 dark:text-indigo-400',
-    bg: 'bg-indigo-100 dark:bg-indigo-900/30',
+  indigo: {
+    bg: 'bg-indigo-100 dark:bg-indigo-900/40',
+    text: 'text-indigo-600 dark:text-indigo-400',
+    dot: 'bg-indigo-500',
   },
-  {
-    icon: LayoutDashboard,
-    title: 'Access Your Dashboard',
-    description: 'Once approved, you gain full access to your powerful partner dashboard to manage your activities.',
-    color: 'text-sky-600 dark:text-sky-400',
-    bg: 'bg-sky-100 dark:bg-sky-900/30',
+  amber: {
+    bg: 'bg-amber-100 dark:bg-amber-900/40',
+    text: 'text-amber-600 dark:text-amber-400',
+    dot: 'bg-amber-500',
   },
-  {
-    icon: Users,
-    title: 'Submit Client Apps',
-    description: 'Use your dedicated portal to easily submit and manage loan and service applications for your clients.',
-    color: 'text-amber-600 dark:text-amber-400',
-    bg: 'bg-amber-100 dark:bg-amber-900/30',
+  emerald: {
+    bg: 'bg-emerald-100 dark:bg-emerald-900/40',
+    text: 'text-emerald-600 dark:text-emerald-400',
+    dot: 'bg-emerald-500',
   },
-  {
-    icon: TrendingUp,
-    title: 'Track & Succeed',
-    description: 'Monitor application progress in real-time, track your earnings, and grow your business with us.',
-    color: 'text-emerald-600 dark:text-emerald-400',
-    bg: 'bg-emerald-100 dark:bg-emerald-900/30',
-  },
-];
+};
 
 
 export function HowItWorksSection() {
 
-  const renderTimeline = (steps: typeof customerSteps | typeof partnerSteps) => (
-    <div className="mt-10 space-y-4">
+  const renderTimeline = (steps: Step[]) => (
+    <div className="relative mt-12 space-y-8 md:space-y-0 md:-my-8">
+      {/* Central timeline line for desktop */}
+      <div className="absolute left-1/2 top-0 hidden h-full w-0.5 -translate-x-1/2 bg-border md:block" aria-hidden="true" />
+
       {steps.map((step, index) => {
         const Icon = step.icon;
-        const isRightSide = index % 2 !== 0; // Use this to alternate
+        const isRightContent = index % 2 !== 0;
+        const colors = colorVariants[step.color] ?? colorVariants.blue;
+
         return (
-          <div
-            key={index}
-            className={cn(
-              "flex items-stretch gap-6 md:gap-12",
-              isRightSide && "md:flex-row-reverse"
-            )}
-          >
-            {/* Timeline Graphic */}
-            <div className="relative flex flex-col items-center">
-              <div className={cn(
-                  'flex-shrink-0 flex h-16 w-16 items-center justify-center rounded-full z-10',
-                  step.bg
-                )}>
-                <Icon className={cn('h-8 w-8', step.color)} />
-              </div>
-              {/* Vertical line connecting the dots */}
-              {index < steps.length - 1 && <div className="flex-grow w-px bg-border -mt-1" />}
+          <div key={index} className="relative md:my-8">
+            {/* Timeline Dot (Desktop) */}
+            <div className="absolute left-1/2 top-14 hidden -translate-x-1/2 md:block">
+              <div className={cn('h-3 w-3 rounded-full', colors.dot)} />
             </div>
-            
-            {/* Content */}
-            <div className={cn(
-                "w-full py-4 transform transition-all duration-300 hover:scale-[1.02]",
-                isRightSide && "md:text-right"
+
+            <div className="grid grid-cols-1 items-center gap-y-4 md:grid-cols-2 md:gap-x-16">
+              {/* Text Content */}
+              <div className={cn(
+                "text-center md:text-left",
+                isRightContent && 'md:order-2 md:text-right'
               )}>
-              <p className="mb-1 text-sm font-semibold text-primary">
-                STEP {index + 1}
-              </p>
-              <h3 className="text-xl font-bold text-foreground">{step.title}</h3>
-              <p className="mt-2 text-muted-foreground">
-                {step.description}
-              </p>
+                <h3 className="text-2xl font-bold text-foreground">{step.title}</h3>
+                <p className="mt-2 text-muted-foreground">{step.description}</p>
+              </div>
+
+              {/* Icon Box */}
+              <div className={cn(
+                  "flex justify-center",
+                  isRightContent ? "md:order-1 md:justify-end" : "md:justify-start"
+              )}>
+                 <div className={cn(
+                      "flex items-center rounded-2xl bg-card shadow-lg w-full max-w-xs md:w-auto transition-transform duration-300 hover:scale-105 hover:shadow-xl",
+                      colors.bg
+                    )}>
+                    <div className="px-5 py-6">
+                      <span className={cn('text-4xl font-bold opacity-60', colors.text)}>
+                        {String(index + 1).padStart(2, '0')}
+                      </span>
+                    </div>
+                    <div className="flex-grow flex items-center justify-center bg-card rounded-r-2xl p-5 h-full">
+                      <Icon className={cn('h-10 w-10', colors.text)} />
+                    </div>
+                  </div>
+              </div>
             </div>
           </div>
         );
@@ -172,11 +192,11 @@ export function HowItWorksSection() {
             <TabsTrigger value="partners">For Our Partners</TabsTrigger>
           </TabsList>
           
-          <TabsContent value="customers">
+          <TabsContent value="customers" className="pt-4">
             {renderTimeline(customerSteps)}
           </TabsContent>
           
-          <TabsContent value="partners">
+          <TabsContent value="partners" className="pt-4">
             {renderTimeline(partnerSteps)}
           </TabsContent>
         </Tabs>
