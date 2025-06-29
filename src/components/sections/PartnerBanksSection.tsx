@@ -38,14 +38,14 @@ export function PartnerBanksSection() {
             {[...partnerLogos, ...partnerLogos].map((logo, index) => (
               <div
                 key={index}
-                className="flex-shrink-0 w-48 mx-4 flex items-center justify-center h-20"
+                className="flex-shrink-0 w-40 mx-2 flex items-center justify-center h-24"
               >
                 <Image
                   src={logo.src}
                   alt={logo.alt}
                   width={160}
                   height={90}
-                  className="h-full w-auto object-contain transition-all duration-300 ease-in-out opacity-80 hover:opacity-100 hover:scale-110 hover:drop-shadow-[0_0_12px_rgba(255,255,255,0.3)]"
+                  className="h-full w-auto object-contain transition-all duration-300 ease-in-out opacity-90 hover:opacity-100 hover:scale-115 hover:drop-shadow-[0_0_12px_rgba(255,255,255,0.3)]"
                 />
               </div>
             ))}
