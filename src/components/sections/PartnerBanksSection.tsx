@@ -75,7 +75,7 @@ export function PartnerBanksSection() {
             {partnerLogos.map((logo, index) => (
               <div
                 key={index}
-                className="bg-background p-4 rounded-lg flex items-center justify-center h-24 transition-all duration-300 ease-in-out hover:shadow-xl hover:-translate-y-1 border border-transparent hover:border-primary"
+                className="bg-background p-6 rounded-lg flex items-center justify-center h-32 transition-all duration-300 ease-in-out hover:shadow-xl hover:-translate-y-1 border border-transparent hover:border-primary"
               >
                 <Image
                   src={logo.src}
