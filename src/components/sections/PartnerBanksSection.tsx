@@ -41,7 +41,7 @@ export function PartnerBanksSection() {
                       alt={logo.alt}
                       width={120}
                       height={60}
-                      className="max-h-12 w-auto object-contain"
+                      className="h-full w-auto object-contain"
                     />
                 </div>
                 <div className="p-3 bg-card border-t">
