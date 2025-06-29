@@ -129,8 +129,8 @@ export default function Home() {
             <PartnerBanksSection />
             <ServicesSection setCurrentPage={setCurrentPage} />
             <HowItWorksSection />
-            <CTASection />
             <EMICalculatorSection />
+            <CTASection />
           </>
         );
       case 'homeLoan':
