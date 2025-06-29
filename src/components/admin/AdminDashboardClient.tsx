@@ -140,11 +140,7 @@ export function AdminDashboardClient({}: AdminDashboardClientProps) {
 
   return (
     <>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <AnalyticsCharts applications={applications} isLoading={isLoading} />
-      </div>
-
-      <Tabs defaultValue="applications" className="space-y-4 mt-8">
+      <Tabs defaultValue="applications" className="space-y-4">
         <TabsList>
           <TabsTrigger value="applications">All Applications ({isLoading ? '...' : applications.length})</TabsTrigger>
           <TabsTrigger value="pending_partners">Pending Partners ({isLoading ? '...' : pendingPartners.length})</TabsTrigger>
@@ -205,6 +201,14 @@ export function AdminDashboardClient({}: AdminDashboardClientProps) {
             </Card>
         </TabsContent>
       </Tabs>
+      
+      <div className="mt-12">
+        <h2 className="text-2xl font-bold tracking-tight text-foreground mb-2">Platform Analytics</h2>
+        <p className="text-muted-foreground mb-6">A visual overview of platform activity.</p>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <AnalyticsCharts applications={applications} isLoading={isLoading} />
+        </div>
+      </div>
     </>
   );
 }
