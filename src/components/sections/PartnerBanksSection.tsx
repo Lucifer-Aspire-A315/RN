@@ -33,13 +33,13 @@ export function PartnerBanksSection() {
                 key={index}
                 className="bg-card rounded-lg overflow-hidden group transition-all duration-300 ease-in-out hover:shadow-xl hover:-translate-y-1 border"
               >
-                <div className="bg-background flex items-center justify-center p-2 aspect-video">
+                <div className="bg-background flex items-center justify-center p-4 aspect-video">
                    <Image
                       src={logo.src}
                       alt={logo.alt}
                       width={140}
                       height={60}
-                      className="h-full w-full object-contain p-2"
+                      className="h-full w-full object-contain"
                     />
                 </div>
                 <div className="p-3 bg-card border-t">
