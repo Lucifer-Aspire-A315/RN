@@ -13,14 +13,14 @@ interface ApplicationsTableProps {
   applications: UserApplication[];
 }
 
-const getStatusVariant = (status: string): "default" | "secondary" | "destructive" => {
+const getStatusVariant = (status: string): "default" | "secondary" | "destructive" | "success" => {
   switch (status.toLowerCase()) {
     case 'submitted':
       return 'default';
     case 'in review':
       return 'secondary';
     case 'approved':
-      return 'secondary'; // Using secondary for approved to distinguish from submitted
+      return 'success';
     case 'rejected':
       return 'destructive';
     default:

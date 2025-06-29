@@ -24,9 +24,9 @@ interface AnalyticsChartsProps {
 const statusChartConfig = {
   applications: { label: "Applications" },
   Submitted: { label: "Submitted", color: "hsl(var(--chart-1))" },
-  "In Review": { label: "In Review", color: "hsl(var(--chart-2))" },
-  Approved: { label: "Approved", color: "hsl(var(--chart-3))" },
-  Rejected: { label: "Rejected", color: "hsl(var(--chart-4))" },
+  "In Review": { label: "In Review", color: "hsl(var(--chart-4))" },
+  Approved: { label: "Approved", color: "hsl(var(--success))" },
+  Rejected: { label: "Rejected", color: "hsl(var(--destructive))" },
 } satisfies ChartConfig
 
 const typeChartConfig = {
