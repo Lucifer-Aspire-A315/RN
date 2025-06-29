@@ -4,62 +4,20 @@ import { cn } from '@/lib/utils';
 import Image from 'next/image';
 
 const partnerLogos = [
-  {
-    src: '/logos/hdfcbank.png',
-    alt: 'HDFC Bank',
-  },
-  {
-    src: '/logos/icicibank.png',
-    alt: 'ICICI Bank',
-  },
-  {
-    src: '/logos/bajaj.png',
-    alt: 'Bajaj Finserv',
-  },
-  {
-    src: '/logos/axis.png',
-    alt: 'Axis Bank',
-  },
-   {
-    src: '/logos/kotakbank.png',
-    alt: 'Kotak Mahindra',
-  },
-   {
-    src: '/logos/idfc.png',
-    alt: 'IDFC Bank',
-  },
-  {
-    src: '/logos/adityabirlabank.png',
-    alt: 'Aditya Birla',
-  },
-  {
-    src: '/logos/sbibank.png',
-    alt: 'State Bank of India',
-  },
-  {
-    src: '/logos/muthoot.png',
-    alt: 'Muthoot Finance',
-  },
-  {
-    src: '/logos/shriram.png',
-    alt: 'Shriram Finance',
-  },
-  {
-    src: '/logos/tatacapital.png',
-    alt: 'Tata Capital',
-  },
-  {
-    src: '/logos/indusindbank.png',
-    alt: 'IndusInd Bank',
-  },
-  {
-    src: '/logos/chola.png',
-    alt: 'Chalomandalam Bank'
-  },
-  {
-    src: '/logos/dbsbank.png',
-    alt: 'DBS Bank'
-  }
+  { src: '/logos/hdfcbank.png', alt: 'HDFC Bank', name: 'HDFC Bank' },
+  { src: '/logos/icicibank.png', alt: 'ICICI Bank', name: 'ICICI Bank' },
+  { src: '/logos/bajaj.png', alt: 'Bajaj Finserv', name: 'Bajaj Finserv' },
+  { src: '/logos/axis.png', alt: 'Axis Bank', name: 'Axis Bank' },
+  { src: '/logos/kotakbank.png', alt: 'Kotak Mahindra', name: 'Kotak Bank' },
+  { src: '/logos/idfc.png', alt: 'IDFC Bank', name: 'IDFC First Bank' },
+  { src: '/logos/adityabirlabank.png', alt: 'Aditya Birla', name: 'Aditya Birla' },
+  { src: '/logos/sbibank.png', alt: 'State Bank of India', name: 'SBI' },
+  { src: '/logos/muthoot.png', alt: 'Muthoot Finance', name: 'Muthoot Finance' },
+  { src: '/logos/shriram.png', alt: 'Shriram Finance', name: 'Shriram Finance' },
+  { src: '/logos/tatacapital.png', alt: 'Tata Capital', name: 'Tata Capital' },
+  { src: '/logos/indusindbank.png', alt: 'IndusInd Bank', name: 'IndusInd Bank' },
+  { src: '/logos/chola.png', alt: 'Chola', name: 'Cholamandalam' },
+  { src: '/logos/dbsbank.png', alt: 'DBS Bank', name: 'DBS Bank' }
 ];
 
 export function PartnerBanksSection() {
@@ -75,15 +33,20 @@ export function PartnerBanksSection() {
             {partnerLogos.map((logo, index) => (
               <div
                 key={index}
-                className="bg-background p-2 rounded-lg flex items-center justify-center h-20 transition-all duration-300 ease-in-out hover:shadow-xl hover:-translate-y-1 border"
+                className="bg-card rounded-lg overflow-hidden flex flex-col group transition-all duration-300 ease-in-out hover:shadow-xl hover:-translate-y-1 border border-border"
               >
-                <Image
-                  src={logo.src}
-                  alt={logo.alt}
-                  width={150}
-                  height={75}
-                  className="max-h-full max-w-full object-contain"
-                />
+                <div className="h-24 bg-background flex items-center justify-center p-4">
+                   <Image
+                      src={logo.src}
+                      alt={logo.alt}
+                      width={120}
+                      height={60}
+                      className="max-h-12 w-auto object-contain"
+                    />
+                </div>
+                <div className="p-3 bg-card border-t">
+                     <p className="text-sm font-semibold text-foreground truncate">{logo.name}</p>
+                </div>
               </div>
             ))}
           </div>
