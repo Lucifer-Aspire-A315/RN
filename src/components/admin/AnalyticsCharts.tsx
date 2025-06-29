@@ -2,7 +2,7 @@
 "use client"
 
 import * as React from "react"
-import { Bar, BarChart, CartesianGrid, Cell, Pie, PieChart, XAxis, YAxis } from "recharts"
+import { Bar, BarChart, CartesianGrid, Cell, Pie, PieChart, XAxis, YAxis, LineChart, Line } from "recharts"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   ChartContainer,
@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/chart"
 import type { UserApplication } from "@/lib/types"
 import { Skeleton } from "../ui/skeleton"
+import { subDays, format } from 'date-fns'
 
 interface AnalyticsChartsProps {
   applications: UserApplication[];
@@ -33,6 +34,13 @@ const typeChartConfig = {
   loan: { label: "Loan", color: "hsl(var(--chart-1))" },
   caService: { label: "CA Service", color: "hsl(var(--chart-2))" },
   governmentScheme: { label: "Govt. Scheme", color: "hsl(var(--chart-3))" },
+} satisfies ChartConfig
+
+const applicationsByDateChartConfig = {
+  applications: {
+    label: "Applications",
+    color: "hsl(var(--primary))",
+  },
 } satisfies ChartConfig
 
 
@@ -69,19 +77,50 @@ export function AnalyticsCharts({ applications, isLoading }: AnalyticsChartsProp
      }));
   }, [applications]);
 
+  const applicationsByDate = React.useMemo(() => {
+    const today = new Date();
+    // Create an array of the last 30 dates, from 29 days ago to today
+    const last30Days = Array.from({ length: 30 }, (_, i) => subDays(today, 29 - i));
+    
+    // Initialize daily counts with all 30 days having 0 applications
+    const dailyCounts = last30Days.map(day => ({
+      date: format(day, 'MMM dd'),
+      total: 0,
+    }));
+
+    // Get the date 30 days ago to filter applications
+    const thirtyDaysAgo = subDays(today, 30);
+    thirtyDaysAgo.setHours(0, 0, 0, 0);
+
+    applications.forEach(app => {
+      const appDate = new Date(app.createdAt);
+      // Check if the application was created within the last 30 days
+      if (appDate >= thirtyDaysAgo) {
+        const dateString = format(appDate, 'MMM dd');
+        const dayData = dailyCounts.find(d => d.date === dateString);
+        if (dayData) {
+          dayData.total++;
+        }
+      }
+    });
+
+    return dailyCounts;
+  }, [applications]);
+
 
   if (isLoading) {
     return (
         <>
             <Card><CardHeader><Skeleton className="h-8 w-1/2" /></CardHeader><CardContent className="flex items-center justify-center"><Skeleton className="h-[250px] w-full" /></CardContent></Card>
             <Card><CardHeader><Skeleton className="h-8 w-1/2" /></CardHeader><CardContent className="flex items-center justify-center"><Skeleton className="h-[250px] w-full" /></CardContent></Card>
+            <Card className="lg:col-span-2"><CardHeader><Skeleton className="h-8 w-1/2" /></CardHeader><CardContent className="flex items-center justify-center"><Skeleton className="h-[250px] w-full" /></CardContent></Card>
         </>
     )
   }
 
   return (
     <>
-        <Card className="flex flex-col">
+        <Card className="flex flex-col lg:col-span-1">
             <CardHeader>
                 <CardTitle>Applications by Status</CardTitle>
                 <CardDescription>A real-time overview of application statuses.</CardDescription>
@@ -104,12 +143,12 @@ export function AnalyticsCharts({ applications, isLoading }: AnalyticsChartsProp
                     </ChartContainer>
                 ) : ( <div className="flex items-center justify-center h-[250px] text-muted-foreground">No application data.</div> )}
             </CardContent>
-            <CardFooter className="flex justify-center text-sm pt-4">
-                 <div className="font-medium leading-none">Total Applications: {totalApplications}</div>
+            <CardFooter className="flex-col gap-2 text-sm pt-4">
+                 <div className="font-medium leading-none text-center">Total Applications: {totalApplications}</div>
             </CardFooter>
         </Card>
 
-        <Card>
+        <Card className="lg:col-span-1">
             <CardHeader>
                 <CardTitle>Applications by Type</CardTitle>
                 <CardDescription>A breakdown of submitted application categories.</CardDescription>
@@ -120,7 +159,7 @@ export function AnalyticsCharts({ applications, isLoading }: AnalyticsChartsProp
                         <BarChart accessibilityLayer data={typeCounts} margin={{ top: 20, left: -10, right: 10 }}>
                             <CartesianGrid vertical={false} />
                             <XAxis dataKey="name" tickLine={false} tickMargin={10} axisLine={false} tickFormatter={(value) => value.slice(0, 10)} />
-                            <YAxis />
+                            <YAxis allowDecimals={false} />
                             <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" />} />
                             <Bar dataKey="count" radius={4}>
                                 {typeCounts.map((entry) => (<Cell key={`cell-${entry.name}`} fill={entry.fill} />))}
@@ -128,6 +167,46 @@ export function AnalyticsCharts({ applications, isLoading }: AnalyticsChartsProp
                         </BarChart>
                     </ChartContainer>
                 ) : (<div className="flex items-center justify-center h-[300px] text-muted-foreground">No type data.</div>)}
+            </CardContent>
+        </Card>
+        
+         <Card className="lg:col-span-2">
+            <CardHeader>
+                <CardTitle>Applications Over Last 30 Days</CardTitle>
+                <CardDescription>Daily submission trend for the past month.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                 <ChartContainer config={applicationsByDateChartConfig} className="h-[250px] w-full">
+                    <LineChart accessibilityLayer data={applicationsByDate} margin={{ top: 5, right: 20, left: -10, bottom: 0 }}>
+                        <CartesianGrid vertical={false} />
+                        <XAxis
+                            dataKey="date"
+                            tickLine={false}
+                            axisLine={false}
+                            tickMargin={8}
+                            tickFormatter={(value, index) => {
+                              // Show every 3rd label to prevent crowding
+                              if (applicationsByDate.length > 10 && index % 3 !== 0) return "";
+                              return value;
+                            }}
+                        />
+                        <YAxis
+                          tickLine={false}
+                          axisLine={false}
+                          tickMargin={8}
+                          allowDecimals={false}
+                        />
+                        <ChartTooltip cursor={false} content={<ChartTooltipContent hideIndicator />} />
+                        <Line
+                            dataKey="total"
+                            type="natural"
+                            stroke="var(--color-applications)"
+                            strokeWidth={2}
+                            dot={false}
+                            name="Applications"
+                        />
+                    </LineChart>
+                </ChartContainer>
             </CardContent>
         </Card>
     </>
