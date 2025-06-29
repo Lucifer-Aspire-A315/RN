@@ -1,4 +1,3 @@
-
 "use client"
 
 import React from 'react';
@@ -23,14 +22,10 @@ const partnerLogos = [
 
 export function PartnerBanksSection() {
   return (
-    <section className="relative py-12 md:py-16 bg-background overflow-hidden">
-        {/* Decorative blobs for modern background */}
-        <div className="absolute inset-0 animate-[float_15s_ease-in-out_infinite] bg-primary/5 rounded-full blur-3xl w-80 h-80 top-10 right-20 opacity-50"></div>
-        <div className="absolute inset-0 animate-[float-delay_12s_ease-in-out_infinite] bg-accent/5 rounded-full blur-3xl w-72 h-72 bottom-5 left-10 opacity-50"></div>
-
+    <section className="relative py-12 md:py-16 bg-[#2D3A3A] overflow-hidden">
       <div className="container mx-auto px-6 text-center relative z-10">
-        <h2 className="text-3xl font-bold text-foreground">Our Extensive Network</h2>
-        <p className="mt-2 text-muted-foreground max-w-2xl mx-auto">
+        <h2 className="text-3xl font-bold text-primary-foreground">Our Extensive Network</h2>
+        <p className="mt-4 text-lg text-secondary max-w-2xl mx-auto">
           We are proud to be associated with over 150+ leading Banks and NBFCs to find you the best financial solutions.
         </p>
         <div 
@@ -43,7 +38,7 @@ export function PartnerBanksSection() {
             {[...partnerLogos, ...partnerLogos].map((logo, index) => (
               <div
                 key={index}
-                className="flex-shrink-0 w-52 h-32 flex items-center justify-center p-4"
+                className="flex-shrink-0 w-52 h-32 flex items-center justify-center p-4 bg-white/95 rounded-lg mx-4 shadow-md"
               >
                 <Image
                   src={logo.src}
