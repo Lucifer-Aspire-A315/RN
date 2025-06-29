@@ -274,8 +274,14 @@ export function ApplicationDetailsView({ applicationId, serviceCategory, title, 
                          </div>
                          <div>
                             <p className="font-semibold text-foreground">Created On:</p>
-                            <p className="text-muted-foreground">{format(new Date(createdAt), 'PPp')}</p>
+                            <p className="text-muted-foreground">{createdAt ? format(new Date(createdAt), 'PPp') : 'N/A'}</p>
                          </div>
+                         {updatedAt && createdAt !== updatedAt && (
+                          <div>
+                            <p className="font-semibold text-foreground">Last Updated:</p>
+                            <p className="text-muted-foreground">{format(new Date(updatedAt), 'PPp')}</p>
+                          </div>
+                         )}
                     </CardContent>
                 </Card>
                  {isAdmin && (
