@@ -25,7 +25,6 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/contexts/AuthContext';
 import { LoginPrompt } from '@/components/shared/LoginPrompt';
 import { HowItWorksSection } from '@/components/sections/HowItWorksSection';
-import { CTASection } from '@/components/sections/CTASection';
 import { PartnerBanksSection } from '@/components/sections/PartnerBanksSection';
 
 export type PageView = 
@@ -130,7 +129,6 @@ export default function Home() {
             <ServicesSection setCurrentPage={setCurrentPage} />
             <HowItWorksSection />
             <EMICalculatorSection />
-            <CTASection />
           </>
         );
       case 'homeLoan':
