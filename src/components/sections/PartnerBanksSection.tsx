@@ -1,22 +1,21 @@
-
 import React from 'react';
 import Image from 'next/image';
 
 const partnerLogos = [
-  { src: '/logos/hdfcbank.png', alt: 'HDFC Bank', name: 'HDFC Bank' },
-  { src: '/logos/icicibank.png', alt: 'ICICI Bank', name: 'ICICI Bank' },
-  { src: '/logos/bajaj.png', alt: 'Bajaj Finserv', name: 'Bajaj Finserv' },
-  { src: '/logos/axis.png', alt: 'Axis Bank', name: 'Axis Bank' },
-  { src: '/logos/kotakbank.png', alt: 'Kotak Mahindra', name: 'Kotak Bank' },
-  { src: '/logos/idfc.png', alt: 'IDFC Bank', name: 'IDFC First Bank' },
-  { src: '/logos/adityabirlabank.png', alt: 'Aditya Birla', name: 'Aditya Birla' },
-  { src: '/logos/sbibank.png', alt: 'State Bank of India', name: 'SBI' },
-  { src: '/logos/muthoot.png', alt: 'Muthoot Finance', name: 'Muthoot Finance' },
-  { src: '/logos/shriram.png', alt: 'Shriram Finance', name: 'Shriram Finance' },
-  { src: '/logos/tatacapital.png', alt: 'Tata Capital', name: 'Tata Capital' },
-  { src: '/logos/indusindbank.png', alt: 'IndusInd Bank', name: 'IndusInd Bank' },
-  { src: '/logos/chola.png', alt: 'Chola', name: 'Cholamandalam' },
-  { src: '/logos/dbsbank.png', alt: 'DBS Bank', name: 'DBS Bank' }
+  { src: '/logos/hdfc-logo.png', alt: 'HDFC Bank', name: 'HDFC Bank' },
+  { src: '/logos/icici-logo.png', alt: 'ICICI Bank', name: 'ICICI Bank' },
+  { src: '/logos/bajaj-logo.png', alt: 'Bajaj Finserv', name: 'Bajaj Finserv' },
+  { src: '/logos/axis-logo.png', alt: 'Axis Bank', name: 'Axis Bank' },
+  { src: '/logos/kotak-logo.png', alt: 'Kotak Mahindra', name: 'Kotak Bank' },
+  { src: '/logos/idfc-logo.png', alt: 'IDFC Bank', name: 'IDFC First Bank' },
+  { src: '/logos/adityabirla-logo.png', alt: 'Aditya Birla', name: 'Aditya Birla' },
+  { src: '/logos/sbi-logo.png', alt: 'State Bank of India', name: 'SBI' },
+  { src: '/logos/muthoot-logo.png', alt: 'Muthoot Finance', name: 'Muthoot Finance' },
+  { src: '/logos/shriram-logo.png', alt: 'Shriram Finance', name: 'Shriram Finance' },
+  { src: '/logos/tatac-logo.png', alt: 'Tata Capital', name: 'Tata Capital' },
+  { src: '/logos/indusind-logo.png', alt: 'IndusInd Bank', name: 'IndusInd Bank' },
+  { src: '/logos/chola-logo.png', alt: 'Chola', name: 'Cholamandalam' },
+  { src: '/logos/dbs-logo.png', alt: 'DBS Bank', name: 'DBS Bank' }
 ];
 
 export function PartnerBanksSection() {
@@ -28,19 +27,19 @@ export function PartnerBanksSection() {
           We are proud to be associated with over 150+ leading Banks and NBFCs to find you the best financial solutions.
         </p>
         <div className="mt-12">
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-4 md:gap-5">
             {partnerLogos.map((logo, index) => (
               <div
                 key={index}
                 className="bg-card rounded-lg overflow-hidden group transition-all duration-300 ease-in-out hover:shadow-xl hover:-translate-y-1 border"
               >
-                <div className="bg-background flex items-center justify-center p-4 aspect-video">
+                <div className="bg-background flex items-center justify-center p-2 aspect-video">
                    <Image
                       src={logo.src}
                       alt={logo.alt}
                       width={140}
                       height={60}
-                      className="h-full w-full object-contain"
+                      className="h-full w-full object-contain p-2"
                     />
                 </div>
                 <div className="p-3 bg-card border-t">
