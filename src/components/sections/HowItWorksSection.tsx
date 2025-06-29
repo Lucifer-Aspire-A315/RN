@@ -113,27 +113,35 @@ const partnerSteps = [
 export function HowItWorksSection() {
 
   const renderTimeline = (steps: typeof customerSteps | typeof partnerSteps) => (
-    <div className="mt-10">
+    <div className="mt-10 space-y-4">
       {steps.map((step, index) => {
         const Icon = step.icon;
+        const isRightSide = index % 2 !== 0; // Use this to alternate
         return (
-          <div key={index} className="flex">
-            {/* Timeline graphics */}
-            <div className="flex flex-col items-center mr-6">
-              <div
-                className={cn(
-                  'flex h-14 w-14 items-center justify-center rounded-full z-10',
+          <div
+            key={index}
+            className={cn(
+              "flex items-stretch gap-6 md:gap-12",
+              isRightSide && "md:flex-row-reverse"
+            )}
+          >
+            {/* Timeline Graphic */}
+            <div className="relative flex flex-col items-center">
+              <div className={cn(
+                  'flex-shrink-0 flex h-16 w-16 items-center justify-center rounded-full z-10',
                   step.bg
-                )}
-              >
-                <Icon className={cn('h-7 w-7', step.color)} />
+                )}>
+                <Icon className={cn('h-8 w-8', step.color)} />
               </div>
-              {index < steps.length - 1 && (
-                <div className="h-full w-px bg-border -mt-1" />
-              )}
+              {/* Vertical line connecting the dots */}
+              {index < steps.length - 1 && <div className="flex-grow w-px bg-border -mt-1" />}
             </div>
+            
             {/* Content */}
-            <div className={cn("pb-12 pt-2 transform transition-all duration-300 hover:scale-[1.02]", index < steps.length - 1 ? "-mt-2" : "")}>
+            <div className={cn(
+                "w-full py-4 transform transition-all duration-300 hover:scale-[1.02]",
+                isRightSide && "md:text-right"
+              )}>
               <p className="mb-1 text-sm font-semibold text-primary">
                 STEP {index + 1}
               </p>
@@ -158,7 +166,7 @@ export function HowItWorksSection() {
             </p>
         </div>
 
-        <Tabs defaultValue="customers" className="max-w-3xl mx-auto mt-12">
+        <Tabs defaultValue="customers" className="max-w-4xl mx-auto mt-12">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="customers">For Our Customers</TabsTrigger>
             <TabsTrigger value="partners">For Our Partners</TabsTrigger>
