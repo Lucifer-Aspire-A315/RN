@@ -22,11 +22,11 @@ export function ServiceCard({
   setCurrentPage,
 }: ServiceCardProps) {
   const colors = {
-    1: { shadow: 'group-hover:shadow-[0_0_20px_hsl(var(--chart-1))]', iconBg: 'bg-chart-1/10', iconText: 'text-chart-1' },
-    2: { shadow: 'group-hover:shadow-[0_0_20px_hsl(var(--chart-2))]', iconBg: 'bg-chart-2/10', iconText: 'text-chart-2' },
-    3: { shadow: 'group-hover:shadow-[0_0_20px_hsl(var(--chart-3))]', iconBg: 'bg-chart-3/10', iconText: 'text-chart-3' },
-    4: { shadow: 'group-hover:shadow-[0_0_20px_hsl(var(--chart-4))]', iconBg: 'bg-chart-4/10', iconText: 'text-chart-4' },
-    5: { shadow: 'group-hover:shadow-[0_0_20px_hsl(var(--chart-5))]', iconBg: 'bg-chart-5/10', iconText: 'text-chart-5' },
+    1: { shadow: 'group-hover:shadow-[0_0_20px_hsl(var(--chart-1))]', iconBg: 'bg-chart-1/10', iconText: 'text-chart-1', 'conic-from': 'from-chart-1' },
+    2: { shadow: 'group-hover:shadow-[0_0_20px_hsl(var(--chart-2))]', iconBg: 'bg-chart-2/10', iconText: 'text-chart-2', 'conic-from': 'from-chart-2' },
+    3: { shadow: 'group-hover:shadow-[0_0_20px_hsl(var(--chart-3))]', iconBg: 'bg-chart-3/10', iconText: 'text-chart-3', 'conic-from': 'from-chart-3' },
+    4: { shadow: 'group-hover:shadow-[0_0_20px_hsl(var(--chart-4))]', iconBg: 'bg-chart-4/10', iconText: 'text-chart-4', 'conic-from': 'from-chart-4' },
+    5: { shadow: 'group-hover:shadow-[0_0_20px_hsl(var(--chart-5))]', iconBg: 'bg-chart-5/10', iconText: 'text-chart-5', 'conic-from': 'from-chart-5' },
   };
 
   const colorClasses = colors[colorIndex] || colors[1];
@@ -38,11 +38,22 @@ export function ServiceCard({
         "group relative cursor-pointer overflow-hidden bg-card p-6 rounded-2xl shadow-lg flex flex-col text-center items-center border border-border/10 transition-all duration-300 hover:shadow-2xl hover:-translate-y-2"
       )}
     >
-      {/* Shine Effect */}
-      <div className="absolute top-0 left-[-150%] h-full w-[50%] -skew-x-12 bg-gradient-to-r from-transparent via-white/10 to-transparent transition-all duration-700 ease-in-out group-hover:left-[150%]" />
+      {/* New Aurora background */}
+      <div
+        className={cn(
+          "absolute -inset-24 z-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100",
+          "bg-gradient-conic blur-3xl", // conic gradient with a heavy blur
+          colorClasses['conic-from'],   // from-color
+          "via-transparent",            // fades to transparent in the middle
+          colorClasses['conic-from']    // loops back to the from-color
+        )}
+      />
 
-      {/* Card Content - must be relative z-10 to be above the shine */}
-      <div className="relative z-10 flex h-full flex-col items-center">
+      {/* Shine Effect */}
+      <div className="absolute top-0 left-[-150%] h-full w-[50%] -skew-x-12 bg-gradient-to-r from-transparent via-white/10 to-transparent transition-all duration-700 ease-in-out group-hover:left-[150%] z-10" />
+
+      {/* Card Content - must be relative z-20 to be above all effects */}
+      <div className="relative z-20 flex h-full flex-col items-center">
           <div className={cn(
               'relative rounded-full w-16 h-16 flex items-center justify-center mx-auto transition-all duration-300 group-hover:scale-110', 
               colorClasses.iconBg, 
@@ -56,7 +67,7 @@ export function ServiceCard({
             variant="link"
             className="inline-flex items-center justify-center mt-6 font-semibold text-primary group-hover:text-accent p-0"
             aria-label={`Apply for ${title}`}
-            tabIndex={-1} // Makes it non-focusable by tab, but still clickable
+            tabIndex={-1} 
           >
             Apply Now
             <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
