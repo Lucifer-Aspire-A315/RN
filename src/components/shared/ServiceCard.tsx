@@ -22,11 +22,11 @@ export function ServiceCard({
   setCurrentPage,
 }: ServiceCardProps) {
   const colors = {
-    1: { bg: 'bg-chart-1/10', text: 'text-chart-1' },
-    2: { bg: 'bg-chart-2/10', text: 'text-chart-2' },
-    3: { bg: 'bg-chart-3/10', text: 'text-chart-3' },
-    4: { bg: 'bg-chart-4/10', text: 'text-chart-4' },
-    5: { bg: 'bg-chart-5/10', text: 'text-chart-5' },
+    1: { bg: 'bg-chart-1/10', text: 'text-chart-1', shadow: 'hover:shadow-chart-1/20' },
+    2: { bg: 'bg-chart-2/10', text: 'text-chart-2', shadow: 'hover:shadow-chart-2/20' },
+    3: { bg: 'bg-chart-3/10', text: 'text-chart-3', shadow: 'hover:shadow-chart-3/20' },
+    4: { bg: 'bg-chart-4/10', text: 'text-chart-4', shadow: 'hover:shadow-chart-4/20' },
+    5: { bg: 'bg-chart-5/10', text: 'text-chart-5', shadow: 'hover:shadow-chart-5/20' },
   };
 
   const colorClasses = colors[colorIndex] || colors[1];
@@ -34,13 +34,15 @@ export function ServiceCard({
   return (
     <div
       className={cn(
-        "bg-card p-8 rounded-xl shadow-lg flex flex-col text-center items-center border border-secondary transition-all duration-300 hover:border-primary hover:shadow-xl hover:-translate-y-1"
+        "bg-card p-6 rounded-xl shadow-lg flex flex-col text-center items-center border border-transparent transition-all duration-300 hover:shadow-2xl hover:-translate-y-2",
+        colorClasses.shadow
       )}
     >
-      <div className={cn('rounded-full w-16 h-16 flex items-center justify-center mx-auto shadow', colorClasses.bg)}>
-        <div className={colorClasses.text}>{icon}</div>
+      <div className={cn('relative rounded-full w-16 h-16 flex items-center justify-center mx-auto', colorClasses.bg)}>
+        <div className={cn('absolute inset-0 rounded-full blur-md opacity-50', colorClasses.bg)} />
+        <div className={cn("relative z-10", colorClasses.text)}>{icon}</div>
       </div>
-      <h3 className={cn("text-xl font-semibold mt-6", colorClasses.text)}>{title}</h3>
+      <h3 className="text-xl font-bold text-foreground mt-6">{title}</h3>
       <p className="text-muted-foreground mt-2 flex-grow text-sm">{description}</p>
       <Button
         variant="link"

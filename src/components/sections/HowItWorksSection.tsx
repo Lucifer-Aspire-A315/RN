@@ -96,19 +96,20 @@ function Timeline({ steps }: { steps: Step[] }) {
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            entry.target.classList.add('opacity-100', 'translate-y-0');
-            entry.target.classList.remove('opacity-0', 'translate-y-10');
+            entry.target.classList.add('animate-fade-in-up');
+            entry.target.classList.remove('opacity-0');
             observer.unobserve(entry.target);
           }
         });
       },
-      { threshold: 0.1, rootMargin: '0px 0px -50px 0px' }
+      { threshold: 0.2, rootMargin: '0px 0px -50px 0px' }
     );
 
     const currentRef = timelineRef.current;
     if (currentRef) {
       const items = currentRef.querySelectorAll('.timeline-step');
-      items.forEach((item) => {
+      items.forEach((item, index) => {
+        (item as HTMLElement).style.animationDelay = `${index * 150}ms`;
         observer.observe(item);
       });
     }
@@ -138,7 +139,7 @@ function Timeline({ steps }: { steps: Step[] }) {
         return (
           <div
             key={index}
-            className="timeline-step relative flex items-center justify-center transition-all duration-700 ease-out opacity-0 translate-y-10 md:grid md:grid-cols-2 md:gap-x-16"
+            className="timeline-step relative flex items-center justify-center opacity-0 md:grid md:grid-cols-2 md:gap-x-16"
           >
             {/* Desktop and Mobile: Text Block */}
             <div className={cn(
