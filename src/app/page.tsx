@@ -121,7 +121,7 @@ export default function Home() {
       case 'main':
         return (
           <>
-            <HeroSlider />
+            <HeroSlider setCurrentPage={setCurrentPage} />
             <PartnerBanksSection />
             <GovernmentSchemeHighlights setCurrentPage={setCurrentPage} />
             <ServicesSection setCurrentPage={setCurrentPage} />

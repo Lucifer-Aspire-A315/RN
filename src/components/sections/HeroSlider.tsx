@@ -1,12 +1,13 @@
-
 "use client";
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { Users, Building, Percent, Landmark, GanttChartSquare, CheckCircle } from 'lucide-react';
+import { Users, Building, Percent } from 'lucide-react';
 import { useElementInView } from '@/hooks/use-element-in-view';
+import type { PageView, SetPageView } from '@/app/page';
+import { useRouter } from 'next/navigation';
 
 const AnimatedStat = ({ title, endValue, duration = 2000, suffix = '', icon, delay }: { title: string, endValue: number, duration?: number, suffix?: string, icon: React.ReactNode, delay: number }) => {
   const [count, setCount] = useState(0);
@@ -57,9 +58,11 @@ const slides = [
     imageSrc: 'https://placehold.co/600x400.png',
     dataAiHint: 'financial success growth',
     ctaButtonText: 'Explore Our Services',
-    ctaLink: '#services',
+    ctaAction: 'scroll' as const,
+    ctaTarget: '#services',
     secondaryButtonText: 'How It Works',
-    secondaryLink: '#how-it-works',
+    secondaryAction: 'scroll' as const,
+    secondaryTarget: '#how-it-works',
     stats: [
         { title: "Partner Banks & NBFCs", endValue: 150, suffix: "+", icon: <Building className="w-6 h-6" />, delay: 700 },
         { title: "Approval Rate", endValue: 98, suffix: "%", icon: <Percent className="w-6 h-6" />, delay: 900 },
@@ -73,9 +76,11 @@ const slides = [
     imageSrc: 'https://placehold.co/600x400.png',
     dataAiHint: 'loan documents approval',
     ctaButtonText: 'View Loan Options',
-    ctaLink: '#services',
+    ctaAction: 'scroll' as const,
+    ctaTarget: '#services',
     secondaryButtonText: 'EMI Calculator',
-    secondaryLink: '#calculator',
+    secondaryAction: 'scroll' as const,
+    secondaryTarget: '#calculator',
   },
   {
     key: 'ca-services',
@@ -84,9 +89,11 @@ const slides = [
     imageSrc: 'https://placehold.co/600x400.png',
     dataAiHint: 'financial documents chart',
     ctaButtonText: 'Explore CA Services',
-    ctaLink: '#services',
+    ctaAction: 'setView' as const,
+    ctaTarget: 'caServices',
     secondaryButtonText: 'Contact Us',
-    secondaryLink: '/contact',
+    secondaryAction: 'navigate' as const,
+    secondaryTarget: '/contact',
   },
    {
     key: 'gov-schemes',
@@ -95,27 +102,16 @@ const slides = [
     imageSrc: 'https://placehold.co/600x400.png',
     dataAiHint: 'small business growth',
     ctaButtonText: 'View Schemes',
-    ctaLink: '#services',
+    ctaAction: 'setView' as const,
+    ctaTarget: 'governmentSchemes',
     secondaryButtonText: 'Learn More',
-    secondaryLink: '#how-it-works',
+    secondaryAction: 'scroll' as const,
+    secondaryTarget: '#how-it-works',
   },
 ];
 
 
-const SlideContent = ({ slide, isActive }: { slide: (typeof slides)[0], isActive: boolean }) => {
-  const handleNavClick = (href: string) => {
-    if (href.startsWith('/#')) {
-      const elementId = href.substring(1);
-      const element = document.getElementById(elementId);
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
-      }
-    } else {
-      // For external/other pages, a full navigation is better
-      window.location.href = href;
-    }
-  };
-
+const SlideContent = ({ slide, isActive, onNavClick }: { slide: (typeof slides)[0], isActive: boolean, onNavClick: (action: string, target: string) => void }) => {
   return (
     <div className={cn("absolute inset-0 transition-opacity duration-1000 ease-in-out", isActive ? "opacity-100" : "opacity-0 pointer-events-none")}>
         <div className="container mx-auto px-6 relative z-10 h-full">
@@ -141,14 +137,14 @@ const SlideContent = ({ slide, isActive }: { slide: (typeof slides)[0], isActive
                         <Button
                             size="lg"
                             className="cta-button shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300"
-                            onClick={() => handleNavClick(slide.ctaLink)}
+                            onClick={() => onNavClick(slide.ctaAction, slide.ctaTarget)}
                         >
                             {slide.ctaButtonText}
                         </Button>
                         <Button
                             variant="ghost"
                             size="lg"
-                            onClick={() => handleNavClick(slide.secondaryLink)}
+                            onClick={() => onNavClick(slide.secondaryAction, slide.secondaryTarget)}
                             className="text-primary hover:text-primary hover:bg-primary/10"
                         >
                             {slide.secondaryButtonText}
@@ -182,12 +178,36 @@ const SlideContent = ({ slide, isActive }: { slide: (typeof slides)[0], isActive
 };
 
 
-export function HeroSlider() {
+interface HeroSliderProps {
+    setCurrentPage: SetPageView;
+}
+
+export function HeroSlider({ setCurrentPage }: HeroSliderProps) {
   const [activeSlide, setActiveSlide] = useState(0);
+  const router = useRouter();
 
   const handleNext = useCallback(() => {
     setActiveSlide((prev) => (prev + 1) % slides.length);
   }, []);
+
+  const handleNavClick = (action: string, target: string) => {
+    switch (action) {
+      case 'setView':
+        setCurrentPage(target as PageView);
+        break;
+      case 'scroll':
+        const elementId = target.substring(1);
+        const element = document.getElementById(elementId);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+        break;
+      case 'navigate':
+        router.push(target);
+        break;
+    }
+  };
+
 
   useEffect(() => {
     const timer = setInterval(handleNext, 7000);
@@ -201,7 +221,7 @@ export function HeroSlider() {
 
         <div className="relative h-[65vh] min-h-[600px] lg:min-h-[500px]">
             {slides.map((slide, index) => (
-                <SlideContent key={slide.key} slide={slide} isActive={index === activeSlide} />
+                <SlideContent key={slide.key} slide={slide} isActive={index === activeSlide} onNavClick={handleNavClick} />
             ))}
         </div>
       
