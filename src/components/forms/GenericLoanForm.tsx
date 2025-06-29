@@ -17,6 +17,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Textarea } from '../ui/textarea';
 import { processFileUploads } from '@/lib/form-helpers';
 import { useRouter } from 'next/navigation';
+import { Progress } from '@/components/ui/progress';
 
 // --- TYPE DEFINITIONS ---
 
@@ -128,6 +129,7 @@ export function GenericLoanForm<TData extends Record<string, any>>({
   const [isVerifyingAadhaar, setIsVerifyingAadhaar] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<Record<string, File | null>>({});
   const { currentUser } = useAuth();
+  const [currentSection, setCurrentSection] = useState(0);
 
   const form = useForm<TData>({
     resolver: zodResolver(schema),
@@ -251,6 +253,29 @@ export function GenericLoanForm<TData extends Record<string, any>>({
     }
   };
 
+   const handleNextClick = async () => {
+    const fieldsInSection = sections[currentSection].fields.map(field => field.name);
+    const isValid = await trigger(fieldsInSection as any, { shouldFocus: true });
+    
+    if (isValid) {
+      if(currentSection < sections.length - 1) {
+        setCurrentSection(prev => prev + 1);
+      }
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Validation Error",
+        description: "Please fill out all required fields in this section correctly.",
+      });
+    }
+  };
+
+  const handlePreviousClick = () => {
+    setCurrentSection(prev => prev - 1);
+  };
+
+  const progress = sections.length > 1 ? ((currentSection + 1) / sections.length) * 100 : 100;
+
   const renderField = (fieldConfig: FieldConfig) => {
     return (
       <FormField key={fieldConfig.name} control={control} name={fieldConfig.name as any}
@@ -340,16 +365,24 @@ export function GenericLoanForm<TData extends Record<string, any>>({
             </Button>
         )}
         <div className="max-w-4xl mx-auto bg-card p-6 md:p-10 rounded-2xl shadow-xl">
-          <div className="text-center mb-8">
+          <div className="text-center mb-4">
             {formIcon || <Info className="w-12 h-12 mx-auto text-primary mb-2" />}
             <h2 className="text-3xl font-bold text-card-foreground">{formTitle}</h2>
             {formSubtitle && <p className="text-muted-foreground mt-1">{formSubtitle}</p>}
           </div>
           
+           <div className="my-8">
+            <div className="flex justify-between mb-1">
+                <span className="text-sm font-medium text-primary">Section {currentSection + 1} of {sections.length}</span>
+                <span className="text-sm font-medium text-primary">{Math.round(progress)}% Complete</span>
+            </div>
+            <Progress value={progress} className="w-full" />
+          </div>
+
+
           <Form {...form}>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-10">
-              {(() => {
-                return sections.map((section, sectionIdx) => {
+              {sections.map((section, sectionIdx) => {
                   const isSectionVisible = section.fields.some(field => {
                     if (!field.dependsOn) return true;
                     const watchedValue = getNestedValue(watch(), field.dependsOn.field);
@@ -359,34 +392,54 @@ export function GenericLoanForm<TData extends Record<string, any>>({
                   if (!isSectionVisible) return null;
 
                   return (
-                    <FormSection key={sectionIdx} title={section.title} subtitle={section.subtitle}>
-                      {section.fields.map(fieldConfig => {
-                        if (fieldConfig.dependsOn) {
-                          const watchedValue = getNestedValue(watch(), fieldConfig.dependsOn.field);
-                          if (watchedValue !== fieldConfig.dependsOn.value) return null;
-                        }
-                        return (
-                          <FormFieldWrapper key={fieldConfig.name} className={fieldConfig.colSpan === 2 ? 'md:col-span-2' : ''}>
-                            {renderField(fieldConfig)}
-                          </FormFieldWrapper>
-                        );
-                      })}
-                    </FormSection>
+                    <div key={sectionIdx} className={currentSection === sectionIdx ? 'block' : 'hidden'}>
+                      <FormSection title={section.title} subtitle={section.subtitle}>
+                        {section.fields.map(fieldConfig => {
+                          if (fieldConfig.dependsOn) {
+                            const watchedValue = getNestedValue(watch(), fieldConfig.dependsOn.field);
+                            if (watchedValue !== fieldConfig.dependsOn.value) return null;
+                          }
+                          return (
+                            <FormFieldWrapper key={fieldConfig.name} className={fieldConfig.colSpan === 2 ? 'md:col-span-2' : ''}>
+                              {renderField(fieldConfig)}
+                            </FormFieldWrapper>
+                          );
+                        })}
+                      </FormSection>
+                    </div>
                   );
-                });
-              })()}
+                })}
               
-              <p className="text-xs text-muted-foreground mt-6 px-1">
-                🔐 All information and documents submitted will remain confidential and will be used solely for loan processing purposes.
-              </p>
-              <p className="text-xs text-muted-foreground mt-2 mb-4 px-1">
-                📝 I hereby declare that all the information and documents provided above are true and correct to the best of my knowledge.
-              </p>
+              <div className={currentSection === sections.length -1 ? 'block' : 'hidden'}>
+                <p className="text-xs text-muted-foreground mt-6 px-1">
+                  🔐 All information and documents submitted will remain confidential and will be used solely for loan processing purposes.
+                </p>
+                <p className="text-xs text-muted-foreground mt-2 mb-4 px-1">
+                  📝 I hereby declare that all the information and documents provided above are true and correct to the best of my knowledge.
+                </p>
+              </div>
 
-              <div className="mt-8 pt-6 border-t border-border">
-                <Button type="submit" className="w-full cta-button" size="lg" disabled={isSubmitting}>
-                  {isSubmitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> {mode === 'edit' ? 'Updating...' : 'Submitting...'}</> : (mode === 'edit' ? 'Update Application' : submitButtonText)}
-                </Button>
+
+              <div className="mt-8 pt-6 border-t border-border flex justify-between items-center">
+                <div>
+                    {currentSection > 0 && (
+                        <Button type="button" variant="outline" onClick={handlePreviousClick} disabled={isSubmitting}>
+                            Previous
+                        </Button>
+                    )}
+                </div>
+                <div>
+                    {currentSection < sections.length - 1 && (
+                        <Button type="button" className="cta-button" onClick={handleNextClick}>
+                            Next
+                        </Button>
+                    )}
+                    {currentSection === sections.length - 1 && (
+                        <Button type="submit" className="cta-button" size="lg" disabled={isSubmitting}>
+                            {isSubmitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> {mode === 'edit' ? 'Updating...' : 'Submitting...'}</> : (mode === 'edit' ? 'Update Application' : submitButtonText)}
+                        </Button>
+                    )}
+                </div>
               </div>
             </form>
           </Form>
