@@ -35,7 +35,7 @@ export function PartnerBanksSection() {
             maskImage: 'linear-gradient(to right, transparent, black 10%, black 90%, transparent)'
           }}
         >
-          <div className="flex w-max animate-scroll-infinite group-hover:[animation-play-state:paused]">
+          <div className="flex w-max animate-marquee group-hover:[animation-play-state:paused]">
             {[...partnerLogos, ...partnerLogos].map((logo, index) => (
               <div
                 key={index}
