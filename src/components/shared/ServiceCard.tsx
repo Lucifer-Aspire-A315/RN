@@ -22,11 +22,11 @@ export function ServiceCard({
   setCurrentPage,
 }: ServiceCardProps) {
   const colors = {
-    1: { bg: 'bg-chart-1/10', text: 'text-chart-1', shadow: 'hover:shadow-chart-1/20' },
-    2: { bg: 'bg-chart-2/10', text: 'text-chart-2', shadow: 'hover:shadow-chart-2/20' },
-    3: { bg: 'bg-chart-3/10', text: 'text-chart-3', shadow: 'hover:shadow-chart-3/20' },
-    4: { bg: 'bg-chart-4/10', text: 'text-chart-4', shadow: 'hover:shadow-chart-4/20' },
-    5: { bg: 'bg-chart-5/10', text: 'text-chart-5', shadow: 'hover:shadow-chart-5/20' },
+    1: { to: 'to-chart-1/5', border: 'hover:border-chart-1/30', iconBg: 'bg-chart-1/10', iconText: 'text-chart-1' },
+    2: { to: 'to-chart-2/5', border: 'hover:border-chart-2/30', iconBg: 'bg-chart-2/10', iconText: 'text-chart-2' },
+    3: { to: 'to-chart-3/5', border: 'hover:border-chart-3/30', iconBg: 'bg-chart-3/10', iconText: 'text-chart-3' },
+    4: { to: 'to-chart-4/5', border: 'hover:border-chart-4/30', iconBg: 'bg-chart-4/10', iconText: 'text-chart-4' },
+    5: { to: 'to-chart-5/5', border: 'hover:border-chart-5/30', iconBg: 'bg-chart-5/10', iconText: 'text-chart-5' },
   };
 
   const colorClasses = colors[colorIndex] || colors[1];
@@ -34,19 +34,20 @@ export function ServiceCard({
   return (
     <div
       className={cn(
-        "bg-card p-6 rounded-xl shadow-lg flex flex-col text-center items-center border border-transparent transition-all duration-300 hover:shadow-2xl hover:-translate-y-2",
-        colorClasses.shadow
+        "group bg-gradient-to-br from-card p-6 rounded-2xl shadow-lg flex flex-col text-center items-center border border-border/10 transition-all duration-300 hover:shadow-2xl hover:-translate-y-2",
+        colorClasses.to,
+        colorClasses.border
       )}
     >
-      <div className={cn('relative rounded-full w-16 h-16 flex items-center justify-center mx-auto', colorClasses.bg)}>
-        <div className={cn('absolute inset-0 rounded-full blur-md opacity-50', colorClasses.bg)} />
-        <div className={cn("relative z-10", colorClasses.text)}>{icon}</div>
+      <div className={cn('relative rounded-full w-16 h-16 flex items-center justify-center mx-auto', colorClasses.iconBg)}>
+        <div className={cn('absolute inset-0 rounded-full blur-md opacity-50', colorClasses.iconBg)} />
+        <div className={cn("relative z-10", colorClasses.iconText)}>{icon}</div>
       </div>
       <h3 className="text-xl font-bold text-foreground mt-6">{title}</h3>
       <p className="text-muted-foreground mt-2 flex-grow text-sm">{description}</p>
       <Button
         variant="link"
-        className="inline-flex items-center justify-center mt-6 font-semibold text-primary hover:text-accent group p-0"
+        className="inline-flex items-center justify-center mt-6 font-semibold text-primary group-hover:text-accent group p-0"
         onClick={() => setCurrentPage(targetPage)}
         aria-label={`Apply for ${title}`}
       >
