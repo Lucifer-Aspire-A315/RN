@@ -1,11 +1,10 @@
-
 "use client";
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
-import { HeroSection } from '@/components/sections/HeroSection';
+import { HeroSlider } from '@/components/sections/HeroSlider';
 import { ServicesSection } from '@/components/sections/ServicesSection';
 import { EMICalculatorSection } from '@/components/sections/EMICalculatorSection';
 import { HomeLoanApplicationForm } from '@/components/forms/HomeLoanApplicationForm';
@@ -59,9 +58,6 @@ export default function Home() {
   const { currentUser, isLoading: isAuthLoading } = useAuth();
   const router = useRouter();
 
-  // This useEffect was removed as it forced logged-in users to the dashboard.
-  // Users can now access the homepage while logged in.
-
   useEffect(() => {
     setIsClient(true);
 
@@ -97,7 +93,6 @@ export default function Home() {
     }
   }, [currentPage]);
 
-  // Show a loading skeleton only while authentication status is being checked.
   if (!isClient || isAuthLoading) {
     return (
       <div className="flex flex-col min-h-screen">
@@ -126,7 +121,7 @@ export default function Home() {
       case 'main':
         return (
           <>
-            <HeroSection />
+            <HeroSlider />
             <PartnerBanksSection />
             <GovernmentSchemeHighlights setCurrentPage={setCurrentPage} />
             <ServicesSection setCurrentPage={setCurrentPage} />
