@@ -1,3 +1,4 @@
+
 "use client"
 
 import React from 'react';
@@ -22,10 +23,10 @@ const partnerLogos = [
 
 export function PartnerBanksSection() {
   return (
-    <section className="relative py-12 md:py-16 bg-[#2D3A3A] overflow-hidden">
+    <section className="relative py-12 md:py-16 bg-secondary overflow-hidden">
       <div className="container mx-auto px-6 text-center relative z-10">
-        <h2 className="text-3xl font-bold text-primary-foreground">Our Extensive Network</h2>
-        <p className="mt-4 text-lg text-secondary max-w-2xl mx-auto">
+        <h2 className="text-3xl font-bold text-foreground">Our Extensive Network</h2>
+        <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
           We are proud to be associated with over 150+ leading Banks and NBFCs to find you the best financial solutions.
         </p>
         <div 
@@ -38,14 +39,14 @@ export function PartnerBanksSection() {
             {[...partnerLogos, ...partnerLogos].map((logo, index) => (
               <div
                 key={index}
-                className="flex-shrink-0 w-40 mx-4 flex items-center justify-center h-28"
+                className="flex-shrink-0 w-44 mx-8 flex items-center justify-center h-28"
               >
                 <Image
                   src={logo.src}
                   alt={logo.alt}
                   width={160}
                   height={112}
-                  className="h-full w-auto object-contain transition-all duration-300 ease-in-out opacity-90 hover:opacity-100 hover:scale-115 hover:drop-shadow-[0_0_12px_rgba(255,255,255,0.3)]"
+                  className="h-full w-auto object-contain grayscale transition-all duration-300 ease-in-out hover:grayscale-0 hover:scale-110 hover:drop-shadow-xl"
                 />
               </div>
             ))}
