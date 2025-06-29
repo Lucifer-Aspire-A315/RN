@@ -110,31 +110,76 @@ const partnerSteps = [
 ];
 
 
-const TimelineItem = ({ step, index, isLast }: { step: (typeof customerSteps)[0]; index: number; isLast: boolean }) => {
-  const Icon = step.icon;
+const TimelineItem = ({ step, index }: { step: (typeof customerSteps)[0]; index: number; }) => {
+  const isRightSideOnDesktop = index % 2 !== 0;
+
   return (
-    <div className="relative flex items-start group">
-      {!isLast && (
-        <div className="absolute top-12 left-6 w-0.5 h-full bg-border -translate-x-1/2"></div>
-      )}
-      <div className="flex-shrink-0">
-        <div className={cn(
-          "w-12 h-12 rounded-full flex items-center justify-center relative z-10 transition-all duration-300 group-hover:scale-110",
-          step.bg
-        )}>
-          <Icon className={cn("w-6 h-6", step.color)} />
+    <div className="md:flex items-center w-full">
+      {/* This container reverses for the zig-zag effect on desktop */}
+      <div className={cn(
+        "flex w-full items-center",
+        isRightSideOnDesktop && "md:flex-row-reverse"
+      )}>
+        {/* Left/Right Content Block */}
+        <div className="w-full md:w-5/12">
+          <div className="rounded-lg bg-card p-6 shadow-lg border hover:shadow-xl transition-all duration-300">
+            <p className={cn(
+              "text-sm font-semibold text-muted-foreground",
+              !isRightSideOnDesktop && "md:text-right"
+            )}>
+              STEP {index + 1}
+            </p>
+            <h3 className={cn(
+              "text-xl font-bold text-foreground mt-1",
+              !isRightSideOnDesktop && "md:text-right"
+            )}>
+              {step.title}
+            </h3>
+            <p className={cn(
+              "mt-2 text-muted-foreground",
+              !isRightSideOnDesktop && "md:text-right"
+            )}>
+              {step.description}
+            </p>
+          </div>
         </div>
-      </div>
-      <div className="ml-6 flex-grow pb-12">
-        <p className="text-sm font-semibold text-muted-foreground">STEP {index + 1}</p>
-        <h3 className="text-xl font-bold text-foreground mt-1">{step.title}</h3>
-        <p className="mt-2 text-muted-foreground">{step.description}</p>
+
+        {/* Spacer for desktop */}
+        <div className="hidden md:block w-2/12"></div>
       </div>
     </div>
   );
-};
+}
 
 export function HowItWorksSection() {
+  const renderTimeline = (steps: typeof customerSteps) => (
+    <div className="relative py-8">
+      {/* This is the central timeline line for desktop */}
+      <div className="hidden md:block absolute top-0 left-1/2 w-0.5 h-full bg-border -translate-x-1/2"></div>
+      
+      <div className="space-y-16">
+        {steps.map((step, index) => (
+          <div key={index} className="relative">
+            {/* The icon, positioned absolutely in the center on desktop */}
+            <div className="hidden md:block absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 z-10">
+              <div className={cn("w-16 h-16 rounded-full flex items-center justify-center transition-all duration-300 group-hover:scale-110", step.bg)}>
+                {React.cloneElement(step.icon, { className: cn("w-8 h-8", step.color) })}
+              </div>
+            </div>
+            {/* On mobile, the icon is part of the normal flow, so we draw it differently */}
+             <div className="md:hidden flex items-center gap-4 mb-4">
+               <div className={cn("w-16 h-16 rounded-full flex items-center justify-center transition-all duration-300 group-hover:scale-110 flex-shrink-0", step.bg)}>
+                  {React.cloneElement(step.icon, { className: cn("w-8 h-8", step.color) })}
+                </div>
+                <div className="border-t flex-grow"></div>
+             </div>
+            <TimelineItem step={step} index={index} />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
   return (
     <section id="how-it-works" className="py-16 md:py-24 bg-secondary/50">
       <div className="container mx-auto px-6">
@@ -152,19 +197,11 @@ export function HowItWorksSection() {
           </TabsList>
           
           <TabsContent value="customers" className="mt-10">
-            <div className="flex flex-col">
-              {customerSteps.map((step, index) => (
-                <TimelineItem key={index} step={step} index={index} isLast={index === customerSteps.length - 1} />
-              ))}
-            </div>
+            {renderTimeline(customerSteps)}
           </TabsContent>
           
           <TabsContent value="partners" className="mt-10">
-             <div className="flex flex-col">
-              {partnerSteps.map((step, index) => (
-                <TimelineItem key={index} step={step} index={index} isLast={index === partnerSteps.length - 1} />
-              ))}
-            </div>
+            {renderTimeline(partnerSteps)}
           </TabsContent>
         </Tabs>
       </div>
