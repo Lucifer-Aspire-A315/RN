@@ -9,6 +9,9 @@ import { PartnerDashboard } from './PartnerDashboard';
 import { getUserApplications } from '@/app/actions/dashboardActions';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '../ui/skeleton';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
+import { PlusCircle } from 'lucide-react';
 
 interface DashboardClientProps {
   user: UserData;
@@ -59,12 +62,18 @@ export function DashboardClient({ user }: DashboardClientProps) {
 
   // Fallback to the normal user dashboard
   return (
-    <>
-      <div className="flex justify-between items-center mb-8">
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
             <h1 className="text-3xl font-bold tracking-tight text-foreground">Welcome back, {user.fullName}!</h1>
             <p className="text-muted-foreground">Here's a summary of your recent activity and applications.</p>
         </div>
+         <Button asChild>
+            <Link href="/#services">
+                <PlusCircle className="mr-2 h-4 w-4" />
+                New Application
+            </Link>
+        </Button>
       </div>
 
       <Card>
@@ -76,6 +85,6 @@ export function DashboardClient({ user }: DashboardClientProps) {
           {isLoading ? <ApplicationsTableSkeleton /> : <ApplicationsTable applications={applications} />}
         </CardContent>
       </Card>
-    </>
+    </div>
   );
 }
