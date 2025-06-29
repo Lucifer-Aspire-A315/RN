@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState, useTransition, useEffect, useMemo } from 'react';
+import React, { useState, useTransition, useEffect } from 'react';
 import type { UserApplication, PartnerData } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -11,9 +11,7 @@ import { AllPartnersTable } from './AllPartnersTable';
 import { approvePartner, updateApplicationStatus, getAllApplications, getPendingPartners, archiveApplicationAction, getAllPartners } from '@/app/actions/adminActions';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '../ui/skeleton';
-import { StatCard } from './StatCard';
 import { AnalyticsCharts } from './AnalyticsCharts';
-import { FolderKanban, Clock, UserPlus, Users } from 'lucide-react';
 
 interface AdminDashboardClientProps {
     // No initial props needed, will fetch data itself
@@ -64,19 +62,6 @@ export function AdminDashboardClient({}: AdminDashboardClientProps) {
     }
     fetchData();
   }, [toast]);
-
-  const analyticsData = useMemo(() => {
-    const totalApplications = applications.length;
-    const pendingApplications = applications.filter(app => app.status === 'Submitted' || app.status === 'In Review').length;
-    
-    return {
-        totalApplications,
-        pendingApplications,
-        pendingPartnerCount: pendingPartners.length,
-        totalPartnerCount: allPartners.length,
-    }
-  }, [applications, pendingPartners, allPartners]);
-
 
   const handleApprovePartner = async (partnerId: string) => {
     setProcessingState({ id: partnerId, type: 'approve' });
@@ -155,36 +140,8 @@ export function AdminDashboardClient({}: AdminDashboardClientProps) {
 
   return (
     <>
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-        <div className="lg:col-span-2">
-            <AnalyticsCharts applications={applications} isLoading={isLoading} />
-        </div>
-        <div className="space-y-6">
-           <StatCard 
-              title="Total Applications" 
-              value={isLoading ? '...' : analyticsData.totalApplications}
-              icon={FolderKanban}
-              description="All applications across the platform"
-           />
-           <StatCard 
-              title="Pending Applications" 
-              value={isLoading ? '...' : analyticsData.pendingApplications}
-              icon={Clock}
-              description="Applications needing review"
-            />
-            <StatCard 
-              title="Pending Partners" 
-              value={isLoading ? '...' : analyticsData.pendingPartnerCount}
-              icon={UserPlus}
-              description="Partners awaiting approval"
-            />
-            <StatCard 
-              title="Total Partners" 
-              value={isLoading ? '...' : analyticsData.totalPartnerCount}
-              icon={Users}
-              description="Total approved partners in the network"
-            />
-        </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <AnalyticsCharts applications={applications} isLoading={isLoading} />
       </div>
 
       <Tabs defaultValue="applications" className="space-y-4 mt-8">
