@@ -23,7 +23,7 @@ const partnerLogos = [
 
 export function PartnerBanksSection() {
   return (
-    <section className="relative py-12 md:py-20 bg-background overflow-hidden">
+    <section className="relative py-12 md:py-16 bg-background overflow-hidden">
         {/* Decorative blobs for modern background */}
         <div className="absolute inset-0 animate-[float_15s_ease-in-out_infinite] bg-primary/5 rounded-full blur-3xl w-80 h-80 top-10 right-20 opacity-50"></div>
         <div className="absolute inset-0 animate-[float-delay_12s_ease-in-out_infinite] bg-accent/5 rounded-full blur-3xl w-72 h-72 bottom-5 left-10 opacity-50"></div>
@@ -34,7 +34,7 @@ export function PartnerBanksSection() {
           We are proud to be associated with over 150+ leading Banks and NBFCs to find you the best financial solutions.
         </p>
         <div 
-          className="group relative mt-12 w-full overflow-hidden"
+          className="group relative mt-8 w-full overflow-hidden"
           style={{
             maskImage: 'linear-gradient(to right, transparent, black 10%, black 90%, transparent)'
           }}
