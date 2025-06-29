@@ -3,19 +3,13 @@ import React from 'react';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 
-// --- How to Add Your Partner Logos ---
-// 1. Add your logo images to the `public/logos` folder.
-// 2. Replace the placeholder entries below with your actual logo information.
-//    - src: The path to your logo, starting with `/logos/`. For example: `/logos/your-bank-logo.png`
-//    - alt: The name of the bank for accessibility.
-// To add more or fewer logos, simply add or remove objects from this array.
 const partnerLogos = [
   {
-    src: '/logos/hdfc.png',
+    src: '/logos/hdfcbank.png',
     alt: 'HDFC Bank',
   },
   {
-    src: '/logos/icici.png',
+    src: '/logos/icicibank.png',
     alt: 'ICICI Bank',
   },
   {
@@ -27,7 +21,7 @@ const partnerLogos = [
     alt: 'Axis Bank',
   },
    {
-    src: '/logos/kotak.png',
+    src: '/logos/kotakbank.png',
     alt: 'Kotak Mahindra',
   },
    {
@@ -35,7 +29,7 @@ const partnerLogos = [
     alt: 'IDFC Bank',
   },
   {
-    src: '/logos/adityabirla.png',
+    src: '/logos/adityabirlabank.png',
     alt: 'Aditya Birla',
   },
   {
@@ -55,24 +49,20 @@ const partnerLogos = [
     alt: 'Tata Capital',
   },
   {
-    src: '/logos/indusind.png',
+    src: '/logos/indusindbank.png',
     alt: 'IndusInd Bank',
   },
   {
-    src: '/logos/chalomandalam.png',
+    src: '/logos/chola.png',
     alt: 'Chalomandalam Bank'
   },
   {
-    src: '/logos/dbs.png',
+    src: '/logos/dbsbank.png',
     alt: 'DBS Bank'
   }
-   
 ];
 
 export function PartnerBanksSection() {
-  // We duplicate the logos to create a seamless, infinite scrolling effect.
-  const allLogos = [...partnerLogos, ...partnerLogos]; 
-
   return (
     <section className="py-16 md:py-24 bg-secondary">
       <div className="container mx-auto px-6 text-center">
@@ -80,21 +70,23 @@ export function PartnerBanksSection() {
         <p className="mt-2 text-muted-foreground max-w-2xl mx-auto">
           We are proud to be associated with over 150+ leading Banks and NBFCs to find you the best financial solutions.
         </p>
-        <div className="relative mt-12 w-full overflow-hidden group">
-          <div className="flex w-max animate-scroll-infinite group-hover:[animation-play-state:paused]">
-            {allLogos.map((logo, index) => (
-              <div key={index} className="flex-shrink-0 w-48 h-20 flex items-center justify-center p-2 mx-4 transition-opacity duration-300 opacity-60 hover:opacity-100">
+        <div className="mt-12">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 gap-4 md:gap-6">
+            {partnerLogos.map((logo, index) => (
+              <div
+                key={index}
+                className="bg-background p-4 rounded-lg flex items-center justify-center h-24 transition-all duration-300 ease-in-out hover:shadow-xl hover:-translate-y-1 border border-transparent hover:border-primary"
+              >
                 <Image
                   src={logo.src}
                   alt={logo.alt}
-                  width={150}
-                  height={75}
-                  className="object-contain"
+                  width={120}
+                  height={60}
+                  className="object-contain max-h-full max-w-full"
                 />
               </div>
             ))}
           </div>
-          <div className="absolute inset-0 bg-gradient-to-r from-secondary via-transparent to-secondary pointer-events-none"></div>
         </div>
       </div>
     </section>
