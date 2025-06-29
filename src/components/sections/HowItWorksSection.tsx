@@ -2,7 +2,6 @@
 "use client";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import {
   FileText,
@@ -110,26 +109,30 @@ const partnerSteps = [
   },
 ];
 
-const StepCard = ({ step, index }: { step: (typeof customerSteps)[0]; index: number }) => {
-  const Icon = step.icon;
-  const title = step.title.replace(/^\d+\.\s*/, '');
 
+const TimelineItem = ({ step, index, isLast }: { step: (typeof customerSteps)[0]; index: number; isLast: boolean }) => {
+  const Icon = step.icon;
   return (
-    <Card className="text-left p-6 flex flex-col items-start transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border bg-card/50 hover:bg-card">
-      <div className="flex justify-between items-start w-full">
-        <div className={cn("p-3 rounded-lg", step.bg)}>
-          <Icon className={cn("w-8 h-8", step.color)} />
+    <div className="relative flex items-start group">
+      {!isLast && (
+        <div className="absolute top-12 left-6 w-0.5 h-full bg-border -translate-x-1/2"></div>
+      )}
+      <div className="flex-shrink-0">
+        <div className={cn(
+          "w-12 h-12 rounded-full flex items-center justify-center relative z-10 transition-all duration-300 group-hover:scale-110",
+          step.bg
+        )}>
+          <Icon className={cn("w-6 h-6", step.color)} />
         </div>
-        <span className="text-6xl font-extrabold text-foreground/5 dark:text-foreground/10">
-          {String(index + 1).padStart(2, '0')}
-        </span>
       </div>
-      <h3 className="mt-4 text-xl font-bold text-foreground">{title}</h3>
-      <p className="mt-2 text-muted-foreground text-sm">{step.description}</p>
-    </Card>
+      <div className="ml-6 flex-grow pb-12">
+        <p className="text-sm font-semibold text-muted-foreground">STEP {index + 1}</p>
+        <h3 className="text-xl font-bold text-foreground mt-1">{step.title}</h3>
+        <p className="mt-2 text-muted-foreground">{step.description}</p>
+      </div>
+    </div>
   );
 };
-
 
 export function HowItWorksSection() {
   return (
@@ -142,23 +145,25 @@ export function HowItWorksSection() {
             </p>
         </div>
 
-        <Tabs defaultValue="customers" className="max-w-6xl mx-auto mt-12">
+        <Tabs defaultValue="customers" className="max-w-4xl mx-auto mt-12">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="customers">For Our Customers</TabsTrigger>
             <TabsTrigger value="partners">For Our Partners</TabsTrigger>
           </TabsList>
-          <TabsContent value="customers">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
-                {customerSteps.map((step, index) => (
-                    <StepCard key={index} step={step} index={index} />
-                ))}
+          
+          <TabsContent value="customers" className="mt-10">
+            <div className="flex flex-col">
+              {customerSteps.map((step, index) => (
+                <TimelineItem key={index} step={step} index={index} isLast={index === customerSteps.length - 1} />
+              ))}
             </div>
           </TabsContent>
-          <TabsContent value="partners">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
-                {partnerSteps.map((step, index) => (
-                    <StepCard key={index} step={step} index={index} />
-                ))}
+          
+          <TabsContent value="partners" className="mt-10">
+             <div className="flex flex-col">
+              {partnerSteps.map((step, index) => (
+                <TimelineItem key={index} step={step} index={index} isLast={index === partnerSteps.length - 1} />
+              ))}
             </div>
           </TabsContent>
         </Tabs>
