@@ -161,13 +161,13 @@ export function Header({ setCurrentPage }: HeaderProps) {
                 <Button
                     variant="outline"
                     onClick={() => openAuthModal('login')}
-                    className="font-bold border-primary text-primary hover:bg-accent hover:text-accent-foreground hover:border-accent"
+                    className="font-bold border-primary text-primary hover:bg-accent hover:text-accent-foreground hover:border-accent transition-transform duration-200 hover:-translate-y-0.5 hover:shadow-md"
                 >
                     Login
                 </Button>
                 <Button
-                    className="cta-button"
                     onClick={() => openAuthModal('signup')}
+                    className="transition-transform duration-200 hover:-translate-y-0.5 hover:shadow-md"
                 >
                     Sign Up
                 </Button>

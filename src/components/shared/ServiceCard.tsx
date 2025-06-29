@@ -34,7 +34,7 @@ export function ServiceCard({
   return (
     <div
       className={cn(
-        "bg-card p-8 rounded-xl shadow-lg flex flex-col text-center items-center border border-secondary transition-all duration-200 hover:border-primary hover:shadow-xl card-hover-effect"
+        "bg-card p-8 rounded-xl shadow-lg flex flex-col text-center items-center border border-secondary transition-all duration-300 hover:border-primary hover:shadow-xl hover:-translate-y-1"
       )}
     >
       <div className={cn('rounded-full w-16 h-16 flex items-center justify-center mx-auto shadow', colorClasses.bg)}>

@@ -127,7 +127,7 @@ export function HeroSection({ setCurrentPage }: HeroSectionProps) {
                     width={550}
                     height={450}
                     priority
-                    className="object-contain"
+                    className="object-contain animate-float"
                     data-ai-hint="family financial advisor"
                 />
             </div>
