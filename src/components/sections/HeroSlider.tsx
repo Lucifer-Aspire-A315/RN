@@ -160,20 +160,39 @@ const SlideContent = ({ slide, isActive, onNavClick }: { slide: (typeof slides)[
                     )}
                 </div>
 
-                <div className="relative flex justify-center items-center h-80 lg:h-[30rem]">
-                    <div className="absolute inset-x-0 top-1/2 h-4/5 bg-primary/20 rounded-full blur-3xl -translate-y-1/2" />
-                    <div className={cn("relative", isActive ? "animate-float" : "")}>
-                        <Image
-                            src={slide.imageSrc}
-                            alt={slide.description}
-                            width={600}
-                            height={400}
-                            data-ai-hint={slide.dataAiHint}
-                            className={cn("relative w-full max-w-lg lg:max-w-none h-auto object-contain rounded-2xl shadow-2xl border-4 border-background", isActive ? "opacity-100" : "opacity-0")}
-                            style={{ animation: isActive ? "fade-in-up 0.8s ease-out forwards" : "none", animationDelay: '400ms'}}
-                            priority={isActive}
+                <div className="relative flex justify-center items-center h-80 lg:h-[32rem]">
+                    {/* Decorative Background Elements */}
+                    <div className="absolute inset-0 flex items-center justify-center">
+                        <div
+                            className={cn(
+                                "aspect-square w-[550px] bg-gradient-to-br from-primary/10 via-primary/5 to-transparent rounded-full transition-all duration-1000 ease-in-out",
+                                isActive ? "opacity-100 scale-100" : "opacity-0 scale-75"
+                            )}
                         />
-                         <div className={cn("absolute bottom-0 left-1/2 -translate-x-1/2 w-3/4 h-8 bg-black/50 rounded-full blur-2xl", isActive ? "animate-shadow-float" : "")} />
+                    </div>
+
+                    {/* The Floating Image */}
+                    <div className={cn("relative z-10 w-full max-w-xl", isActive ? "animate-float" : "")}>
+                        <div className="relative w-full rounded-2xl bg-background/50 p-2 shadow-2xl backdrop-blur-sm">
+                            <Image
+                                src={slide.imageSrc}
+                                alt={slide.description}
+                                width={600}
+                                height={400}
+                                data-ai-hint={slide.dataAiHint}
+                                className={cn(
+                                    "relative w-full h-auto object-contain rounded-lg transition-opacity duration-700",
+                                    isActive ? "opacity-100" : "opacity-0"
+                                )}
+                                style={{ animation: isActive ? "fade-in-up 0.8s ease-out forwards" : "none", animationDelay: '400ms'}}
+                                priority={isActive}
+                            />
+                        </div>
+                        {/* New shadow with better styling */}
+                        <div className={cn(
+                            "absolute -bottom-4 left-1/2 -translate-x-1/2 w-3/4 h-10 bg-black/30 rounded-full blur-2xl transition-opacity duration-700",
+                            isActive ? "opacity-100 animate-shadow-float" : "opacity-0"
+                        )} />
                     </div>
                 </div>
             </div>
