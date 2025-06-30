@@ -56,7 +56,7 @@ const slides = [
     key: 'main',
     title: <>Your Trusted Partner for <br /><span className="text-primary">Financial Success</span></>,
     description: "Empowering your dreams with transparent, technology-driven financial services. From personal loans to business solutions, we're here to help you grow.",
-    imageSrc: 'https://placehold.co/600x400.png',
+    imageSrc: '/right-side.png',
     dataAiHint: 'financial growth',
     ctaButtonText: 'Explore Our Services',
     ctaAction: 'scroll' as const,
@@ -74,7 +74,7 @@ const slides = [
     key: 'loans',
     title: <>Flexible Loans for <br /><span className="text-accent">Every Need</span></>,
     description: "Whether it's for a new home, a personal goal, or business expansion, find the perfect loan with competitive rates and easy processing.",
-    imageSrc: 'https://placehold.co/600x400.png',
+    imageSrc: '/hero-loan.png',
     dataAiHint: 'loan approval',
     ctaButtonText: 'View Loan Options',
     ctaAction: 'scroll' as const,
@@ -87,7 +87,7 @@ const slides = [
     key: 'ca-services',
     title: <>Expert CA Services for <br /><span className="text-blue-500">Business Compliance</span></>,
     description: "Stay compliant and focused on your business. We offer GST registration, ITR filing, and complete financial management services.",
-    imageSrc: 'https://placehold.co/600x400.png',
+    imageSrc: '/hero-ca.png',
     dataAiHint: 'financial planning',
     ctaButtonText: 'Explore CA Services',
     ctaAction: 'setView' as const,
@@ -100,7 +100,7 @@ const slides = [
     key: 'gov-schemes',
     title: <>Unlock Growth with <br /><span className="text-emerald-500">Government Schemes</span></>,
     description: "We provide expert guidance and assistance for a variety of government-backed loan schemes to empower entrepreneurs and small businesses.",
-    imageSrc: 'https://placehold.co/600x400.png',
+    imageSrc: '/hero-govt.png',
     dataAiHint: 'small business',
     ctaButtonText: 'View Schemes',
     ctaAction: 'setView' as const,
@@ -162,15 +162,19 @@ const SlideContent = ({ slide, isActive, onNavClick }: { slide: (typeof slides)[
 
                 <div className="relative flex justify-center items-center h-80 lg:h-[30rem]">
                     <div className="absolute inset-x-0 top-1/2 h-4/5 bg-primary/20 rounded-full blur-3xl -translate-y-1/2" />
-                    <Image
-                        src={slide.imageSrc}
-                        alt={slide.description}
-                        width={600}
-                        height={400}
-                        data-ai-hint={slide.dataAiHint}
-                        className={cn("relative w-full max-w-lg lg:max-w-none h-auto object-contain rounded-2xl shadow-2xl border-4 border-background", isActive ? "animate-zoom-in-out" : "scale-95 opacity-0")}
-                        priority={isActive}
-                    />
+                    <div className={cn("relative", isActive ? "animate-float" : "")}>
+                        <Image
+                            src={slide.imageSrc}
+                            alt={slide.description}
+                            width={600}
+                            height={400}
+                            data-ai-hint={slide.dataAiHint}
+                            className={cn("relative w-full max-w-lg lg:max-w-none h-auto object-contain rounded-2xl shadow-2xl border-4 border-background", isActive ? "opacity-100" : "opacity-0")}
+                            style={{ animation: isActive ? "fade-in-up 0.8s ease-out forwards" : "none", animationDelay: '400ms'}}
+                            priority={isActive}
+                        />
+                         <div className={cn("absolute bottom-0 left-1/2 -translate-x-1/2 w-3/4 h-8 bg-black/50 rounded-full blur-2xl", isActive ? "animate-shadow-float" : "")} />
+                    </div>
                 </div>
             </div>
         </div>
