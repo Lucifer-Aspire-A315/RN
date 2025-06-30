@@ -5,7 +5,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { Users, Building, Percent } from 'lucide-react';
+import { Users, Building, Percent, FileText, TrendingUp, Sparkles } from 'lucide-react';
 import { useElementInView } from '@/hooks/use-element-in-view';
 import type { PageView, SetPageView } from '@/app/page';
 import { useRouter } from 'next/navigation';
@@ -111,6 +111,69 @@ const slides = [
   },
 ];
 
+// This component dynamically renders a unique visual style for each slide's image.
+const ImagePresenter = ({ slide, isActive }: { slide: (typeof slides)[0], isActive: boolean }) => {
+    switch (slide.key) {
+        // Style 1: Glassmorphism Frame for the Main Slide
+        case 'main':
+            return (
+                <div className="relative flex justify-center items-center h-80 lg:h-[32rem]">
+                    <div className="absolute inset-0 flex items-center justify-center">
+                        <div className={cn( "aspect-square w-[550px] bg-gradient-to-br from-primary/10 via-primary/5 to-transparent rounded-full transition-all duration-1000 ease-in-out", isActive ? "opacity-100 scale-100" : "opacity-0 scale-75" )} />
+                    </div>
+                    <div className={cn("relative z-10 w-full max-w-xl", isActive ? "animate-float" : "")}>
+                        <div className="relative w-full rounded-2xl bg-background/50 p-2 shadow-2xl backdrop-blur-sm">
+                            <Image src={slide.imageSrc} alt={slide.description} width={600} height={400} data-ai-hint={slide.dataAiHint} className={cn( "relative w-full h-auto object-contain rounded-lg transition-opacity duration-700", isActive ? "opacity-100" : "opacity-0" )} style={{ animation: isActive ? "fade-in-up 0.8s ease-out forwards" : "none", animationDelay: '400ms'}} priority={isActive} />
+                        </div>
+                        <div className={cn( "absolute -bottom-4 left-1/2 -translate-x-1/2 w-3/4 h-10 bg-black/30 rounded-full blur-2xl transition-opacity duration-700", isActive ? "opacity-100 animate-shadow-float" : "opacity-0" )} />
+                    </div>
+                </div>
+            );
+
+        // Style 2: "Living Photograph" for the Loans Slide
+        case 'loans':
+            return (
+                 <div className={cn("relative flex justify-center items-center h-80 lg:h-[32rem] transition-all duration-700 ease-in-out", isActive ? "opacity-100 scale-100" : "opacity-0 scale-90")}>
+                    <div className={cn("relative z-10 w-full max-w-lg p-4 bg-white dark:bg-card shadow-2xl rounded-lg", isActive ? "animate-tilt-float" : "")}>
+                        <Image src={slide.imageSrc} alt={slide.description} width={600} height={400} data-ai-hint={slide.dataAiHint} className="w-full h-auto object-contain rounded-sm" priority={isActive} />
+                        <div className="mt-2 text-center text-sm text-muted-foreground">{slide.description}</div>
+                    </div>
+                </div>
+            );
+        
+        // Style 3: Layered Cards for CA Services Slide
+        case 'ca-services':
+             return (
+                <div className={cn("relative flex justify-center items-center h-80 lg:h-[32rem] transition-all duration-700 ease-in-out", isActive ? "opacity-100" : "opacity-0")}>
+                    <div className={cn("absolute w-full max-w-md h-80 bg-primary/10 rounded-2xl shadow-lg transition-transform duration-1000", isActive ? "rotate-[-6deg] scale-100" : "rotate-0 scale-90")}>
+                         <TrendingUp className="absolute bottom-4 right-4 w-12 h-12 text-primary/30" />
+                    </div>
+                    <div className={cn("absolute w-full max-w-md h-80 bg-accent/10 rounded-2xl shadow-lg transition-transform duration-1000 delay-100", isActive ? "rotate-[4deg] scale-100" : "rotate-0 scale-90")}>
+                        <FileText className="absolute top-4 left-4 w-12 h-12 text-accent/30" />
+                    </div>
+                    <div className={cn("relative z-10 w-full max-w-md h-80 bg-card rounded-2xl p-2 shadow-2xl transition-transform duration-1000 delay-200", isActive ? "rotate-[0] scale-100" : "rotate-0 scale-90")}>
+                         <Image src={slide.imageSrc} alt={slide.description} layout="fill" objectFit="cover" className="rounded-lg" data-ai-hint={slide.dataAiHint} priority={isActive} />
+                    </div>
+                </div>
+            );
+
+        // Style 4: Spotlight on Growth for Government Schemes Slide
+        case 'gov-schemes':
+            return (
+                <div className="relative flex justify-center items-center h-80 lg:h-[32rem]">
+                    <div className={cn("absolute w-96 h-96 transition-all duration-1000", isActive ? "opacity-100 scale-100" : "opacity-0 scale-75")}>
+                        <div className="absolute inset-0 rounded-full bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-emerald-500/20 via-transparent to-transparent animate-pulse-soft" />
+                    </div>
+                     <div className={cn("relative z-10 w-80 h-80 transition-transform duration-700 ease-out", isActive ? "scale-100" : "scale-90")}>
+                        <Image src={slide.imageSrc} alt={slide.description} layout="fill" objectFit="cover" className="rounded-full shadow-2xl" data-ai-hint={slide.dataAiHint} priority={isActive} />
+                        <div className="absolute inset-0 rounded-full ring-4 ring-offset-4 ring-offset-background ring-emerald-500/50" />
+                    </div>
+                </div>
+            );
+        default:
+            return null;
+    }
+};
 
 const SlideContent = ({ slide, isActive, onNavClick }: { slide: (typeof slides)[0], isActive: boolean, onNavClick: (action: string, target: string) => void }) => {
   return (
@@ -160,41 +223,7 @@ const SlideContent = ({ slide, isActive, onNavClick }: { slide: (typeof slides)[
                     )}
                 </div>
 
-                <div className="relative flex justify-center items-center h-80 lg:h-[32rem]">
-                    {/* Decorative Background Elements */}
-                    <div className="absolute inset-0 flex items-center justify-center">
-                        <div
-                            className={cn(
-                                "aspect-square w-[550px] bg-gradient-to-br from-primary/10 via-primary/5 to-transparent rounded-full transition-all duration-1000 ease-in-out",
-                                isActive ? "opacity-100 scale-100" : "opacity-0 scale-75"
-                            )}
-                        />
-                    </div>
-
-                    {/* The Floating Image */}
-                    <div className={cn("relative z-10 w-full max-w-xl", isActive ? "animate-float" : "")}>
-                        <div className="relative w-full rounded-2xl bg-background/50 p-2 shadow-2xl backdrop-blur-sm">
-                            <Image
-                                src={slide.imageSrc}
-                                alt={slide.description}
-                                width={600}
-                                height={400}
-                                data-ai-hint={slide.dataAiHint}
-                                className={cn(
-                                    "relative w-full h-auto object-contain rounded-lg transition-opacity duration-700",
-                                    isActive ? "opacity-100" : "opacity-0"
-                                )}
-                                style={{ animation: isActive ? "fade-in-up 0.8s ease-out forwards" : "none", animationDelay: '400ms'}}
-                                priority={isActive}
-                            />
-                        </div>
-                        {/* New shadow with better styling */}
-                        <div className={cn(
-                            "absolute -bottom-4 left-1/2 -translate-x-1/2 w-3/4 h-10 bg-black/30 rounded-full blur-2xl transition-opacity duration-700",
-                            isActive ? "opacity-100 animate-shadow-float" : "opacity-0"
-                        )} />
-                    </div>
-                </div>
+               <ImagePresenter slide={slide} isActive={isActive} />
             </div>
         </div>
     </div>
@@ -243,7 +272,7 @@ export function HeroSlider({ setCurrentPage }: HeroSliderProps) {
       <div className="absolute -top-20 -left-20 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-float" />
       <div className="absolute -bottom-20 -right-20 w-80 h-80 bg-accent/10 rounded-full blur-3xl animate-float" style={{ animationDelay: '3s' }} />
 
-        <div className="relative h-[65vh] min-h-[600px] lg:min-h-[500px]">
+        <div className="relative h-[65vh] min-h-[650px] lg:min-h-[550px]">
             {slides.map((slide, index) => (
                 <SlideContent key={slide.key} slide={slide} isActive={index === activeSlide} onNavClick={handleNavClick} />
             ))}
