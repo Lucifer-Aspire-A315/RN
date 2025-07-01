@@ -149,15 +149,17 @@ export function AdminDashboardClient({}: AdminDashboardClientProps) {
   return (
     <>
       <Tabs defaultValue="applications" className="space-y-4">
-        <ScrollArea className="w-full whitespace-nowrap">
-            <TabsList>
-            <TabsTrigger value="applications">All Applications ({isLoading ? '...' : applications.length})</TabsTrigger>
-            <TabsTrigger value="pending_applications">Pending Applications ({isLoading ? '...' : pendingApplications.length})</TabsTrigger>
-            <TabsTrigger value="pending_partners">Pending Partners ({isLoading ? '...' : pendingPartners.length})</TabsTrigger>
-            <TabsTrigger value="all_partners">All Partners ({isLoading ? '...' : allPartners.length})</TabsTrigger>
-            </TabsList>
-            <ScrollBar orientation="horizontal" />
-        </ScrollArea>
+        <div className="relative">
+          <ScrollArea className="w-full whitespace-nowrap">
+              <TabsList>
+              <TabsTrigger value="applications">All Applications ({isLoading ? '...' : applications.length})</TabsTrigger>
+              <TabsTrigger value="pending_applications">Pending Applications ({isLoading ? '...' : pendingApplications.length})</TabsTrigger>
+              <TabsTrigger value="pending_partners">Pending Partners ({isLoading ? '...' : pendingPartners.length})</TabsTrigger>
+              <TabsTrigger value="all_partners">All Partners ({isLoading ? '...' : allPartners.length})</TabsTrigger>
+              </TabsList>
+              <ScrollBar orientation="horizontal" />
+          </ScrollArea>
+        </div>
         <TabsContent value="applications">
             <Card>
               <CardHeader>
