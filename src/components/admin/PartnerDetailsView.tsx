@@ -214,4 +214,5 @@ export function PartnerDetailsView({ partnerId }: PartnerDetailsViewProps) {
                   </AlertDialog>
             </div>
         </>
-    
+    );
+}
