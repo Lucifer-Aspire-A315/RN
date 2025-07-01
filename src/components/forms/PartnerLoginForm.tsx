@@ -14,7 +14,7 @@ import { partnerLoginAction } from '@/app/actions/authActions';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 
 type LoginType = 'dsa' | 'merchant' | 'referral' | 'admin';
 
@@ -104,7 +104,7 @@ export function PartnerLoginForm() {
                     </button>
                 ))}
              </CardContent>
-             <div className="p-6 border-t text-center">
+             <CardFooter className="flex-col gap-2 pt-6 border-t text-center">
                 <p className="text-sm text-muted-foreground">
                     Don&apos;t have a partner account?{' '}
                     <Link href="/partner-signup" className="font-medium text-primary hover:underline">
@@ -117,7 +117,7 @@ export function PartnerLoginForm() {
                     User Login
                     </Link>
                 </p>
-             </div>
+             </CardFooter>
          </Card>
     )
   }
@@ -125,50 +125,50 @@ export function PartnerLoginForm() {
   const currentOption = loginOptions.find(opt => opt.type === selectedLogin);
 
   return (
-    <div className="max-w-md mx-auto bg-card p-8 rounded-2xl shadow-xl relative">
-      <Button variant="ghost" onClick={() => setSelectedLogin(null)} className="absolute top-2 left-2 text-muted-foreground hover:text-foreground">
-            <ArrowLeft className="w-4 h-4 mr-1"/> Back
-      </Button>
-      <div className="text-center mb-8 pt-4">
-        <div className="flex justify-center text-primary">{currentOption?.icon || <LogIn className="w-12 h-12 mb-2" />}</div>
-        <h2 className="text-2xl font-bold text-card-foreground">{currentOption?.title} Login</h2>
-        <p className="text-muted-foreground mt-1">
-          Access your {currentOption?.type} account.
-        </p>
-      </div>
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <FormField
-            control={form.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email ID</FormLabel>
-                <FormControl>
-                  <Input type="email" placeholder="your.email@example.com" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="password"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Password</FormLabel>
-                <FormControl>
-                  <Input type="password" placeholder="Your password" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <Button type="submit" className="w-full cta-button" disabled={isSubmitting}>
-            {isSubmitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Logging In...</> : 'Login'}
-          </Button>
-        </form>
-      </Form>
-    </div>
+    <Card className="max-w-md mx-auto shadow-xl relative">
+        <CardHeader className="text-center">
+             <Button variant="ghost" size="sm" onClick={() => setSelectedLogin(null)} className="absolute top-4 left-4 text-muted-foreground hover:text-foreground">
+                <ArrowLeft className="w-4 h-4 mr-1"/> Back
+            </Button>
+            <div className="flex justify-center text-primary pt-8">{currentOption?.icon}</div>
+            <CardTitle className="text-2xl">{currentOption?.title} Login</CardTitle>
+            <CardDescription>Access your {currentOption?.type} account.</CardDescription>
+        </CardHeader>
+        <CardContent>
+            <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Email ID</FormLabel>
+                        <FormControl>
+                        <Input type="email" placeholder="your.email@example.com" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="password"
+                    render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Password</FormLabel>
+                        <FormControl>
+                        <Input type="password" placeholder="Your password" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+                    )}
+                />
+                <Button type="submit" className="w-full cta-button" disabled={isSubmitting}>
+                    {isSubmitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Logging In...</> : 'Login'}
+                </Button>
+                </form>
+            </Form>
+        </CardContent>
+    </Card>
   );
 }

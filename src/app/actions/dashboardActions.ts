@@ -4,38 +4,7 @@ import { cookies } from 'next/headers';
 import { db } from '@/lib/firebase';
 import { collection, query, where, getDocs, Timestamp, type QueryConstraint } from 'firebase/firestore';
 import type { UserApplication } from '@/lib/types';
-import type { DocumentData } from 'firebase/firestore';
-
-
-function formatApplication(doc: DocumentData, defaultCategory: UserApplication['serviceCategory']): UserApplication {
-    const data = doc.data();
-    const createdAtTimestamp = data.createdAt as Timestamp;
-
-    // Determine the application type for display
-    let applicationTypeDisplay = data.applicationType;
-    if (defaultCategory === 'governmentScheme' && data.schemeNameForDisplay) {
-        applicationTypeDisplay = data.schemeNameForDisplay;
-    }
-    
-    // Prioritize client details from applicantDetails, fallback to submitter info for display.
-    // This ensures the client's name is shown on the partner dashboard.
-    const applicantFullName = data.applicantDetails?.fullName || data.submittedBy?.userName || 'N/A';
-    const applicantEmail = data.applicantDetails?.email || data.applicantDetails?.emailId || data.submittedBy?.userEmail || 'N/A';
-    const applicantUserId = data.applicantDetails?.userId || 'N/A';
-
-    return {
-        id: doc.id,
-        applicantDetails: {
-            userId: applicantUserId,
-            fullName: applicantFullName,
-            email: applicantEmail,
-        },
-        serviceCategory: data.serviceCategory || defaultCategory,
-        applicationType: applicationTypeDisplay,
-        createdAt: createdAtTimestamp?.toDate().toISOString() || new Date().toISOString(),
-        status: data.status || 'Unknown',
-    };
-}
+import { formatApplication } from '@/lib/utils';
 
 
 export async function getUserApplications(): Promise<UserApplication[]> {

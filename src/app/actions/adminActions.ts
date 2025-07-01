@@ -10,7 +10,7 @@ import type { DocumentData } from 'firebase/firestore';
 import { checkSessionAction } from './authActions';
 import { getApplicationDetails } from './applicationActions';
 import { deleteFilesByUrlAction } from './fileUploadActions';
-import { getCollectionName } from '@/lib/utils';
+import { getCollectionName, formatApplication } from '@/lib/utils';
 
 // Helper function to ensure only admins can execute these actions
 async function verifyAdmin() {
@@ -20,36 +20,6 @@ async function verifyAdmin() {
   }
   return user;
 }
-
-
-function formatApplication(doc: DocumentData, defaultCategory: UserApplication['serviceCategory']): UserApplication {
-    const data = doc.data();
-    const createdAtTimestamp = data.createdAt as Timestamp;
-
-    let applicationTypeDisplay = data.applicationType;
-    if (defaultCategory === 'governmentScheme' && data.schemeNameForDisplay) {
-        applicationTypeDisplay = data.schemeNameForDisplay;
-    }
-    
-    const applicantInfo = data.applicantDetails || data.submittedBy;
-    const applicantFullName = applicantInfo?.fullName || applicantInfo?.userName || 'N/A';
-    const applicantEmail = applicantInfo?.email || applicantInfo?.userEmail || 'N/A';
-    const applicantUserId = applicantInfo?.userId || 'N/A';
-
-    return {
-        id: doc.id,
-        applicantDetails: {
-            userId: applicantUserId,
-            fullName: applicantFullName,
-            email: applicantEmail,
-        },
-        serviceCategory: data.serviceCategory || defaultCategory,
-        applicationType: applicationTypeDisplay,
-        createdAt: createdAtTimestamp?.toDate().toISOString() || new Date().toISOString(),
-        status: data.status || 'Unknown',
-    };
-}
-
 
 function formatPartnerData(doc: DocumentData): PartnerData {
     const data = doc.data();
@@ -350,4 +320,3 @@ export async function removePartnerAction(partnerId: string): Promise<{ success:
         return { success: false, message: 'Failed to deactivate partner.' };
     }
 }
-

@@ -59,6 +59,7 @@ export function EMICalculator() {
             cancelAnimationFrame(animationFrameRef.current);
         }
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [emi]);
 
   const handleInputChange = (setter: React.Dispatch<React.SetStateAction<number>>) => (e: React.ChangeEvent<HTMLInputElement>) => {
