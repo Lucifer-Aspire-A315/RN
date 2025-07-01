@@ -5,7 +5,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { Users, Building, Percent, FileText, TrendingUp, Sparkles } from 'lucide-react';
+import { Users, Building, Percent, FileText, TrendingUp, Sparkles, Search, LineChart, Handshake, UserPlus, LayoutDashboard, ShieldCheck, FilePlus2 } from 'lucide-react';
 import { useElementInView } from '@/hooks/use-element-in-view';
 import type { PageView, SetPageView } from '@/app/page';
 import { useRouter } from 'next/navigation';
@@ -161,8 +161,10 @@ const ImagePresenter = ({ slide, isActive }: { slide: (typeof slides)[0], isActi
         case 'gov-schemes':
             return (
                 <div className="relative flex justify-center items-center h-80 lg:h-[32rem]">
-                    <div className={cn("absolute w-96 h-96 transition-all duration-1000", isActive ? "opacity-100 scale-100" : "opacity-0 scale-75")}>
-                        <div className="absolute inset-0 rounded-full bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-emerald-500/20 via-transparent to-transparent animate-pulse-soft" />
+                    <div className="absolute w-full h-full flex items-center justify-center">
+                         <div className={cn("absolute w-96 h-96 transition-all duration-1000", isActive ? "opacity-100 scale-100" : "opacity-0 scale-75")}>
+                            <div className="absolute inset-0 rounded-full bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-emerald-500/20 via-transparent to-transparent animate-pulse-soft" />
+                        </div>
                     </div>
                      <div className={cn("relative z-10 w-80 h-80 transition-transform duration-700 ease-out", isActive ? "scale-100" : "scale-90")}>
                         <Image src={slide.imageSrc} alt={slide.description} layout="fill" objectFit="cover" className="rounded-full shadow-2xl" data-ai-hint={slide.dataAiHint} priority={isActive} />
@@ -269,10 +271,37 @@ export function HeroSlider({ setCurrentPage }: HeroSliderProps) {
 
   return (
     <section id="home" className="relative bg-secondary/20 pt-16 pb-20 md:pt-24 md:pb-28 overflow-hidden">
-      <div className="absolute -top-20 -left-20 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-float" />
-      <div className="absolute -bottom-20 -right-20 w-80 h-80 bg-accent/10 rounded-full blur-3xl animate-float" style={{ animationDelay: '3s' }} />
+      <div className="absolute inset-0 z-0">
+          {/* Background for Slide 1 (Main) */}
+          <div className={cn("absolute inset-0 transition-opacity duration-1000", activeSlide === 0 ? "opacity-100" : "opacity-0 pointer-events-none")}>
+            <div className="absolute -top-20 -left-20 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-float" />
+            <div className="absolute -bottom-20 -right-20 w-80 h-80 bg-accent/10 rounded-full blur-3xl animate-float" style={{ animationDelay: '3s' }} />
+          </div>
 
-        <div className="relative h-[65vh] min-h-[650px] lg:min-h-[550px]">
+          {/* Background for Slide 2 (Loans) */}
+          <div className={cn("absolute inset-0 transition-opacity duration-1000", activeSlide === 1 ? "opacity-100" : "opacity-0 pointer-events-none")}>
+            <div className="absolute -top-1/4 -left-1/4 w-1/2 h-1/2 bg-amber-500/5 rounded-full blur-3xl animate-float-slow" />
+            <div className="absolute -bottom-1/4 -right-1/4 w-1/2 h-1/2 bg-rose-500/5 rounded-full blur-3xl animate-float-slow" style={{animationDelay: '2s'}} />
+          </div>
+
+          {/* Background for Slide 3 (CA Services) */}
+          <div className={cn("absolute inset-0 transition-opacity duration-1000", activeSlide === 2 ? "opacity-100" : "opacity-0 pointer-events-none")}>
+              <div className="absolute inset-0 opacity-50 [mask-image:radial-gradient(100%_100%_at_top_right,white,transparent)]">
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 via-transparent to-transparent" />
+              </div>
+               <div className="absolute inset-0 opacity-50 [mask-image:radial-gradient(100%_100%_at_bottom_left,white,transparent)]">
+                  <div className="absolute inset-0 bg-gradient-to-tl from-indigo-500/20 via-transparent to-transparent" />
+              </div>
+          </div>
+          
+          {/* Background for Slide 4 (Govt Schemes) */}
+           <div className={cn("absolute inset-0 flex items-center justify-center transition-opacity duration-1000", activeSlide === 3 ? "opacity-100" : "opacity-0 pointer-events-none")}>
+                <div className="absolute w-[600px] h-[600px] border-2 border-dashed border-emerald-500/20 rounded-full animate-spin-slow" />
+                <div className="absolute w-[450px] h-[450px] border border-dashed border-emerald-500/20 rounded-full animate-spin-slow" style={{animationDirection: 'reverse', animationDuration: '40s'}} />
+           </div>
+      </div>
+      
+        <div className="relative z-10 h-[65vh] min-h-[650px] lg:min-h-[550px]">
             {slides.map((slide, index) => (
                 <SlideContent key={slide.key} slide={slide} isActive={index === activeSlide} onNavClick={handleNavClick} />
             ))}
