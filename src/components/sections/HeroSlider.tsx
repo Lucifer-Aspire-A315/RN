@@ -179,7 +179,7 @@ const SlideContent = ({ slide, isActive, onNavClick }: { slide: (typeof slides)[
             <div className="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center h-full">
                 <div className="text-center lg:text-left">
                     <h1
-                        className={cn("text-4xl md:text-5xl lg:text-6xl font-extrabold text-foreground tracking-tight", isActive ? "animate-fade-in-up" : "")}
+                        className={cn("text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-foreground tracking-tight", isActive ? "animate-fade-in-up" : "")}
                         style={{ animationDelay: '100ms', opacity: isActive ? 1 : 0 }}
                     >
                         {slide.title}
@@ -308,7 +308,7 @@ export function HeroSlider({ setCurrentPage }: HeroSliderProps) {
            </div>
       </div>
       
-        <div className="relative z-10 h-[65vh] min-h-[650px] lg:min-h-[550px]">
+        <div className="relative z-10 h-auto min-h-[700px] md:min-h-[600px]">
             {slides.map((slide, index) => (
                 <SlideContent key={slide.key} slide={slide} isActive={index === activeSlide} onNavClick={handleNavClick} />
             ))}

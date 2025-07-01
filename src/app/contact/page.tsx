@@ -1,3 +1,4 @@
+
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -24,7 +25,7 @@ export default function ContactUsPage() {
                 <CardDescription className="text-lg">We're here to help. Reach out to us anytime.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-12 p-8">
-              <div className="grid md:grid-cols-3 gap-8 text-center">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 text-center">
                 {/* Email Card */}
                 <div className="flex flex-col items-center">
                    <div className="flex-shrink-0 bg-accent/10 p-4 rounded-full">
@@ -46,7 +47,7 @@ export default function ContactUsPage() {
                 </div>
 
                 {/* Office Card */}
-                 <div className="flex flex-col items-center">
+                 <div className="flex flex-col items-center sm:col-span-2 md:col-span-1">
                    <div className="flex-shrink-0 bg-accent/10 p-4 rounded-full">
                     <Building className="w-8 h-8 text-accent" />
                   </div>

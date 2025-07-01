@@ -126,7 +126,7 @@ function Timeline({ steps }: { steps: Step[] }) {
 
 
   return (
-    <div ref={timelineRef} className="relative mt-12 space-y-20">
+    <div ref={timelineRef} className="relative mt-12 space-y-12 md:space-y-20">
       {/* Central line for desktop */}
       <div className="absolute left-1/2 top-8 hidden h-full w-0.5 -translate-x-1/2 bg-border md:block" />
 
@@ -141,11 +141,11 @@ function Timeline({ steps }: { steps: Step[] }) {
             key={index}
             className="timeline-step relative flex items-center justify-center opacity-0 md:grid md:grid-cols-2 md:gap-x-16"
           >
-            {/* Desktop and Mobile: Text Block */}
+            {/* Desktop: Text Block */}
             <div className={cn(
               'w-full max-w-sm md:max-w-none',
               isLeft ? 'md:order-1 md:text-right' : 'md:order-2 md:text-left',
-              'md:block hidden' // Hidden on mobile initially
+              'hidden md:block'
             )}>
               <h3 className="text-xl font-bold text-foreground">{step.title}</h3>
               <p className="mt-1 text-muted-foreground">{step.description}</p>
@@ -167,23 +167,23 @@ function Timeline({ steps }: { steps: Step[] }) {
             </div>
 
             {/* Mobile: Combined Block */}
-            <div className="md:hidden flex items-start gap-4 w-full">
-               <div className="flex-shrink-0 flex flex-col items-center">
-                 <div className="flex items-center bg-card rounded-2xl shadow-lg h-24 w-24 overflow-hidden border">
-                    <div className={cn("relative flex h-full w-10 items-center justify-center bg-cover bg-no-repeat", colors.bg)}>
+            <div className="flex w-full items-start gap-4 md:hidden">
+               <div className="flex-shrink-0">
+                 <div className="flex items-center bg-card rounded-2xl shadow-lg h-20 w-20 overflow-hidden border">
+                    <div className={cn("relative flex h-full w-8 items-center justify-center bg-cover bg-no-repeat", colors.bg)}>
                         <div className={cn("absolute inset-0 bg-gradient-to-br from-transparent to-black/10")} />
-                        <span className={cn("z-10 -rotate-90 text-xl font-bold tracking-wider", colors.text)}>
+                        <span className={cn("z-10 -rotate-90 text-lg font-bold tracking-wider", colors.text)}>
                             {String(index + 1).padStart(2, '0')}
                         </span>
                     </div>
                     <div className="flex flex-1 items-center justify-center">
-                         <Icon className={cn("h-8 w-8", colors.text)} />
+                         <Icon className={cn("h-7 w-7", colors.text)} />
                     </div>
                  </div>
                </div>
-               <div className="pt-2">
-                    <h3 className="text-xl font-bold text-foreground">{step.title}</h3>
-                    <p className="mt-1 text-muted-foreground">{step.description}</p>
+               <div className="flex-1 pt-1">
+                    <h3 className="text-lg font-bold text-foreground">{step.title}</h3>
+                    <p className="mt-1 text-sm text-muted-foreground">{step.description}</p>
                </div>
             </div>
 

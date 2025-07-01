@@ -12,6 +12,7 @@ import { approvePartner, updateApplicationStatus, getAllApplications, getPending
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '../ui/skeleton';
 import { AnalyticsCharts } from './AnalyticsCharts';
+import { ScrollArea, ScrollBar } from '../ui/scroll-area';
 
 interface AdminDashboardClientProps {
     // No initial props needed, will fetch data itself
@@ -148,12 +149,15 @@ export function AdminDashboardClient({}: AdminDashboardClientProps) {
   return (
     <>
       <Tabs defaultValue="applications" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="applications">All Applications ({isLoading ? '...' : applications.length})</TabsTrigger>
-          <TabsTrigger value="pending_applications">Pending Applications ({isLoading ? '...' : pendingApplications.length})</TabsTrigger>
-          <TabsTrigger value="pending_partners">Pending Partners ({isLoading ? '...' : pendingPartners.length})</TabsTrigger>
-          <TabsTrigger value="all_partners">All Partners ({isLoading ? '...' : allPartners.length})</TabsTrigger>
-        </TabsList>
+        <ScrollArea className="w-full whitespace-nowrap">
+            <TabsList>
+            <TabsTrigger value="applications">All Applications ({isLoading ? '...' : applications.length})</TabsTrigger>
+            <TabsTrigger value="pending_applications">Pending Applications ({isLoading ? '...' : pendingApplications.length})</TabsTrigger>
+            <TabsTrigger value="pending_partners">Pending Partners ({isLoading ? '...' : pendingPartners.length})</TabsTrigger>
+            <TabsTrigger value="all_partners">All Partners ({isLoading ? '...' : allPartners.length})</TabsTrigger>
+            </TabsList>
+            <ScrollBar orientation="horizontal" />
+        </ScrollArea>
         <TabsContent value="applications">
             <Card>
               <CardHeader>

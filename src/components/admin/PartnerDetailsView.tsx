@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useTransition } from 'react';
@@ -152,7 +153,7 @@ export function PartnerDetailsView({ partnerId }: PartnerDetailsViewProps) {
     
     return (
         <>
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
                 <Button onClick={() => router.back()} variant="outline">
                     <ArrowLeft className="mr-2 h-4 w-4" />
                     Back

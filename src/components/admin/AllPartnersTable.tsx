@@ -43,9 +43,9 @@ export function AllPartnersTable({ partners }: AllPartnersTableProps) {
           <TableRow>
             <TableHead>Full Name</TableHead>
             <TableHead>Email</TableHead>
-            <TableHead>Mobile</TableHead>
+            <TableHead className="hidden sm:table-cell">Mobile</TableHead>
             <TableHead>Business Model</TableHead>
-            <TableHead>Registered On</TableHead>
+            <TableHead className="hidden lg:table-cell">Registered On</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -57,11 +57,11 @@ export function AllPartnersTable({ partners }: AllPartnersTableProps) {
             >
               <TableCell className="font-medium">{partner.fullName}</TableCell>
               <TableCell>{partner.email}</TableCell>
-              <TableCell>{partner.mobileNumber}</TableCell>
+              <TableCell className="hidden sm:table-cell">{partner.mobileNumber}</TableCell>
               <TableCell>
                   <Badge variant="secondary">{getBusinessModelDisplay(partner.businessModel)}</Badge>
               </TableCell>
-              <TableCell>{format(new Date(partner.createdAt), 'PPp')}</TableCell>
+              <TableCell className="hidden lg:table-cell">{format(new Date(partner.createdAt), 'PPp')}</TableCell>
             </TableRow>
           ))}
         </TableBody>

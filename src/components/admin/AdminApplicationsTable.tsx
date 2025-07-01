@@ -84,8 +84,8 @@ export function AdminApplicationsTable({ applications, onUpdateStatus, onArchive
             <TableRow>
               <TableHead>Applicant</TableHead>
               <TableHead>Application Type</TableHead>
-              <TableHead>Category</TableHead>
-              <TableHead>Submitted On</TableHead>
+              <TableHead className="hidden md:table-cell">Category</TableHead>
+              <TableHead className="hidden lg:table-cell">Submitted On</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
@@ -96,19 +96,19 @@ export function AdminApplicationsTable({ applications, onUpdateStatus, onArchive
                 key={app.id}
               >
                 <TableCell className="font-medium cursor-pointer" onClick={() => handleViewClick(app)}>
-                  <div>{app.applicantDetails?.fullName || 'N/A'}</div>
-                  <div className="text-xs text-muted-foreground">{app.applicantDetails?.email || 'N/A'}</div>
+                  <div className="truncate w-32 md:w-auto">{app.applicantDetails?.fullName || 'N/A'}</div>
+                  <div className="text-xs text-muted-foreground truncate w-32 md:w-auto">{app.applicantDetails?.email || 'N/A'}</div>
                 </TableCell>
                 <TableCell className="cursor-pointer" onClick={() => handleViewClick(app)}>{app.applicationType}</TableCell>
-                <TableCell className="cursor-pointer" onClick={() => handleViewClick(app)}>{getCategoryDisplay(app.serviceCategory)}</TableCell>
-                <TableCell className="cursor-pointer" onClick={() => handleViewClick(app)}>{format(new Date(app.createdAt), 'PPp')}</TableCell>
+                <TableCell className="hidden md:table-cell cursor-pointer" onClick={() => handleViewClick(app)}>{getCategoryDisplay(app.serviceCategory)}</TableCell>
+                <TableCell className="hidden lg:table-cell cursor-pointer" onClick={() => handleViewClick(app)}>{format(new Date(app.createdAt), 'PPp')}</TableCell>
                 <TableCell className="cursor-pointer" onClick={() => handleViewClick(app)}>
                   <Badge variant={getStatusVariant(app.status)} className="capitalize">
                     {app.status}
                   </Badge>
                 </TableCell>
                 <TableCell className="text-right">
-                  <div className="flex items-center justify-end gap-2">
+                  <div className="flex items-center justify-end gap-1 md:gap-2">
                      <Button variant="ghost" size="icon" onClick={() => handleViewClick(app)} title="View Application" disabled={!!processingState}>
                         <Eye className="h-4 w-4" />
                      </Button>

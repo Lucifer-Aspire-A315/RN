@@ -53,7 +53,8 @@ export function ApplicationsTable({ applications }: ApplicationsTableProps) {
     router.push(`/dashboard/application/${app.id}?category=${app.serviceCategory}`);
   };
   
-  const handleEditClick = (app: UserApplication) => {
+  const handleEditClick = (e: React.MouseEvent, app: UserApplication) => {
+    e.stopPropagation(); // Prevent row click event from firing
     router.push(`/dashboard/application/${app.id}/edit?category=${app.serviceCategory}`);
   };
 
@@ -65,30 +66,30 @@ export function ApplicationsTable({ applications }: ApplicationsTableProps) {
           <TableRow>
             <TableHead>Applicant</TableHead>
             <TableHead>Application Type</TableHead>
-            <TableHead>Category</TableHead>
-            <TableHead>Submitted On</TableHead>
+            <TableHead className="hidden sm:table-cell">Category</TableHead>
+            <TableHead className="hidden md:table-cell">Submitted On</TableHead>
             <TableHead>Status</TableHead>
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {applications.map((app) => (
-            <TableRow key={app.id}>
-              <TableCell className="font-medium cursor-pointer" onClick={() => handleViewClick(app)}>
+            <TableRow key={app.id} onClick={() => handleViewClick(app)} className="cursor-pointer">
+              <TableCell className="font-medium">
                 <div>{app.applicantDetails?.fullName || 'N/A'}</div>
                 <div className="text-xs text-muted-foreground">{app.applicantDetails?.email || 'N/A'}</div>
               </TableCell>
-              <TableCell className="cursor-pointer" onClick={() => handleViewClick(app)}>{app.applicationType}</TableCell>
-              <TableCell className="cursor-pointer" onClick={() => handleViewClick(app)}>{getCategoryDisplay(app.serviceCategory)}</TableCell>
-              <TableCell className="cursor-pointer" onClick={() => handleViewClick(app)}>{format(new Date(app.createdAt), 'PPp')}</TableCell>
-              <TableCell className="cursor-pointer" onClick={() => handleViewClick(app)}>
+              <TableCell>{app.applicationType}</TableCell>
+              <TableCell className="hidden sm:table-cell">{getCategoryDisplay(app.serviceCategory)}</TableCell>
+              <TableCell className="hidden md:table-cell">{format(new Date(app.createdAt), 'PP')}</TableCell>
+              <TableCell>
                 <Badge variant={getStatusVariant(app.status)} className="capitalize">
                   {app.status}
                 </Badge>
               </TableCell>
               <TableCell className="text-right">
-                <Button variant="outline" size="sm" onClick={() => handleEditClick(app)}>
-                  <Edit className="mr-2 h-4 w-4" /> Edit
+                <Button variant="outline" size="sm" onClick={(e) => handleEditClick(e, app)}>
+                  <Edit className="mr-0 sm:mr-2 h-4 w-4" /> <span className="hidden sm:inline">Edit</span>
                 </Button>
               </TableCell>
             </TableRow>
