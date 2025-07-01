@@ -164,7 +164,7 @@ export function PartnerDetailsView({ partnerId }: PartnerDetailsViewProps) {
                 </Button>
             </div>
             <div className="grid lg:grid-cols-3 gap-6 items-start">
-                <div className="lg:col-span-1 space-y-6">
+                <div className="lg:col-span-1 space-y-6 min-w-0">
                     <Card className="shadow-lg">
                         <CardHeader className="items-center text-center pb-4">
                             <Avatar className="w-24 h-24 mb-4 border-4 border-primary">
@@ -184,7 +184,7 @@ export function PartnerDetailsView({ partnerId }: PartnerDetailsViewProps) {
                     </Card>
                 </div>
                 
-                <div className="lg:col-span-2">
+                <div className="lg:col-span-2 min-w-0">
                     <Card>
                         <CardHeader>
                             <CardTitle>Applications Submitted by {partner.fullName}</CardTitle>
