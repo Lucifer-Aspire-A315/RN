@@ -153,14 +153,14 @@ export function PartnerDetailsView({ partnerId }: PartnerDetailsViewProps) {
     
     return (
         <>
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+            <div className="flex items-center justify-between gap-4 mb-6">
                 <Button onClick={() => router.back()} variant="outline">
                     <ArrowLeft className="mr-2 h-4 w-4" />
                     Back
                 </Button>
                  <Button variant="destructive" onClick={() => setIsAlertOpen(true)} disabled={isRemoving}>
                     {isRemoving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
-                    Deactivate Partner
+                    Deactivate
                 </Button>
             </div>
             <div className="grid lg:grid-cols-3 gap-6 items-start">
@@ -214,5 +214,4 @@ export function PartnerDetailsView({ partnerId }: PartnerDetailsViewProps) {
                   </AlertDialog>
             </div>
         </>
-    );
-}
+    
