@@ -1,13 +1,120 @@
 
 'use server';
 
-import { doc, getDoc, updateDoc, Timestamp } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, Timestamp, addDoc, collection } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { checkSessionAction } from './authActions';
 import type { UserApplication } from '@/lib/types';
 import { getCollectionName } from '@/lib/utils';
 import { processFileUploads } from '@/lib/form-helpers';
 import { revalidatePath } from 'next/cache';
+import { cookies } from 'next/headers';
+
+interface ServerActionResponse {
+  success: boolean;
+  message: string;
+  applicationId?: string;
+  errors?: Record<string, string[]>;
+}
+
+export async function submitApplicationAction(
+  formData: any,
+  serviceCategory: UserApplication['serviceCategory'],
+  applicationType: string,
+  schemeNameForDisplay?: string
+): Promise<ServerActionResponse> {
+  console.log(`[AppSubmitAction] Received application for category "${serviceCategory}", type "${applicationType}".`);
+
+  try {
+    await cookies().get('priming-cookie-submit');
+    const submitterUserId = cookies().get('user_id')?.value;
+    const submitterUserName = cookies().get('user_name')?.value;
+    const submitterUserEmail = cookies().get('user_email')?.value;
+    const submitterUserType = cookies().get('user_type')?.value as 'normal' | 'partner' | undefined;
+
+    if (!submitterUserId || !submitterUserName || !submitterUserEmail || !submitterUserType) {
+      console.error(`[AppSubmitAction] Critical user info missing for ${serviceCategory} application.`);
+      return { success: false, message: 'User authentication details missing. Please log in again.' };
+    }
+
+    const partnerId = submitterUserType === 'partner' ? submitterUserId : null;
+
+    let applicantFullName = '';
+    let applicantEmail = '';
+
+    if (serviceCategory === 'loan') {
+      const applicantData = formData.applicantDetails;
+      if (!applicantData) return { success: false, message: 'Applicant details are missing.' };
+      applicantFullName = applicantData.name;
+      applicantEmail = applicantData.email;
+    } else if (serviceCategory === 'caService') {
+      const applicantData = formData.applicantDetails || formData.applicantFounderDetails;
+      if (!applicantData) return { success: false, message: 'Applicant details are missing.' };
+      applicantFullName = applicantData.fullName;
+      applicantEmail = applicantData.emailId;
+    } else if (serviceCategory === 'governmentScheme') {
+      const applicantData = formData.applicantDetailsGov;
+      if (!applicantData) return { success: false, message: 'Applicant details are missing.' };
+      applicantFullName = applicantData.fullName;
+      applicantEmail = applicantData.emailId;
+    }
+
+    if (!applicantFullName || !applicantEmail) {
+      return { success: false, message: 'Applicant name or email could not be determined from form data.' };
+    }
+
+    const applicationData = {
+      applicantDetails: {
+        userId: null,
+        fullName: applicantFullName,
+        email: applicantEmail,
+      },
+      submittedBy: {
+        userId: submitterUserId,
+        userName: submitterUserName,
+        userEmail: submitterUserEmail,
+        userType: submitterUserType,
+      },
+      partnerId,
+      applicationType,
+      serviceCategory,
+      ...(schemeNameForDisplay && { schemeNameForDisplay }),
+      formData,
+      status: 'submitted',
+      createdAt: Timestamp.now(),
+      updatedAt: Timestamp.now(),
+    };
+
+    const collectionName = getCollectionName(serviceCategory);
+    if (!collectionName) {
+      throw new Error(`Invalid service category for submission: ${serviceCategory}`);
+    }
+
+    console.log(`[AppSubmitAction] Saving to collection "${collectionName}".`);
+    const docRef = await addDoc(collection(db, collectionName), applicationData);
+    console.log(`[AppSubmitAction] Application stored with ID: ${docRef.id}`);
+
+    return {
+      success: true,
+      message: `${applicationType} application submitted successfully! Your application ID is ${docRef.id}.`,
+      applicationId: docRef.id,
+    };
+  } catch (error: any) {
+    console.error(`[AppSubmitAction] Error submitting application for type "${applicationType}" to Firestore:`);
+    console.error("Error Name:", error.name);
+    console.error("Error Message:", error.message);
+    console.error("Error Stack:", error.stack);
+    
+    const safeErrorMessage = (typeof error.message === 'string' && error.message)
+      ? error.message
+      : `An internal server error occurred while submitting your ${applicationType} application. Please check server logs for details.`;
+
+    return {
+      success: false,
+      message: safeErrorMessage,
+    };
+  }
+}
 
 export async function getApplicationDetails(
   applicationId: string,
@@ -37,16 +144,14 @@ export async function getApplicationDetails(
     const applicationData = docSnap.data();
     const submitterId = applicationData.submittedBy?.userId;
 
-    // Security check: User must be the one who submitted it OR an admin
     if (user.id !== submitterId && !user.isAdmin) {
       console.error(`[AppDetailsAction] Forbidden: User ${user.id} tried to access application ${applicationId} owned by ${submitterId}.`);
       throw new Error('Forbidden: You do not have permission to view this application.');
     }
     
     console.log(`[AppDetailsAction] Successfully fetched and authorized access for ${applicationId}.`);
-    // Convert Timestamps to ISO strings for serialization
     return JSON.parse(JSON.stringify(applicationData, (key, value) => {
-        if (value && value.toDate) { // Firestore Timestamp check
+        if (value && value.toDate) {
             return value.toDate().toISOString();
         }
         return value;
@@ -76,7 +181,6 @@ export async function updateApplicationAction(
   }
 
   try {
-    // Authorize user: Check if user is admin or original submitter
     const appRef = doc(db, collectionName, applicationId);
     const docSnap = await getDoc(appRef);
 
@@ -91,7 +195,6 @@ export async function updateApplicationAction(
       throw new Error('Unauthorized: You do not have permission to perform this action.');
     }
 
-    // Proceed with update logic
     const payloadForServer = JSON.parse(JSON.stringify(data));
     
     const findDocumentUploadsKey = (obj: any): string | null => {
@@ -147,4 +250,17 @@ export async function updateApplicationAction(
     console.error(`[AppUpdateAction] Error updating application ${applicationId}:`, error.message, error.stack);
     return { success: false, message: error.message || 'Failed to update application.' };
   }
+}
+
+// Wrapper actions for simple calls from form components
+export async function updateLoanApplicationAction(applicationId: string, data: any) {
+    return updateApplicationAction(applicationId, 'loan', { formData: data });
+}
+
+export async function updateCAServiceApplicationAction(applicationId: string, data: any) {
+    return updateApplicationAction(applicationId, 'caService', { formData: data });
+}
+
+export async function updateGovernmentSchemeLoanApplicationAction(applicationId: string, data: any) {
+    return updateApplicationAction(applicationId, 'governmentScheme', { formData: data });
 }

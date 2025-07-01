@@ -4,7 +4,7 @@
 import React from 'react';
 import { FinancialAdvisoryFormSchema, type FinancialAdvisoryFormData } from '@/lib/schemas';
 import { PiggyBank } from 'lucide-react';
-import { submitFinancialAdvisoryAction, updateCAServiceApplicationAction } from '@/app/actions/caServiceActions';
+import { submitApplicationAction, updateCAServiceApplicationAction } from '@/app/actions/applicationActions';
 import { GenericCAServiceForm } from './GenericCAServiceForm';
 
 interface FinancialAdvisoryFormProps {
@@ -138,7 +138,7 @@ export function FinancialAdvisoryForm({ onBack, initialData, applicationId, mode
         schema={FinancialAdvisoryFormSchema}
         defaultValues={initialData || defaultValues}
         sections={financialAdvisorySections}
-        submitAction={submitFinancialAdvisoryAction}
+        submitAction={(data) => submitApplicationAction(data, 'caService', 'Financial Advisory Service')}
         updateAction={updateCAServiceApplicationAction}
         applicationId={applicationId}
         mode={mode}

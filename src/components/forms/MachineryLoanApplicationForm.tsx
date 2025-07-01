@@ -5,7 +5,7 @@ import React from 'react';
 import { Cog } from 'lucide-react';
 import { GenericLoanForm } from './GenericLoanForm';
 import { MachineryLoanApplicationSchema, type MachineryLoanApplicationFormData } from '@/lib/schemas';
-import { submitLoanApplicationAction, updateLoanApplicationAction } from '@/app/actions/loanActions';
+import { submitApplicationAction, updateLoanApplicationAction } from '@/app/actions/applicationActions';
 
 interface MachineryLoanApplicationFormProps {
   onBack?: () => void;
@@ -130,7 +130,7 @@ export function MachineryLoanApplicationForm({ onBack, backButtonText, initialDa
       schema={MachineryLoanApplicationSchema}
       defaultValues={initialData || defaultValues}
       sections={machineryLoanSections}
-      submitAction={(data) => submitLoanApplicationAction(data, 'Machinery Loan')}
+      submitAction={(data) => submitApplicationAction(data, 'loan', 'Machinery Loan')}
       updateAction={updateLoanApplicationAction}
       applicationId={applicationId}
       mode={mode}

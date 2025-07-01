@@ -5,7 +5,7 @@ import React from 'react';
 import { Home as HomeIcon } from 'lucide-react';
 import { GenericLoanForm } from './GenericLoanForm';
 import { HomeLoanApplicationSchema, type HomeLoanApplicationFormData } from '@/lib/schemas';
-import { submitLoanApplicationAction, updateLoanApplicationAction } from '@/app/actions/loanActions';
+import { submitApplicationAction, updateLoanApplicationAction } from '@/app/actions/applicationActions';
 
 interface HomeLoanApplicationFormProps {
   onBack?: () => void;
@@ -152,7 +152,7 @@ export function HomeLoanApplicationForm({ onBack, backButtonText, initialData, a
       schema={HomeLoanApplicationSchema}
       defaultValues={initialData || defaultValues}
       sections={homeLoanSections}
-      submitAction={(data) => submitLoanApplicationAction(data, 'Home Loan')}
+      submitAction={(data) => submitApplicationAction(data, 'loan', 'Home Loan')}
       updateAction={updateLoanApplicationAction}
       applicationId={applicationId}
       mode={mode}

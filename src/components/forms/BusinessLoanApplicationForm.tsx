@@ -5,7 +5,7 @@ import React from 'react';
 import { Briefcase } from 'lucide-react';
 import { GenericLoanForm } from './GenericLoanForm';
 import { BusinessLoanApplicationSchema, type BusinessLoanApplicationFormData } from '@/lib/schemas';
-import { submitLoanApplicationAction, updateLoanApplicationAction } from '@/app/actions/loanActions';
+import { submitApplicationAction, updateLoanApplicationAction } from '@/app/actions/applicationActions';
 
 interface BusinessLoanApplicationFormProps {
   onBack?: () => void;
@@ -139,7 +139,7 @@ export function BusinessLoanApplicationForm({ onBack, backButtonText, initialDat
       schema={BusinessLoanApplicationSchema}
       defaultValues={initialData || defaultValues}
       sections={businessLoanSections}
-      submitAction={(data) => submitLoanApplicationAction(data, 'Business Loan')}
+      submitAction={(data) => submitApplicationAction(data, 'loan', 'Business Loan')}
       updateAction={updateLoanApplicationAction}
       applicationId={applicationId}
       mode={mode}

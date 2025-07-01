@@ -5,7 +5,7 @@ import React from 'react';
 import { User } from 'lucide-react';
 import { GenericLoanForm } from './GenericLoanForm';
 import { PersonalLoanApplicationSchema, type PersonalLoanApplicationFormData } from '@/lib/schemas';
-import { submitLoanApplicationAction, updateLoanApplicationAction } from '@/app/actions/loanActions';
+import { submitApplicationAction, updateLoanApplicationAction } from '@/app/actions/applicationActions';
 
 interface PersonalLoanApplicationFormProps {
   onBack?: () => void;
@@ -125,7 +125,7 @@ export function PersonalLoanApplicationForm({ onBack, backButtonText, initialDat
       schema={PersonalLoanApplicationSchema}
       defaultValues={initialData || defaultValues}
       sections={personalLoanSections}
-      submitAction={(data) => submitLoanApplicationAction(data, 'Personal Loan')}
+      submitAction={(data) => submitApplicationAction(data, 'loan', 'Personal Loan')}
       updateAction={updateLoanApplicationAction}
       applicationId={applicationId}
       mode={mode}
