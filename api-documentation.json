@@ -1,0 +1,211 @@
+{
+  "apiDocumentation": {
+    "version": "1.0.0",
+    "description": "An overview of the server-side functions (Server Actions and AI Flows) used in the RN FinTech application. These are not traditional REST APIs but rather server-side functions callable from the frontend.",
+    "endpoints": [
+      {
+        "file": "src/ai/flows/validate-identification-details.ts",
+        "group": "AI Flows",
+        "functions": [
+          {
+            "name": "validateIdentificationDetails",
+            "description": "Validates PAN and Aadhaar numbers using a Genkit AI flow to check for format validity and potential inconsistencies based on its knowledge.",
+            "inputSchema": {
+              "panNumber": "string (format: ABCDE1234F)",
+              "aadhaarNumber": "string (format: 12-digit number)"
+            },
+            "outputSchema": {
+              "isValid": "boolean",
+              "validationDetails": "string (Explanation from the AI)"
+            }
+          }
+        ]
+      },
+      {
+        "file": "src/app/actions/adminActions.ts",
+        "group": "Admin Actions",
+        "description": "A collection of actions restricted to administrators for managing applications and partners.",
+        "functions": [
+          {
+            "name": "getAllApplications",
+            "description": "Fetches all non-archived applications across all service categories.",
+            "inputSchema": {},
+            "outputSchema": "Promise<UserApplication[]>"
+          },
+          {
+            "name": "getPendingPartners",
+            "description": "Fetches all partner accounts that are awaiting admin approval.",
+            "inputSchema": {},
+            "outputSchema": "Promise<PartnerData[]>"
+          },
+          {
+            "name": "getAllPartners",
+            "description": "Fetches all approved partner accounts (excluding admins).",
+            "inputSchema": {},
+            "outputSchema": "Promise<PartnerData[]>"
+          },
+          {
+            "name": "approvePartner",
+            "description": "Approves a pending partner account, allowing them to log in.",
+            "inputSchema": { "partnerId": "string" },
+            "outputSchema": "Promise<{ success: boolean; message: string }>"
+          },
+          {
+            "name": "updateApplicationStatus",
+            "description": "Updates the status of a specific application (e.g., to 'Approved', 'Rejected').",
+            "inputSchema": {
+              "applicationId": "string",
+              "serviceCategory": "string ('loan' | 'caService' | 'governmentScheme')",
+              "newStatus": "string"
+            },
+            "outputSchema": "Promise<{ success: boolean; message: string }>"
+          },
+          {
+            "name": "archiveApplicationAction",
+            "description": "Sets an application's status to 'Archived' and deletes all associated files from storage.",
+            "inputSchema": {
+              "applicationId": "string",
+              "serviceCategory": "string ('loan' | 'caService' | 'governmentScheme')"
+            },
+            "outputSchema": "Promise<{ success: boolean; message: string }>"
+          },
+          {
+            "name": "getPartnerDetails",
+            "description": "Fetches the detailed profile of a single partner.",
+            "inputSchema": { "partnerId": "string" },
+            "outputSchema": "Promise<PartnerData | null>"
+          },
+          {
+            "name": "getApplicationsByPartner",
+            "description": "Fetches all applications submitted by a specific partner.",
+            "inputSchema": { "partnerId": "string" },
+            "outputSchema": "Promise<UserApplication[]>"
+          },
+          {
+            "name": "removePartnerAction",
+            "description": "Deactivates a partner account by setting their 'isApproved' status to false.",
+            "inputSchema": { "partnerId": "string" },
+            "outputSchema": "Promise<{ success: boolean; message: string }>"
+          }
+        ]
+      },
+      {
+        "file": "src/app/actions/applicationActions.ts",
+        "group": "Application Actions",
+        "description": "Core actions for submitting, updating, and retrieving application data.",
+        "functions": [
+          {
+            "name": "submitApplicationAction",
+            "description": "A single, generic action to handle the submission of any new application. It processes form data and saves it to the appropriate Firestore collection.",
+            "inputSchema": {
+              "formData": "object (The complete data from the specific application form)",
+              "serviceCategory": "string ('loan' | 'caService' | 'governmentScheme')",
+              "applicationType": "string (e.g., 'Home Loan', 'GST Service Application')",
+              "schemeNameForDisplay": "string (Optional, used for government schemes)"
+            },
+            "outputSchema": "Promise<{ success: boolean; message: string; applicationId?: string; errors?: Record<string, string[]> }>"
+          },
+          {
+            "name": "getApplicationDetails",
+            "description": "Fetches the full details of a single application. Enforces security to ensure only the owner or an admin can view it.",
+            "inputSchema": {
+              "applicationId": "string",
+              "serviceCategory": "string ('loan' | 'caService' | 'governmentScheme')"
+            },
+            "outputSchema": "Promise<object | null>"
+          },
+          {
+            "name": "updateApplicationAction",
+            "description": "A single, generic action to handle updates for any existing application. It processes file uploads and updates the Firestore document.",
+            "inputSchema": {
+              "applicationId": "string",
+              "serviceCategory": "string ('loan' | 'caService' | 'governmentScheme')",
+              "data": "object (The data to be updated, typically under a `formData` key)"
+            },
+            "outputSchema": "Promise<{ success: boolean; message: string; errors?: Record<string, string[]> }>"
+          }
+        ]
+      },
+      {
+        "file": "src/app/actions/authActions.ts",
+        "group": "Authentication Actions",
+        "description": "Actions for user and partner authentication, including sign-up, login, logout, and session checking.",
+        "functions": [
+          {
+            "name": "partnerSignUpAction",
+            "description": "Handles the registration of a new partner.",
+            "inputSchema": { "data": "object (PartnerSignUpFormData)" },
+            "outputSchema": "Promise<{ success: boolean; message?: string; user?: UserData; errors?: ... }>"
+          },
+          {
+            "name": "partnerLoginAction",
+            "description": "Handles login for partners and admins.",
+            "inputSchema": { "data": "object (PartnerLoginFormData)" },
+            "outputSchema": "Promise<{ success: boolean; message?: string; user?: UserData; errors?: ... }>"
+          },
+          {
+            "name": "userSignUpAction",
+            "description": "Handles the registration of a new standard user.",
+            "inputSchema": { "data": "object (UserSignUpFormData)" },
+            "outputSchema": "Promise<{ success: boolean; message?: string; user?: UserData; errors?: ... }>"
+          },
+          {
+            "name": "userLoginAction",
+            "description": "Handles login for standard users.",
+            "inputSchema": { "data": "object (UserLoginFormData)" },
+            "outputSchema": "Promise<{ success: boolean; message?: string; user?: UserData; errors?: ... }>"
+          },
+          {
+            "name": "logoutAction",
+            "description": "Clears all session cookies, logging the user out.",
+            "inputSchema": {},
+            "outputSchema": "Promise<{ success: boolean; message?: string }>"
+          },
+          {
+            "name": "checkSessionAction",
+            "description": "Reads session cookies to determine if a user is currently logged in and returns their data.",
+            "inputSchema": {},
+            "outputSchema": "Promise<UserData | null>"
+          }
+        ]
+      },
+      {
+        "file": "src/app/actions/dashboardActions.ts",
+        "group": "Dashboard Actions",
+        "description": "Actions specifically for fetching data for the user dashboard.",
+        "functions": [
+          {
+            "name": "getUserApplications",
+            "description": "Fetches all non-archived applications submitted by the currently logged-in user.",
+            "inputSchema": {},
+            "outputSchema": "Promise<UserApplication[]>"
+          }
+        ]
+      },
+      {
+        "file": "src/app/actions/fileUploadActions.ts",
+        "group": "File Actions",
+        "description": "Handles direct interactions with Firebase Storage for file uploads and deletions.",
+        "functions": [
+          {
+            "name": "uploadFileAsStringAction",
+            "description": "Uploads a file (sent as a Base64 data URI) to Firebase Storage and returns a long-lived public URL.",
+            "inputSchema": {
+              "dataUri": "string",
+              "fileName": "string"
+            },
+            "outputSchema": "Promise<{ success: boolean; publicUrl?: string; error?: string }>"
+          },
+          {
+            "name": "deleteFilesByUrlAction",
+            "description": "Deletes one or more files from Firebase Storage based on their public URLs. Intended for admin use.",
+            "inputSchema": {
+              "urls": "string[]"
+            },
+            "outputSchema": "Promise<{ success: boolean; error?: string }>"
+          }
+        ]
+      }
+    ]
+  }
+}
