@@ -274,22 +274,20 @@ export function HeroSlider({ setCurrentPage }: HeroSliderProps) {
       <div className="absolute inset-0 z-0">
           {/* Background for Slide 1 (Main) */}
           <div className={cn("absolute inset-0 transition-opacity duration-1000", activeSlide === 0 ? "opacity-100" : "opacity-0 pointer-events-none")}>
-            <div className="absolute -top-20 -left-20 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-float" />
-            <div className="absolute -bottom-20 -right-20 w-80 h-80 bg-accent/10 rounded-full blur-3xl animate-float" style={{ animationDelay: '3s' }} />
+              <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.3),rgba(255,255,255,0))]"></div>
           </div>
 
           {/* Background for Slide 2 (Loans) */}
           <div className={cn("absolute inset-0 transition-opacity duration-1000", activeSlide === 1 ? "opacity-100" : "opacity-0 pointer-events-none")}>
-            <div className="absolute -top-1/4 -left-1/4 w-1/2 h-1/2 bg-amber-500/5 rounded-full blur-3xl animate-float-slow" />
-            <div className="absolute -bottom-1/4 -right-1/4 w-1/2 h-1/2 bg-rose-500/5 rounded-full blur-3xl animate-float-slow" style={{animationDelay: '2s'}} />
+              <div className="absolute inset-0 opacity-50" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23F26A4B\' fill-opacity=\'0.1\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")' }} />
           </div>
 
           {/* Background for Slide 3 (CA Services) */}
           <div className={cn("absolute inset-0 transition-opacity duration-1000", activeSlide === 2 ? "opacity-100" : "opacity-0 pointer-events-none")}>
-              <div className="absolute inset-0 opacity-50 [mask-image:radial-gradient(100%_100%_at_top_right,white,transparent)]">
+              <div className="absolute inset-0 opacity-30 [mask-image:radial-gradient(100%_100%_at_top_right,white,transparent)]">
                   <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 via-transparent to-transparent" />
               </div>
-               <div className="absolute inset-0 opacity-50 [mask-image:radial-gradient(100%_100%_at_bottom_left,white,transparent)]">
+               <div className="absolute inset-0 opacity-30 [mask-image:radial-gradient(100%_100%_at_bottom_left,white,transparent)]">
                   <div className="absolute inset-0 bg-gradient-to-tl from-indigo-500/20 via-transparent to-transparent" />
               </div>
           </div>
