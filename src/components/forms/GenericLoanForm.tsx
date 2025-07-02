@@ -2,13 +2,13 @@
 "use client";
 
 import React, { useState, useMemo, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, type UseFormReturn } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { ZodType, ZodTypeDef } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Form, FormField, FormItem, FormLabel, FormMessage, useFormField } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, useFormField } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { validateIdentificationDetails, type ValidateIdentificationDetailsOutput } from '@/ai/flows/validate-identification-details';
 import { ArrowLeft, Loader2, Info, UploadCloud } from 'lucide-react';
@@ -66,45 +66,6 @@ interface GenericLoanFormProps<T extends Record<string, any>> {
   submitButtonText?: string;
 }
 
-// --- FILE INPUT COMPONENT ---
-
-interface FormFileInputPresentationProps {
-  fieldLabel: React.ReactNode;
-  rhfName: string; 
-  rhfRef: React.Ref<HTMLInputElement>;
-  rhfOnBlur: () => void;
-  rhfOnChange: (file: File | null) => void;
-  selectedFile: File | null | undefined;
-  accept?: string;
-}
-
-const FormFileInputPresentation: React.FC<FormFileInputPresentationProps> = ({
-  fieldLabel, rhfName, rhfRef, rhfOnBlur, rhfOnChange, selectedFile, accept
-}) => {
-  const { formItemId } = useFormField(); 
-  return (
-    <FormItem>
-      <FormLabel htmlFor={formItemId} className="flex items-center">
-        <UploadCloud className="w-5 h-5 mr-2 inline-block text-muted-foreground" /> {fieldLabel}
-      </FormLabel>
-      <Input
-        id={formItemId} type="file" ref={rhfRef} name={rhfName}
-        onBlur={rhfOnBlur}
-        onChange={(e) => rhfOnChange(e.target.files?.[0] ?? null)}
-        accept={accept || ".pdf,.jpg,.jpeg,.png"}
-        className="cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700"
-      />
-      {selectedFile && (
-        <p className="text-xs text-muted-foreground mt-1">
-          Selected: {selectedFile.name} ({(selectedFile.size / 1024).toFixed(2)} KB)
-        </p>
-      )}
-      <FormMessage />
-    </FormItem>
-  );
-};
-
-
 // --- GENERIC FORM COMPONENT ---
 
 export function GenericLoanForm<TData extends Record<string, any>>({ 
@@ -126,7 +87,6 @@ export function GenericLoanForm<TData extends Record<string, any>>({
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isVerifyingID, setIsVerifyingID] = useState(false);
-  const [selectedFiles, setSelectedFiles] = useState<Record<string, File | null>>({});
   const { currentUser } = useAuth();
   const [currentStep, setCurrentStep] = useState(0);
 
@@ -199,7 +159,6 @@ export function GenericLoanForm<TData extends Record<string, any>>({
 
         if (mode === 'create') {
             reset(); 
-            setSelectedFiles({});
         }
 
       } else {
@@ -278,36 +237,53 @@ export function GenericLoanForm<TData extends Record<string, any>>({
     const onBlur = (fieldConfig.isPAN || fieldConfig.isAadhaar) ? handleIDValidation : undefined;
     
     return (
-      <FormField key={fieldConfig.name} control={control} name={fieldConfig.name as any}
+      <FormField
+        key={fieldConfig.name}
+        control={control}
+        name={fieldConfig.name as any}
         render={({ field }) => {
           switch (fieldConfig.type) {
             case 'file':
+              const { value, onChange, ...restOfField } = field;
               return (
-                <FormFileInputPresentation
-                  fieldLabel={fieldConfig.label}
-                  rhfName={field.name}
-                  rhfRef={field.ref}
-                  rhfOnBlur={field.onBlur}
-                  rhfOnChange={(file: File | null) => {
-                    setValue(field.name as any, file, { shouldValidate: true, shouldDirty: true });
-                    setSelectedFiles(prev => ({ ...prev, [field.name]: file }));
-                  }}
-                  selectedFile={selectedFiles[field.name]}
-                  accept={fieldConfig.accept}
-                />
+                <FormItem>
+                  <FormLabel className="flex items-center">
+                    <UploadCloud className="w-5 h-5 mr-2 inline-block text-muted-foreground" />
+                    {fieldConfig.label}
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      type="file"
+                      {...restOfField}
+                      onChange={(event) => onChange(event.target.files?.[0] ?? null)}
+                      accept={fieldConfig.accept || ".pdf,.jpg,.jpeg,.png"}
+                      className="cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700"
+                    />
+                  </FormControl>
+                  {value instanceof File && (
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Selected: {value.name} ({(value.size / 1024).toFixed(2)} KB)
+                    </p>
+                  )}
+                  <FormMessage />
+                </FormItem>
               );
             case 'radio':
               return (
                 <FormItem>
                   <FormLabel>{fieldConfig.label}</FormLabel>
-                  <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex flex-wrap gap-x-4 gap-y-2">
-                    {fieldConfig.options?.map(opt => (
-                      <FormItem key={opt.value} className="flex items-center space-x-2">
-                        <RadioGroupItem value={opt.value} />
-                        <FormLabel className="font-normal">{opt.label}</FormLabel>
-                      </FormItem>
-                    ))}
-                  </RadioGroup>
+                  <FormControl>
+                    <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex flex-wrap gap-x-4 gap-y-2">
+                      {fieldConfig.options?.map(opt => (
+                        <FormItem key={opt.value} className="flex items-center space-x-2">
+                          <FormControl>
+                            <RadioGroupItem value={opt.value} />
+                          </FormControl>
+                          <FormLabel className="font-normal">{opt.label}</FormLabel>
+                        </FormItem>
+                      ))}
+                    </RadioGroup>
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               );
@@ -315,7 +291,9 @@ export function GenericLoanForm<TData extends Record<string, any>>({
                 return (
                     <FormItem>
                         <FormLabel>{fieldConfig.label}</FormLabel>
-                        <Textarea placeholder={fieldConfig.placeholder} {...field} rows={fieldConfig.rows || 3} />
+                        <FormControl>
+                          <Textarea placeholder={fieldConfig.placeholder} {...field} rows={fieldConfig.rows || 3} />
+                        </FormControl>
                         <FormMessage />
                     </FormItem>
                 );
@@ -329,21 +307,25 @@ export function GenericLoanForm<TData extends Record<string, any>>({
                    {fieldConfig.prefix ? (
                       <div className="relative">
                       <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-muted-foreground">{fieldConfig.prefix}</span>
-                      <Input 
-                          type={fieldConfig.type} placeholder={fieldConfig.placeholder} {...field}
-                          value={field.value ?? ''}
-                          onBlur={() => { field.onBlur(); onBlur?.(); }}
-                          className="pl-7"
-                          disabled={fieldConfig.disabled}
-                      />
+                      <FormControl>
+                        <Input 
+                            type={fieldConfig.type} placeholder={fieldConfig.placeholder} {...field}
+                            value={field.value ?? ''}
+                            onBlur={() => { field.onBlur(); onBlur?.(); }}
+                            className="pl-7"
+                            disabled={fieldConfig.disabled}
+                        />
+                      </FormControl>
                       </div>
                   ) : (
+                    <FormControl>
                       <Input 
                         type={fieldConfig.type} placeholder={fieldConfig.placeholder} {...field}
                         value={field.value ?? ''} 
                         onBlur={() => { field.onBlur(); onBlur?.(); }}
                         disabled={fieldConfig.disabled}
                       />
+                    </FormControl>
                   )}
                   <FormMessage />
                 </FormItem>
