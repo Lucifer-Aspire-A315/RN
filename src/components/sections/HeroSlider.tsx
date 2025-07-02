@@ -56,8 +56,7 @@ const slides = [
     key: 'main',
     title: <>Your Trusted Partner for <br /><span className="text-primary">Financial Success</span></>,
     description: "Empowering your dreams with transparent, technology-driven financial services. From personal loans to business solutions, we're here to help you grow.",
-    imageSrc: 'https://placehold.co/600x400.png',
-    dataAiHint: 'financial growth',
+    imageSrc: '/right-side.png',
     ctaButtonText: 'Explore Our Services',
     ctaAction: 'scroll' as const,
     ctaTarget: '#services',
@@ -86,8 +85,7 @@ const slides = [
     key: 'ca-services',
     title: <>Expert CA Services for <br /><span className="text-blue-500">Business Compliance</span></>,
     description: "Stay compliant and focused on your business. We offer GST registration, ITR filing, and complete financial management services.",
-    imageSrc: 'https://placehold.co/600x400.png',
-    dataAiHint: 'financial planning',
+    imageSrc: '/hero-ca.png',
     ctaButtonText: 'Explore CA Services',
     ctaAction: 'setView' as const,
     ctaTarget: 'caServices',
@@ -99,8 +97,7 @@ const slides = [
     key: 'gov-schemes',
     title: <>Unlock Growth with <br /><span className="text-emerald-500">Government Schemes</span></>,
     description: "We provide expert guidance and assistance for a variety of government-backed loan schemes to empower entrepreneurs and small businesses.",
-    imageSrc: 'https://placehold.co/600x400.png',
-    dataAiHint: 'small business',
+    imageSrc: '/hero-govt.png',
     ctaButtonText: 'View Schemes',
     ctaAction: 'setView' as const,
     ctaTarget: 'governmentSchemes',
@@ -120,7 +117,7 @@ const ImagePresenter = ({ slide, isActive }: { slide: (typeof slides)[0], isActi
                     </div>
                     <div className={cn("relative z-10 w-full max-w-xl", isActive ? "animate-float" : "")}>
                         <div className="relative w-full rounded-2xl bg-background/50 p-2 shadow-2xl backdrop-blur-sm">
-                            <Image src={slide.imageSrc} alt={slide.description} width={600} height={400} data-ai-hint={slide.dataAiHint} className={cn( "relative w-full h-auto object-contain rounded-lg transition-opacity duration-700", isActive ? "opacity-100" : "opacity-0" )} style={{ animation: isActive ? "fade-in-up 0.8s ease-out forwards" : "none", animationDelay: '400ms'}} priority={isActive} />
+                            <Image src={slide.imageSrc} alt={slide.description} width={600} height={400} className={cn( "relative w-full h-auto object-contain rounded-lg transition-opacity duration-700", isActive ? "opacity-100" : "opacity-0" )} style={{ animation: isActive ? "fade-in-up 0.8s ease-out forwards" : "none", animationDelay: '400ms'}} priority={isActive} />
                         </div>
                         <div className={cn( "absolute -bottom-4 left-1/2 -translate-x-1/2 w-3/4 h-10 bg-black/30 rounded-full blur-2xl transition-opacity duration-700", isActive ? "opacity-100 animate-shadow-float" : "opacity-0" )} />
                     </div>
@@ -147,7 +144,7 @@ const ImagePresenter = ({ slide, isActive }: { slide: (typeof slides)[0], isActi
                         <FileText className="absolute top-4 left-4 w-12 h-12 text-accent/30" />
                     </div>
                     <div className={cn("relative z-10 w-full max-w-md h-80 bg-card rounded-2xl p-2 shadow-2xl transition-transform duration-1000 delay-200", isActive ? "rotate-[0] scale-100" : "rotate-0 scale-90")}>
-                         <Image src={slide.imageSrc} alt={slide.description} layout="fill" objectFit="cover" className="rounded-lg" data-ai-hint={slide.dataAiHint} priority={isActive} />
+                         <Image src={slide.imageSrc} alt={slide.description} layout="fill" objectFit="cover" className="rounded-lg" priority={isActive} />
                     </div>
                 </div>
             );
@@ -161,7 +158,7 @@ const ImagePresenter = ({ slide, isActive }: { slide: (typeof slides)[0], isActi
                         </div>
                     </div>
                      <div className={cn("relative z-10 w-80 h-80 transition-transform duration-700 ease-out", isActive ? "scale-100" : "scale-90")}>
-                        <Image src={slide.imageSrc} alt={slide.description} layout="fill" objectFit="cover" className="rounded-full shadow-2xl" data-ai-hint={slide.dataAiHint} priority={isActive} />
+                        <Image src={slide.imageSrc} alt={slide.description} layout="fill" objectFit="cover" className="rounded-full shadow-2xl" priority={isActive} />
                         <div className="absolute inset-0 rounded-full ring-4 ring-offset-4 ring-offset-background ring-emerald-500/50" />
                     </div>
                 </div>
