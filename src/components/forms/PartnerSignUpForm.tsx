@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState, useMemo } from 'react';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { PartnerSignUpSchema, type PartnerSignUpFormData } from '@/lib/schemas';
 import { z } from 'zod';
@@ -12,7 +12,7 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, useFormField } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { processFileUploads } from '@/lib/form-helpers';
 import { Loader2, UserPlus, Handshake, Store, Users, UploadCloud, ArrowLeft } from 'lucide-react';
@@ -29,58 +29,13 @@ const getKeysFromZodObject = (schema: z.ZodTypeAny): string[] => {
         return Object.keys(schema.shape);
     }
     // Handle ZodEffects (e.g., from .refine() or .superRefine())
-    if ('innerType' in schema._def) {
+    if (schema._def && 'schema' in schema._def) {
+        return getKeysFromZodObject(schema._def.schema);
+    }
+     if (schema._def && 'innerType' in schema._def) {
         return getKeysFromZodObject(schema._def.innerType);
     }
     return [];
-};
-
-// Reusable File Input Component
-interface FormFileInputProps {
-  fieldLabel: React.ReactNode;
-  form: ReturnType<typeof useForm<PartnerSignUpFormData>>;
-  fieldName: any; // Allow any nested path
-  accept?: string;
-}
-
-const FormFileInput: React.FC<FormFileInputProps> = ({ fieldLabel, form, fieldName, accept }) => {
-  const { control, setValue, watch } = form;
-  const selectedFile = watch(fieldName);
-  const { formItemId } = useFormField();
-
-  return (
-    <FormItem>
-      <FormLabel htmlFor={formItemId} className="flex items-center">
-        <UploadCloud className="w-5 h-5 mr-2 inline-block text-muted-foreground" /> {fieldLabel}
-      </FormLabel>
-      <Controller
-        name={fieldName}
-        control={control}
-        render={({ field: { onChange, onBlur, name, ref } }) => (
-          <Input
-            id={formItemId}
-            type="file"
-            ref={ref}
-            name={name}
-            onBlur={onBlur}
-            onChange={(e) => {
-              const file = e.target.files?.[0] ?? null;
-              onChange(file);
-              setValue(fieldName, file, { shouldValidate: true, shouldDirty: true });
-            }}
-            accept={accept || ".pdf,.jpg,.jpeg,.png"}
-            className="cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700"
-          />
-        )}
-      />
-      {selectedFile instanceof File && (
-        <p className="text-xs text-muted-foreground mt-1">
-          Selected: {selectedFile.name} ({(selectedFile.size / 1024).toFixed(2)} KB)
-        </p>
-      )}
-      <FormMessage />
-    </FormItem>
-  );
 };
 
 
@@ -94,18 +49,18 @@ export function PartnerSignUpForm() {
     resolver: zodResolver(PartnerSignUpSchema),
     defaultValues: {
       businessModel: 'referral',
+      declaration: false,
     },
     mode: 'onTouched',
   });
 
-  const { control, handleSubmit, watch, formState: { errors }, setValue, setError, trigger } = form;
+  const { control, handleSubmit, watch, formState: { errors }, setError, trigger } = form;
   const businessModel = watch('businessModel');
 
   const allSections = useMemo(() => {
-    // Access the underlying discriminated union schema
-     if (!(PartnerSignUpSchema._def.schema instanceof z.ZodDiscriminatedUnion)) {
+    if (!(PartnerSignUpSchema._def.schema instanceof z.ZodDiscriminatedUnion)) {
         return {};
-     }
+    }
     const discriminatedUnionSchema = PartnerSignUpSchema._def.schema;
     const dsaSchema = discriminatedUnionSchema.optionsMap.get('dsa');
     const merchantSchema = discriminatedUnionSchema.optionsMap.get('merchant');
@@ -115,14 +70,13 @@ export function PartnerSignUpForm() {
     const merchantShape = merchantSchema?._def.shape() as z.ZodObject<any>['shape'] | undefined;
     const referralShape = referralSchema?._def.shape() as z.ZodObject<any>['shape'] | undefined;
 
-    // Safely extract field names
     const dsaPersonalFields = dsaShape?.personalDetails ? getKeysFromZodObject(dsaShape.personalDetails) : [];
     const dsaProfessionalFields = dsaShape?.professionalFinancial ? getKeysFromZodObject(dsaShape.professionalFinancial) : [];
     const dsaScopeFields = dsaShape?.businessScope ? getKeysFromZodObject(dsaShape.businessScope) : [];
     const dsaDocsFields = dsaShape?.dsaDocumentUploads ? getKeysFromZodObject(dsaShape.dsaDocumentUploads) : [];
     
-    const merchantInfoFields = merchantShape?.businessInformation ? getKeysFromZodObject(merchantShape.businessInformation) : [];
     const merchantPersonalFields = merchantShape?.personalDetails ? getKeysFromZodObject(merchantShape.personalDetails) : [];
+    const merchantInfoFields = merchantShape?.businessInformation ? getKeysFromZodObject(merchantShape.businessInformation) : [];
     const merchantDocsFields = merchantShape?.merchantDocumentUploads ? getKeysFromZodObject(merchantShape.merchantDocumentUploads) : [];
 
     const referralFields = referralShape ? getKeysFromZodObject(referralSchema) : [];
@@ -138,7 +92,7 @@ export function PartnerSignUpForm() {
       referralInfo: {
           title: "2. Basic Information",
           subtitle: "Provide your details to get started.",
-          fields: referralFields.filter(f => f !== 'businessModel')
+          fields: [...referralFields.filter(f => f !== 'businessModel' && !passwordFields.includes(f)), ...passwordFields]
       },
       dsaPersonal: {
           title: "DSA: Personal Details",
@@ -381,10 +335,70 @@ export function PartnerSignUpForm() {
                  </div>
                  <div className={currentStep === 4 ? 'block' : 'hidden'}>
                      <FormSection title={allSections.dsaDocs?.title || ''} subtitle={allSections.dsaDocs?.subtitle}>
-                        <FormField control={control} name="dsaDocumentUploads.panCard" render={() => <FormFileInput fieldLabel="PAN Card Copy" form={form} fieldName="dsaDocumentUploads.panCard" />} />
-                        <FormField control={control} name="dsaDocumentUploads.aadhaarCard" render={() => <FormFileInput fieldLabel="Aadhaar Card Copy" form={form} fieldName="dsaDocumentUploads.aadhaarCard" />} />
-                        <FormField control={control} name="dsaDocumentUploads.photograph" render={() => <FormFileInput fieldLabel="Recent Photograph" form={form} fieldName="dsaDocumentUploads.photograph" accept="image/*" />} />
-                        <FormField control={control} name="dsaDocumentUploads.bankStatement" render={() => <FormFileInput fieldLabel="Bank Statement (Last 6 Months)" form={form} fieldName="dsaDocumentUploads.bankStatement" />} />
+                        <FormField
+                            control={control}
+                            name="dsaDocumentUploads.panCard"
+                            render={({ field: { value, onChange, ...fieldProps } }) => (
+                                <FormItem>
+                                <FormLabel className="flex items-center">
+                                    <UploadCloud className="w-5 h-5 mr-2 inline-block text-muted-foreground" /> PAN Card Copy
+                                </FormLabel>
+                                <FormControl>
+                                    <Input {...fieldProps} type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={(event) => { onChange(event.target.files && event.target.files[0]); }} className="cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700" />
+                                </FormControl>
+                                {value instanceof File && <p className="text-xs text-muted-foreground mt-1">Selected: {value.name}</p>}
+                                <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={control}
+                            name="dsaDocumentUploads.aadhaarCard"
+                            render={({ field: { value, onChange, ...fieldProps } }) => (
+                                <FormItem>
+                                <FormLabel className="flex items-center">
+                                    <UploadCloud className="w-5 h-5 mr-2 inline-block text-muted-foreground" /> Aadhaar Card Copy
+                                </FormLabel>
+                                <FormControl>
+                                    <Input {...fieldProps} type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={(event) => { onChange(event.target.files && event.target.files[0]); }} className="cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700" />
+                                </FormControl>
+                                {value instanceof File && <p className="text-xs text-muted-foreground mt-1">Selected: {value.name}</p>}
+                                <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                         <FormField
+                            control={control}
+                            name="dsaDocumentUploads.photograph"
+                            render={({ field: { value, onChange, ...fieldProps } }) => (
+                                <FormItem>
+                                <FormLabel className="flex items-center">
+                                    <UploadCloud className="w-5 h-5 mr-2 inline-block text-muted-foreground" /> Recent Photograph
+                                </FormLabel>
+                                <FormControl>
+                                    <Input {...fieldProps} type="file" accept="image/*" onChange={(event) => { onChange(event.target.files && event.target.files[0]); }} className="cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700" />
+                                </FormControl>
+                                {value instanceof File && <p className="text-xs text-muted-foreground mt-1">Selected: {value.name}</p>}
+                                <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                         <FormField
+                            control={control}
+                            name="dsaDocumentUploads.bankStatement"
+                            render={({ field: { value, onChange, ...fieldProps } }) => (
+                                <FormItem>
+                                <FormLabel className="flex items-center">
+                                    <UploadCloud className="w-5 h-5 mr-2 inline-block text-muted-foreground" /> Bank Statement (Last 6 Months)
+                                </FormLabel>
+                                <FormControl>
+                                    <Input {...fieldProps} type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={(event) => { onChange(event.target.files && event.target.files[0]); }} className="cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700" />
+                                </FormControl>
+                                {value instanceof File && <p className="text-xs text-muted-foreground mt-1">Selected: {value.name}</p>}
+                                <FormMessage />
+                                </FormItem>
+                            )}
+                        />
                     </FormSection>
                     <FormField
                         control={control}
@@ -437,11 +451,86 @@ export function PartnerSignUpForm() {
                 </div>
                  <div className={currentStep === 3 ? 'block' : 'hidden'}>
                     <FormSection title={allSections.merchantDocs?.title || ''} subtitle={allSections.merchantDocs?.subtitle}>
-                        <FormField control={control} name="merchantDocumentUploads.gstCertificate" render={() => <FormFileInput fieldLabel="GST Certificate" form={form} fieldName="merchantDocumentUploads.gstCertificate" />} />
-                        <FormField control={control} name="merchantDocumentUploads.businessRegistration" render={() => <FormFileInput fieldLabel="Business Registration Proof" form={form} fieldName="merchantDocumentUploads.businessRegistration" />} />
-                        <FormField control={control} name="merchantDocumentUploads.panCard" render={() => <FormFileInput fieldLabel="Proprietor's PAN Card" form={form} fieldName="merchantDocumentUploads.panCard" />} />
-                        <FormField control={control} name="merchantDocumentUploads.aadhaarCard" render={() => <FormFileInput fieldLabel="Proprietor's Aadhaar Card" form={form} fieldName="merchantDocumentUploads.aadhaarCard" />} />
-                        <FormField control={control} name="merchantDocumentUploads.photograph" render={() => <FormFileInput fieldLabel="Proprietor's Photograph" form={form} fieldName="merchantDocumentUploads.photograph" accept="image/*" />} />
+                        <FormField
+                            control={control}
+                            name="merchantDocumentUploads.gstCertificate"
+                            render={({ field: { value, onChange, ...fieldProps } }) => (
+                                <FormItem>
+                                <FormLabel className="flex items-center">
+                                    <UploadCloud className="w-5 h-5 mr-2 inline-block text-muted-foreground" /> GST Certificate
+                                </FormLabel>
+                                <FormControl>
+                                    <Input {...fieldProps} type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={(event) => { onChange(event.target.files && event.target.files[0]); }} className="cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700" />
+                                </FormControl>
+                                {value instanceof File && <p className="text-xs text-muted-foreground mt-1">Selected: {value.name}</p>}
+                                <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                         <FormField
+                            control={control}
+                            name="merchantDocumentUploads.businessRegistration"
+                            render={({ field: { value, onChange, ...fieldProps } }) => (
+                                <FormItem>
+                                <FormLabel className="flex items-center">
+                                    <UploadCloud className="w-5 h-5 mr-2 inline-block text-muted-foreground" /> Business Registration Proof
+                                </FormLabel>
+                                <FormControl>
+                                    <Input {...fieldProps} type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={(event) => { onChange(event.target.files && event.target.files[0]); }} className="cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700" />
+                                </FormControl>
+                                {value instanceof File && <p className="text-xs text-muted-foreground mt-1">Selected: {value.name}</p>}
+                                <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                         <FormField
+                            control={control}
+                            name="merchantDocumentUploads.panCard"
+                            render={({ field: { value, onChange, ...fieldProps } }) => (
+                                <FormItem>
+                                <FormLabel className="flex items-center">
+                                    <UploadCloud className="w-5 h-5 mr-2 inline-block text-muted-foreground" /> Proprietor's PAN Card
+                                </FormLabel>
+                                <FormControl>
+                                    <Input {...fieldProps} type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={(event) => { onChange(event.target.files && event.target.files[0]); }} className="cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700" />
+                                </FormControl>
+                                {value instanceof File && <p className="text-xs text-muted-foreground mt-1">Selected: {value.name}</p>}
+                                <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={control}
+                            name="merchantDocumentUploads.aadhaarCard"
+                            render={({ field: { value, onChange, ...fieldProps } }) => (
+                                <FormItem>
+                                <FormLabel className="flex items-center">
+                                    <UploadCloud className="w-5 h-5 mr-2 inline-block text-muted-foreground" /> Proprietor's Aadhaar Card
+                                </FormLabel>
+                                <FormControl>
+                                    <Input {...fieldProps} type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={(event) => { onChange(event.target.files && event.target.files[0]); }} className="cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700" />
+                                </FormControl>
+                                {value instanceof File && <p className="text-xs text-muted-foreground mt-1">Selected: {value.name}</p>}
+                                <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={control}
+                            name="merchantDocumentUploads.photograph"
+                            render={({ field: { value, onChange, ...fieldProps } }) => (
+                                <FormItem>
+                                <FormLabel className="flex items-center">
+                                    <UploadCloud className="w-5 h-5 mr-2 inline-block text-muted-foreground" /> Proprietor's Photograph
+                                </FormLabel>
+                                <FormControl>
+                                    <Input {...fieldProps} type="file" accept="image/*" onChange={(event) => { onChange(event.target.files && event.target.files[0]); }} className="cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700" />
+                                </FormControl>
+                                {value instanceof File && <p className="text-xs text-muted-foreground mt-1">Selected: {value.name}</p>}
+                                <FormMessage />
+                                </FormItem>
+                            )}
+                        />
                     </FormSection>
                      <FormField
                         control={control}
