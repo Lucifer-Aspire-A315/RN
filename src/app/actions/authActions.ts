@@ -88,7 +88,24 @@ async function _findUserByEmail(email: string, collectionName: 'partners' | 'use
 async function _signUpUser(data: UserSignUpFormData | PartnerSignUpFormData, collectionName: 'partners' | 'users'): Promise<AuthServerActionResponse> {
     try {
         const dataToSubmit = { ...data };
-        const emailToSearch = collectionName === 'partners' ? dataToSubmit.personalDetails.email : dataToSubmit.email;
+        
+        let emailToSearch: string;
+        let fullName: string;
+
+        if (collectionName === 'partners') {
+            const partnerData = data as PartnerSignUpFormData;
+            if (partnerData.businessModel === 'referral') {
+                emailToSearch = partnerData.email;
+                fullName = partnerData.fullName;
+            } else {
+                emailToSearch = partnerData.personalDetails.email;
+                fullName = partnerData.personalDetails.fullName;
+            }
+        } else {
+            const userData = data as UserSignUpFormData;
+            emailToSearch = userData.email;
+            fullName = userData.fullName;
+        }
 
         const existingUser = await _findUserByEmail(emailToSearch, collectionName);
         if (existingUser) {
@@ -110,14 +127,15 @@ async function _signUpUser(data: UserSignUpFormData | PartnerSignUpFormData, col
 
         if (collectionName === 'partners') {
             userToSave.isApproved = false; // Partners require approval
+            // Standardize top-level fields for easy querying
+            userToSave.fullName = fullName;
+            userToSave.email = emailToSearch;
         } else {
             userToSave.isAdmin = false; // Normal users are never admins by default
         }
         
         const docRef = await addDoc(collection(db, collectionName), userToSave);
         
-        const fullName = collectionName === 'partners' ? dataToSubmit.personalDetails.fullName : dataToSubmit.fullName;
-
         const newUser: UserData = {
             id: docRef.id,
             fullName: fullName,
@@ -157,11 +175,9 @@ async function _loginUser(data: UserLoginFormData, collectionName: 'partners' | 
             return { success: false, message: 'Your partner account is pending approval. Please contact support.' };
         }
         
-        const fullName = collectionName === 'partners' ? userData.personalDetails?.fullName : userData.fullName;
-
         const loggedInUser: UserData = {
             id: userDoc.id,
-            fullName: fullName || 'Partner', // Fallback name
+            fullName: userData.fullName, // Now standardized at the top level
             email: userData.email,
             type: collectionName === 'partners' ? 'partner' : 'normal',
             isAdmin: !!userData.isAdmin,
@@ -183,7 +199,8 @@ async function _loginUser(data: UserLoginFormData, collectionName: 'partners' | 
 // #region --- EXPORTED SERVER ACTIONS ---
 
 export async function partnerSignUpAction(data: PartnerSignUpFormData): Promise<AuthServerActionResponse> {
-  console.log('[AuthActions - partnerSignUpAction] Initiated for email:', data.personalDetails.email);
+  const email = data.businessModel === 'referral' ? data.email : data.personalDetails.email;
+  console.log('[AuthActions - partnerSignUpAction] Initiated for email:', email);
   return _signUpUser(data, 'partners');
 }
 

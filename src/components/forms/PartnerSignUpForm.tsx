@@ -30,6 +30,7 @@ const getKeysFromZodObject = (schema: z.ZodTypeAny): string[] => {
     }
     // Handle ZodEffects (e.g., from .refine() or .superRefine())
     if (schema instanceof z.ZodEffects) {
+        // Recursively call on the inner schema
         return getKeysFromZodObject(schema.innerType());
     }
     return [];
@@ -94,11 +95,6 @@ export function PartnerSignUpForm() {
     resolver: zodResolver(PartnerSignUpSchema),
     defaultValues: {
       businessModel: 'referral',
-      fullName: '',
-      email: '',
-      mobileNumber: '',
-      password: '',
-      confirmPassword: '',
     },
     mode: 'onTouched',
   });
@@ -108,12 +104,17 @@ export function PartnerSignUpForm() {
 
   const allSections = useMemo(() => {
     // Access the underlying discriminated union schema
-    const discriminatedUnionSchema = PartnerSignUpSchema._def.schema as z.ZodDiscriminatedUnion<"businessModel", any>;
+     if (!(PartnerSignUpSchema._def.schema instanceof z.ZodDiscriminatedUnion)) {
+        return {};
+     }
+    const discriminatedUnionSchema = PartnerSignUpSchema._def.schema;
     const dsaSchema = discriminatedUnionSchema.optionsMap.get('dsa');
     const merchantSchema = discriminatedUnionSchema.optionsMap.get('merchant');
-    
-    const dsaShape = dsaSchema?.shape as z.ZodObject<any>['shape'] | undefined;
-    const merchantShape = merchantSchema?.shape as z.ZodObject<any>['shape'] | undefined;
+    const referralSchema = discriminatedUnionSchema.optionsMap.get('referral');
+
+    const dsaShape = dsaSchema?._def.shape() as z.ZodObject<any>['shape'] | undefined;
+    const merchantShape = merchantSchema?._def.shape() as z.ZodObject<any>['shape'] | undefined;
+    const referralShape = referralSchema?._def.shape() as z.ZodObject<any>['shape'] | undefined;
 
     // Safely extract field names
     const dsaPersonalFields = dsaShape?.personalDetails ? getKeysFromZodObject(dsaShape.personalDetails) : [];
@@ -122,7 +123,12 @@ export function PartnerSignUpForm() {
     const dsaDocsFields = dsaShape?.dsaDocumentUploads ? getKeysFromZodObject(dsaShape.dsaDocumentUploads) : [];
     
     const merchantInfoFields = merchantShape?.businessInformation ? getKeysFromZodObject(merchantShape.businessInformation) : [];
+    const merchantPersonalFields = merchantShape?.personalDetails ? getKeysFromZodObject(merchantShape.personalDetails) : [];
     const merchantDocsFields = merchantShape?.merchantDocumentUploads ? getKeysFromZodObject(merchantShape.merchantDocumentUploads) : [];
+
+    const referralFields = referralShape ? getKeysFromZodObject(referralSchema) : [];
+    
+    const passwordFields = ['password', 'confirmPassword'];
 
     return {
       modelSelection: {
@@ -130,15 +136,15 @@ export function PartnerSignUpForm() {
           subtitle: "Choose how you'd like to partner with us.",
           fields: ['businessModel']
       },
-      basicInfo: {
+      referralInfo: {
           title: "2. Basic Information",
-          subtitle: "This information is required for all partner types.",
-          fields: ['fullName', 'email', 'mobileNumber', 'password', 'confirmPassword']
+          subtitle: "Provide your details to get started.",
+          fields: referralFields.filter(f => f !== 'businessModel')
       },
       dsaPersonal: {
           title: "DSA: Personal Details",
           subtitle: "Provide your verifiable personal information.",
-          fields: dsaPersonalFields.map(f => `personalDetails.${f}`)
+          fields: [...dsaPersonalFields.map(f => `personalDetails.${f}`), ...passwordFields]
       },
       dsaProfessional: {
           title: "DSA: Professional & Financial Background",
@@ -153,6 +159,11 @@ export function PartnerSignUpForm() {
           subtitle: "Please upload clear copies of the following documents.",
           fields: [...dsaDocsFields.map(f => `dsaDocumentUploads.${f}`), 'declaration']
       },
+      merchantPersonal: {
+          title: "Merchant: Proprietor's Details",
+          subtitle: "Provide the personal details of the primary business owner.",
+          fields: [...merchantPersonalFields.map(f => `personalDetails.${f}`), ...passwordFields]
+      },
       merchantInfo: {
           title: "Merchant: Business Information",
           fields: merchantInfoFields.map(f => `businessInformation.${f}`)
@@ -160,21 +171,22 @@ export function PartnerSignUpForm() {
       merchantDocs: {
           title: "Merchant: Document Uploads",
           subtitle: "Please upload business verification documents.",
-          fields: merchantDocsFields.map(f => `merchantDocumentUploads.${f}`)
+          fields: [...merchantDocsFields.map(f => `merchantDocumentUploads.${f}`), 'declaration']
       }
     };
   }, []);
 
   const steps = useMemo(() => {
-    const { modelSelection, basicInfo, dsaPersonal, dsaProfessional, dsaScope, dsaDocs, merchantInfo, merchantDocs } = allSections;
+    if (!allSections.modelSelection) return []; // Guard against initial render
+    const { modelSelection, referralInfo, dsaPersonal, dsaProfessional, dsaScope, dsaDocs, merchantPersonal, merchantInfo, merchantDocs } = allSections;
     if (businessModel === 'dsa') {
-      return [modelSelection, basicInfo, dsaPersonal, dsaProfessional, dsaScope, dsaDocs];
+      return [modelSelection, dsaPersonal, dsaProfessional, dsaScope, dsaDocs];
     }
     if (businessModel === 'merchant') {
-      return [modelSelection, basicInfo, merchantInfo, merchantDocs];
+      return [modelSelection, merchantPersonal, merchantInfo, merchantDocs];
     }
     // Referral
-    return [modelSelection, basicInfo];
+    return [modelSelection, referralInfo];
   }, [businessModel, allSections]);
   
   const handleNextStep = async () => {
@@ -256,13 +268,13 @@ export function PartnerSignUpForm() {
         </p>
       </div>
       
-      <FormProgress currentStep={currentStep} totalSteps={steps.length} />
+      {steps.length > 0 && <FormProgress currentStep={currentStep} totalSteps={steps.length} />}
 
       <Form {...form}>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-10">
           
           <div className={currentStep === 0 ? 'block' : 'hidden'}>
-            <FormSection title={allSections.modelSelection.title} subtitle={allSections.modelSelection.subtitle}>
+            <FormSection title={allSections.modelSelection?.title || "Business Model"} subtitle={allSections.modelSelection?.subtitle}>
                 <FormField
                 control={control}
                 name="businessModel"
@@ -311,38 +323,36 @@ export function PartnerSignUpForm() {
             </FormSection>
           </div>
 
-          <div className={currentStep === 1 ? 'block' : 'hidden'}>
-              <FormSection title={allSections.basicInfo.title} subtitle={allSections.basicInfo.subtitle}>
-                <FormField control={control} name="fullName" render={({ field }) => ( <FormItem><FormLabel>Full Name</FormLabel><FormControl><Input placeholder="Your Full Name" {...field} /></FormControl><FormMessage /></FormItem> )} />
-                <FormField control={control} name="email" render={({ field }) => ( <FormItem><FormLabel>Email ID</FormLabel><FormControl><Input type="email" placeholder="your.email@example.com" {...field} /></FormControl><FormMessage /></FormItem> )} />
-                <FormField control={control} name="mobileNumber" render={({ field }) => ( <FormItem><FormLabel>Mobile Number</FormLabel><FormControl><Input type="tel" placeholder="10-digit mobile number" {...field} /></FormControl><FormMessage /></FormItem> )} />
-                <FormField control={control} name="password" render={({ field }) => ( <FormItem><FormLabel>Create Password</FormLabel><FormControl><Input type="password" placeholder="Create a strong password" {...field} /></FormControl><FormMessage /></FormItem> )} />
-                <FormField control={control} name="confirmPassword" render={({ field }) => ( <FormItem><FormLabel>Confirm Password</FormLabel><FormControl><Input type="password" placeholder="Confirm your password" {...field} /></FormControl><FormMessage /></FormItem> )} />
-              </FormSection>
-          </div>
+          {businessModel === 'referral' && (
+            <div className={currentStep === 1 ? 'block' : 'hidden'}>
+                <FormSection title={allSections.referralInfo?.title || ''} subtitle={allSections.referralInfo?.subtitle}>
+                    <FormField control={control} name="fullName" render={({ field }) => ( <FormItem><FormLabel>Full Name</FormLabel><FormControl><Input placeholder="Your Full Name" {...field} /></FormControl><FormMessage /></FormItem> )} />
+                    <FormField control={control} name="email" render={({ field }) => ( <FormItem><FormLabel>Email ID</FormLabel><FormControl><Input type="email" placeholder="your.email@example.com" {...field} /></FormControl><FormMessage /></FormItem> )} />
+                    <FormField control={control} name="mobileNumber" render={({ field }) => ( <FormItem><FormLabel>Mobile Number</FormLabel><FormControl><Input type="tel" placeholder="10-digit mobile number" {...field} /></FormControl><FormMessage /></FormItem> )} />
+                    <FormField control={control} name="password" render={({ field }) => ( <FormItem><FormLabel>Create Password</FormLabel><FormControl><Input type="password" placeholder="Create a strong password" {...field} /></FormControl><FormMessage /></FormItem> )} />
+                    <FormField control={control} name="confirmPassword" render={({ field }) => ( <FormItem><FormLabel>Confirm Password</FormLabel><FormControl><Input type="password" placeholder="Confirm your password" {...field} /></FormControl><FormMessage /></FormItem> )} />
+                </FormSection>
+            </div>
+          )}
 
           {businessModel === 'dsa' && (
             <>
-                <div className={currentStep === 2 ? 'block' : 'hidden'}>
-                     <FormSection title={allSections.dsaPersonal.title} subtitle={allSections.dsaPersonal.subtitle}>
+                <div className={currentStep === 1 ? 'block' : 'hidden'}>
+                     <FormSection title={allSections.dsaPersonal?.title || ''} subtitle={allSections.dsaPersonal?.subtitle}>
+                        <FormField control={control} name="personalDetails.fullName" render={({ field }) => ( <FormItem><FormLabel>Full Name</FormLabel><FormControl><Input placeholder="Your Full Name" {...field} /></FormControl><FormMessage /></FormItem> )} />
+                        <FormField control={control} name="personalDetails.email" render={({ field }) => ( <FormItem><FormLabel>Email ID</FormLabel><FormControl><Input type="email" placeholder="your.email@example.com" {...field} /></FormControl><FormMessage /></FormItem> )} />
+                        <FormField control={control} name="personalDetails.mobileNumber" render={({ field }) => ( <FormItem><FormLabel>Mobile Number</FormLabel><FormControl><Input type="tel" placeholder="10-digit mobile number" {...field} /></FormControl><FormMessage /></FormItem> )} />
                         <FormField control={control} name="personalDetails.fatherOrHusbandName" render={({ field }) => ( <FormItem><FormLabel>Father's / Husband's Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem> )} />
                         <FormField control={control} name="personalDetails.dob" render={({ field }) => ( <FormItem><FormLabel>Date of Birth</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem> )} />
                         <FormField control={control} name="personalDetails.gender" render={({ field }) => ( <FormItem><FormLabel>Gender</FormLabel><RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex gap-4 pt-2"><FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="male" /></FormControl><FormLabel className="font-normal">Male</FormLabel></FormItem><FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="female" /></FormControl><FormLabel className="font-normal">Female</FormLabel></FormItem><FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="other" /></FormControl><FormLabel className="font-normal">Other</FormLabel></FormItem></RadioGroup><FormMessage /></FormItem> )} />
                         <FormField control={control} name="personalDetails.panNumber" render={({ field }) => ( <FormItem><FormLabel>PAN Number</FormLabel><FormControl><Input placeholder="ABCDE1234F" {...field} /></FormControl><FormMessage /></FormItem> )} />
                         <FormField control={control} name="personalDetails.aadhaarNumber" render={({ field }) => ( <FormItem><FormLabel>Aadhaar Number</FormLabel><FormControl><Input placeholder="12-digit number" {...field} /></FormControl><FormMessage /></FormItem> )} />
-                        <FormFieldWrapper className="md:col-span-2">
-                            <FormField control={control} name="personalDetails.currentAddress" render={({ field }) => ( <FormItem><FormLabel>Current Address</FormLabel><FormControl><Textarea placeholder="Your current full address" {...field} /></FormControl><FormMessage /></FormItem> )} />
-                        </FormFieldWrapper>
-                        <FormField control={control} name="personalDetails.isPermanentAddressSame" render={({ field }) => ( <FormItem><FormLabel>Is Permanent Address same as Current?</FormLabel><RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex gap-4 pt-2"><FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem><FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem></RadioGroup><FormMessage /></FormItem> )} />
-                        {watch('personalDetails.isPermanentAddressSame') === 'no' && (
-                            <FormFieldWrapper className="md:col-span-2">
-                            <FormField control={control} name="personalDetails.permanentAddress" render={({ field }) => ( <FormItem><FormLabel>Permanent Address</FormLabel><FormControl><Textarea placeholder="Your permanent full address" {...field} /></FormControl><FormMessage /></FormItem> )} />
-                            </FormFieldWrapper>
-                        )}
+                        <FormField control={control} name="password" render={({ field }) => ( <FormItem><FormLabel>Create Password</FormLabel><FormControl><Input type="password" placeholder="Create a strong password" {...field} /></FormControl><FormMessage /></FormItem> )} />
+                        <FormField control={control} name="confirmPassword" render={({ field }) => ( <FormItem><FormLabel>Confirm Password</FormLabel><FormControl><Input type="password" placeholder="Confirm your password" {...field} /></FormControl><FormMessage /></FormItem> )} />
                     </FormSection>
                 </div>
-                <div className={currentStep === 3 ? 'block' : 'hidden'}>
-                     <FormSection title={allSections.dsaProfessional.title}>
+                <div className={currentStep === 2 ? 'block' : 'hidden'}>
+                     <FormSection title={allSections.dsaProfessional?.title || ''}>
                         <FormField control={control} name="professionalFinancial.highestQualification" render={({ field }) => ( <FormItem><FormLabel>Highest Qualification</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem> )} />
                         <FormField control={control} name="professionalFinancial.presentOccupation" render={({ field }) => ( <FormItem><FormLabel>Present Occupation</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem> )} />
                         <FormField control={control} name="professionalFinancial.yearsInOccupation" render={({ field }) => ( <FormItem><FormLabel>Years in Occupation</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem> )} />
@@ -352,8 +362,8 @@ export function PartnerSignUpForm() {
                         <FormField control={control} name="professionalFinancial.bankIfscCode" render={({ field }) => ( <FormItem><FormLabel>Bank IFSC Code</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem> )} />
                     </FormSection>
                 </div>
-                 <div className={currentStep === 4 ? 'block' : 'hidden'}>
-                    <FormSection title={allSections.dsaScope.title}>
+                 <div className={currentStep === 3 ? 'block' : 'hidden'}>
+                    <FormSection title={allSections.dsaScope?.title || ''}>
                         <FormField control={control} name="businessScope.constitution" render={({ field }) => ( <FormItem><FormLabel>Constitution</FormLabel><RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex gap-4 pt-2"><FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="individual" /></FormControl><FormLabel className="font-normal">Individual</FormLabel></FormItem><FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="proprietorship" /></FormControl><FormLabel className="font-normal">Proprietorship</FormLabel></FormItem><FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="partnership" /></FormControl><FormLabel className="font-normal">Partnership</FormLabel></FormItem></RadioGroup><FormMessage /></FormItem> )} />
                         <FormField control={control} name="businessScope.operatingLocation" render={({ field }) => ( <FormItem><FormLabel>Preferred Operating Location</FormLabel><FormControl><Input placeholder="e.g., Pune" {...field} /></FormControl><FormMessage /></FormItem> )} />
                         <FormFieldWrapper className="md:col-span-2">
@@ -370,10 +380,10 @@ export function PartnerSignUpForm() {
                         </FormFieldWrapper>
                     </FormSection>
                  </div>
-                 <div className={currentStep === 5 ? 'block' : 'hidden'}>
-                     <FormSection title={allSections.dsaDocs.title} subtitle={allSections.dsaDocs.subtitle}>
-                        <FormField control={control} name="dsaDocumentUploads.panCardCopy" render={() => <FormFileInput fieldLabel="PAN Card Copy" form={form} fieldName="dsaDocumentUploads.panCardCopy" />} />
-                        <FormField control={control} name="dsaDocumentUploads.aadhaarCardCopy" render={() => <FormFileInput fieldLabel="Aadhaar Card Copy" form={form} fieldName="dsaDocumentUploads.aadhaarCardCopy" />} />
+                 <div className={currentStep === 4 ? 'block' : 'hidden'}>
+                     <FormSection title={allSections.dsaDocs?.title || ''} subtitle={allSections.dsaDocs?.subtitle}>
+                        <FormField control={control} name="dsaDocumentUploads.panCard" render={() => <FormFileInput fieldLabel="PAN Card Copy" form={form} fieldName="dsaDocumentUploads.panCard" />} />
+                        <FormField control={control} name="dsaDocumentUploads.aadhaarCard" render={() => <FormFileInput fieldLabel="Aadhaar Card Copy" form={form} fieldName="dsaDocumentUploads.aadhaarCard" />} />
                         <FormField control={control} name="dsaDocumentUploads.photograph" render={() => <FormFileInput fieldLabel="Recent Photograph" form={form} fieldName="dsaDocumentUploads.photograph" accept="image/*" />} />
                         <FormField control={control} name="dsaDocumentUploads.bankStatement" render={() => <FormFileInput fieldLabel="Bank Statement (Last 6 Months)" form={form} fieldName="dsaDocumentUploads.bankStatement" />} />
                     </FormSection>
@@ -401,8 +411,22 @@ export function PartnerSignUpForm() {
 
           {businessModel === 'merchant' && (
             <>
+                <div className={currentStep === 1 ? 'block' : 'hidden'}>
+                     <FormSection title={allSections.merchantPersonal?.title || ''} subtitle={allSections.merchantPersonal?.subtitle}>
+                        <FormField control={control} name="personalDetails.fullName" render={({ field }) => ( <FormItem><FormLabel>Proprietor's Full Name</FormLabel><FormControl><Input placeholder="Your Full Name" {...field} /></FormControl><FormMessage /></FormItem> )} />
+                        <FormField control={control} name="personalDetails.email" render={({ field }) => ( <FormItem><FormLabel>Email ID</FormLabel><FormControl><Input type="email" placeholder="your.email@example.com" {...field} /></FormControl><FormMessage /></FormItem> )} />
+                        <FormField control={control} name="personalDetails.mobileNumber" render={({ field }) => ( <FormItem><FormLabel>Mobile Number</FormLabel><FormControl><Input type="tel" placeholder="10-digit mobile number" {...field} /></FormControl><FormMessage /></FormItem> )} />
+                        <FormField control={control} name="personalDetails.fatherOrHusbandName" render={({ field }) => ( <FormItem><FormLabel>Father's / Husband's Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem> )} />
+                        <FormField control={control} name="personalDetails.dob" render={({ field }) => ( <FormItem><FormLabel>Date of Birth</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem> )} />
+                        <FormField control={control} name="personalDetails.gender" render={({ field }) => ( <FormItem><FormLabel>Gender</FormLabel><RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex gap-4 pt-2"><FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="male" /></FormControl><FormLabel className="font-normal">Male</FormLabel></FormItem><FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="female" /></FormControl><FormLabel className="font-normal">Female</FormLabel></FormItem><FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="other" /></FormControl><FormLabel className="font-normal">Other</FormLabel></FormItem></RadioGroup><FormMessage /></FormItem> )} />
+                        <FormField control={control} name="personalDetails.panNumber" render={({ field }) => ( <FormItem><FormLabel>PAN Number</FormLabel><FormControl><Input placeholder="ABCDE1234F" {...field} /></FormControl><FormMessage /></FormItem> )} />
+                        <FormField control={control} name="personalDetails.aadhaarNumber" render={({ field }) => ( <FormItem><FormLabel>Aadhaar Number</FormLabel><FormControl><Input placeholder="12-digit number" {...field} /></FormControl><FormMessage /></FormItem> )} />
+                        <FormField control={control} name="password" render={({ field }) => ( <FormItem><FormLabel>Create Password</FormLabel><FormControl><Input type="password" placeholder="Create a strong password" {...field} /></FormControl><FormMessage /></FormItem> )} />
+                        <FormField control={control} name="confirmPassword" render={({ field }) => ( <FormItem><FormLabel>Confirm Password</FormLabel><FormControl><Input type="password" placeholder="Confirm your password" {...field} /></FormControl><FormMessage /></FormItem> )} />
+                    </FormSection>
+                </div>
                 <div className={currentStep === 2 ? 'block' : 'hidden'}>
-                    <FormSection title={allSections.merchantInfo.title}>
+                    <FormSection title={allSections.merchantInfo?.title || ''}>
                         <FormField control={control} name="businessInformation.legalBusinessName" render={({ field }) => ( <FormItem><FormLabel>Legal Business Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem> )} />
                         <FormField control={control} name="businessInformation.businessType" render={({ field }) => ( <FormItem><FormLabel>Business Type</FormLabel><RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex gap-4 pt-2"><FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="proprietorship" /></FormControl><FormLabel className="font-normal">Proprietorship</FormLabel></FormItem><FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="partnership" /></FormControl><FormLabel className="font-normal">Partnership</FormLabel></FormItem><FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="pvt_ltd" /></FormControl><FormLabel className="font-normal">Pvt. Ltd.</FormLabel></FormItem></RadioGroup><FormMessage /></FormItem> )} />
                         <FormField control={control} name="businessInformation.industry" render={({ field }) => ( <FormItem><FormLabel>Industry / Nature of Business</FormLabel><FormControl><Input placeholder="e.g., Electronics Retail" {...field} /></FormControl><FormMessage /></FormItem> )} />
@@ -413,11 +437,29 @@ export function PartnerSignUpForm() {
                     </FormSection>
                 </div>
                  <div className={currentStep === 3 ? 'block' : 'hidden'}>
-                    <FormSection title={allSections.merchantDocs.title} subtitle={allSections.merchantDocs.subtitle}>
+                    <FormSection title={allSections.merchantDocs?.title || ''} subtitle={allSections.merchantDocs?.subtitle}>
                         <FormField control={control} name="merchantDocumentUploads.gstCertificate" render={() => <FormFileInput fieldLabel="GST Certificate" form={form} fieldName="merchantDocumentUploads.gstCertificate" />} />
                         <FormField control={control} name="merchantDocumentUploads.businessRegistration" render={() => <FormFileInput fieldLabel="Business Registration Proof" form={form} fieldName="merchantDocumentUploads.businessRegistration" />} />
                         <FormField control={control} name="merchantDocumentUploads.ownerPanCard" render={() => <FormFileInput fieldLabel="Owner's PAN Card" form={form} fieldName="merchantDocumentUploads.ownerPanCard" />} />
                     </FormSection>
+                     <FormField
+                        control={control}
+                        name="declaration"
+                        render={({ field }) => (
+                        <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 shadow-sm md:col-span-2 mt-6">
+                            <FormControl>
+                            <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                            </FormControl>
+                            <div className="space-y-1 leading-none">
+                            <FormLabel>Declaration and Undertaking</FormLabel>
+                            <FormMessage />
+                            <p className="text-xs text-muted-foreground">
+                                I hereby declare that the details and documents submitted are true and correct. I authorize RN FinTech to process this application.
+                            </p>
+                            </div>
+                        </FormItem>
+                        )}
+                    />
                 </div>
             </>
           )}

@@ -776,34 +776,33 @@ export type AuditAndAssuranceFormData = z.infer<typeof AuditAndAssuranceFormSche
 
 // #region --- AUTHENTICATION SCHEMAS ---
 
-const basePartnerSchema = z.object({
-  fullName: z.string().min(1, "Full Name is required"),
-  email: z.string().email("Invalid email address"),
-  mobileNumber: z.string().regex(/^\d{10}$/, "Invalid mobile number (must be 10 digits)"),
+const passwordSchema = z.object({
   password: z.string().min(8, "Password must be at least 8 characters long"),
   confirmPassword: z.string().min(8, "Confirm Password must be at least 8 characters long"),
 });
 
-const referralPartnerSchema = basePartnerSchema.extend({
+const referralPartnerSchema = z.object({
   businessModel: z.literal('referral'),
-});
+  fullName: z.string().min(1, "Full Name is required"),
+  email: z.string().email("Invalid email address"),
+  mobileNumber: z.string().regex(/^\d{10}$/, "Invalid mobile number (must be 10 digits)"),
+}).merge(passwordSchema);
 
-const dsaPartnerSchema = basePartnerSchema.extend({
-  businessModel: z.literal('dsa'),
-  personalDetails: z.object({
-    fatherOrHusbandName: z.string().min(1, "This field is required"),
-    dob: z.string().min(1, "Date of Birth is required"),
-    gender: z.enum(['male', 'female', 'other'], { required_error: "Gender is required" }),
-    panNumber: z.string().regex(/^([A-Z]{5}[0-9]{4}[A-Z]{1})$/, "Invalid PAN format"),
-    aadhaarNumber: z.string().regex(/^\d{12}$/, "Invalid Aadhaar format"),
+const DsaPersonalDetailsSchema = PersonalDetailsSchema.extend({
+    // DSA doesn't need a separate address object, can be flat
     currentAddress: z.string().min(1, "Current address is required"),
     isPermanentAddressSame: z.enum(['yes', 'no'], { required_error: "Please select an option" }),
     permanentAddress: z.string().optional(),
-  }).superRefine((data, ctx) => {
+}).superRefine((data, ctx) => {
     if (data.isPermanentAddressSame === 'no' && !data.permanentAddress?.trim()) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Permanent address is required", path: ["permanentAddress"] });
     }
-  }),
+});
+
+
+const dsaPartnerSchema = z.object({
+  businessModel: z.literal('dsa'),
+  personalDetails: DsaPersonalDetailsSchema,
   professionalFinancial: z.object({
     highestQualification: z.string().min(1, "Highest qualification is required"),
     presentOccupation: z.string().min(1, "Present occupation is required"),
@@ -823,17 +822,15 @@ const dsaPartnerSchema = basePartnerSchema.extend({
       creditCard: z.boolean().default(false),
     }).refine(data => Object.values(data).some(v => v), { message: 'Select at least one product of interest', path: ['homeLoan'] }),
   }),
-  dsaDocumentUploads: z.object({
-    panCardCopy: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES),
-    aadhaarCardCopy: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES),
-    photograph: stringOrFileSchema(ACCEPTED_IMAGE_TYPES),
+  dsaDocumentUploads: KycDocumentsSchema.extend({
     bankStatement: stringOrFileSchema(ACCEPTED_BANK_STATEMENT_TYPES),
   }),
   declaration: z.boolean().refine(v => v === true, { message: 'You must agree to the declaration.' }),
-});
+}).merge(passwordSchema);
 
-const merchantPartnerSchema = basePartnerSchema.extend({
+const merchantPartnerSchema = z.object({
   businessModel: z.literal('merchant'),
+  personalDetails: PersonalDetailsSchema,
   businessInformation: z.object({
     legalBusinessName: z.string().min(1, "Legal business name is required"),
     businessType: z.enum(['proprietorship', 'partnership', 'pvt_ltd'], { required_error: "Business type is required" }),
@@ -854,7 +851,8 @@ const merchantPartnerSchema = basePartnerSchema.extend({
     businessRegistration: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES),
     ownerPanCard: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES),
   }),
-});
+  declaration: z.boolean().refine(v => v === true, { message: 'You must agree to the declaration.' }),
+}).merge(passwordSchema);
 
 
 export const PartnerSignUpSchema = z.discriminatedUnion('businessModel', [
