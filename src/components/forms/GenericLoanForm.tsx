@@ -17,7 +17,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Textarea } from '../ui/textarea';
 import { processFileUploads } from '@/lib/form-helpers';
 import { useRouter } from 'next/navigation';
-import { Progress } from '@/components/ui/progress';
+import { FormProgress } from '../shared/FormProgress';
 
 // --- TYPE DEFINITIONS ---
 
@@ -288,9 +288,7 @@ export function GenericLoanForm<TData extends Record<string, any>>({
   const handlePreviousClick = () => {
     setCurrentStep(prev => prev - 1);
   };
-
-  const progress = visibleSections.length > 1 ? ((currentStep + 1) / visibleSections.length) * 100 : 100;
-
+  
   const renderField = (fieldConfig: FieldConfig) => {
     return (
       <FormField key={fieldConfig.name} control={control} name={fieldConfig.name as any}
@@ -386,14 +384,7 @@ export function GenericLoanForm<TData extends Record<string, any>>({
             {formSubtitle && <p className="text-muted-foreground mt-1">{formSubtitle}</p>}
           </div>
           
-           <div className="my-8">
-            <div className="flex justify-between mb-1">
-                <span className="text-sm font-medium text-primary">Section {currentStep + 1} of {visibleSections.length}</span>
-                <span className="text-sm font-medium text-primary">{Math.round(progress)}% Complete</span>
-            </div>
-            <Progress value={progress} className="w-full" />
-          </div>
-
+          <FormProgress currentStep={currentStep} totalSteps={visibleSections.length} />
 
           <Form {...form}>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-10">

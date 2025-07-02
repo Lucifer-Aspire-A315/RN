@@ -4,7 +4,7 @@
 import React, { useState, useMemo } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { PartnerSignUpSchema, type PartnerSignUpFormData } from '@/lib/schemas';
+import { UnrefinedPartnerSignUpSchema, PartnerSignUpSchema, type PartnerSignUpFormData } from '@/lib/schemas';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -19,7 +19,7 @@ import { FormSection, FormFieldWrapper } from './FormSection';
 import { partnerSignUpAction } from '@/app/actions/authActions';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Progress } from '../ui/progress';
+import { FormProgress } from '../shared/FormProgress';
 
 // Reusable File Input Component
 interface FormFileInputProps {
@@ -92,45 +92,55 @@ export function PartnerSignUpForm() {
   const { control, handleSubmit, watch, formState: { errors }, setValue, setError, trigger } = form;
   const businessModel = watch('businessModel');
 
-  const allSections = useMemo(() => ({
-    modelSelection: {
-        title: "1. Select Your Business Model",
-        subtitle: "Choose how you'd like to partner with us.",
-        fields: ['businessModel']
-    },
-    basicInfo: {
-        title: "2. Basic Information",
-        subtitle: "This information is required for all partner types.",
-        fields: ['fullName', 'email', 'mobileNumber', 'password', 'confirmPassword']
-    },
-    dsaPersonal: {
-        title: "DSA: Personal Details",
-        subtitle: "Provide your verifiable personal information.",
-        fields: ['personalDetails.fatherOrHusbandName', 'personalDetails.dob', 'personalDetails.gender', 'personalDetails.panNumber', 'personalDetails.aadhaarNumber', 'personalDetails.currentAddress', 'personalDetails.isPermanentAddressSame', 'personalDetails.permanentAddress']
-    },
-    dsaProfessional: {
-        title: "DSA: Professional & Financial Background",
-        fields: ['professionalFinancial.highestQualification', 'professionalFinancial.presentOccupation', 'professionalFinancial.yearsInOccupation', 'professionalFinancial.annualIncome', 'professionalFinancial.bankName', 'professionalFinancial.bankAccountNumber', 'professionalFinancial.bankIfscCode']
-    },
-    dsaScope: {
-        title: "DSA: Business Scope",
-        fields: ['businessScope.constitution', 'businessScope.operatingLocation', 'businessScope.productsOfInterest.homeLoan', 'businessScope.productsOfInterest.personalLoan', 'businessScope.productsOfInterest.businessLoan', 'businessScope.productsOfInterest.creditCard']
-    },
-    dsaDocs: {
-        title: "DSA: Document Uploads",
-        subtitle: "Please upload clear copies of the following documents.",
-        fields: ['dsaDocumentUploads.panCardCopy', 'dsaDocumentUploads.aadhaarCardCopy', 'dsaDocumentUploads.photograph', 'dsaDocumentUploads.bankStatement', 'declaration']
-    },
-    merchantInfo: {
-        title: "Merchant: Business Information",
-        fields: ['businessInformation.legalBusinessName', 'businessInformation.businessType', 'businessInformation.industry', 'businessInformation.gstNumber', 'businessInformation.businessAddress']
-    },
-    merchantDocs: {
-        title: "Merchant: Document Uploads",
-        subtitle: "Please upload business verification documents.",
-        fields: ['merchantDocumentUploads.gstCertificate', 'merchantDocumentUploads.businessRegistration', 'merchantDocumentUploads.ownerPanCard']
-    }
-  }), []);
+  const allSections = useMemo(() => {
+    const dsaPersonalFields = Object.keys(UnrefinedPartnerSignUpSchema.optionsMap.get('dsa')?.shape.personalDetails.shape || {});
+    const dsaProfessionalFields = Object.keys(UnrefinedPartnerSignUpSchema.optionsMap.get('dsa')?.shape.professionalFinancial.shape || {});
+    const dsaScopeFields = Object.keys(UnrefinedPartnerSignUpSchema.optionsMap.get('dsa')?.shape.businessScope.shape || {});
+    const dsaDocsFields = Object.keys(UnrefinedPartnerSignUpSchema.optionsMap.get('dsa')?.shape.dsaDocumentUploads.shape || {});
+    
+    const merchantInfoFields = Object.keys(UnrefinedPartnerSignUpSchema.optionsMap.get('merchant')?.shape.businessInformation.shape || {});
+    const merchantDocsFields = Object.keys(UnrefinedPartnerSignUpSchema.optionsMap.get('merchant')?.shape.merchantDocumentUploads.shape || {});
+
+    return {
+      modelSelection: {
+          title: "1. Select Your Business Model",
+          subtitle: "Choose how you'd like to partner with us.",
+          fields: ['businessModel']
+      },
+      basicInfo: {
+          title: "2. Basic Information",
+          subtitle: "This information is required for all partner types.",
+          fields: ['fullName', 'email', 'mobileNumber', 'password', 'confirmPassword']
+      },
+      dsaPersonal: {
+          title: "DSA: Personal Details",
+          subtitle: "Provide your verifiable personal information.",
+          fields: dsaPersonalFields.map(f => `personalDetails.${f}`)
+      },
+      dsaProfessional: {
+          title: "DSA: Professional & Financial Background",
+          fields: dsaProfessionalFields.map(f => `professionalFinancial.${f}`)
+      },
+      dsaScope: {
+          title: "DSA: Business Scope",
+          fields: dsaScopeFields.map(f => `businessScope.${f}`)
+      },
+      dsaDocs: {
+          title: "DSA: Document Uploads",
+          subtitle: "Please upload clear copies of the following documents.",
+          fields: [...dsaDocsFields.map(f => `dsaDocumentUploads.${f}`), 'declaration']
+      },
+      merchantInfo: {
+          title: "Merchant: Business Information",
+          fields: merchantInfoFields.map(f => `businessInformation.${f}`)
+      },
+      merchantDocs: {
+          title: "Merchant: Document Uploads",
+          subtitle: "Please upload business verification documents.",
+          fields: merchantDocsFields.map(f => `merchantDocumentUploads.${f}`)
+      }
+    };
+  }, []);
 
   const steps = useMemo(() => {
     const { modelSelection, basicInfo, dsaPersonal, dsaProfessional, dsaScope, dsaDocs, merchantInfo, merchantDocs } = allSections;
@@ -213,8 +223,6 @@ export function PartnerSignUpForm() {
     }
   }
 
-  const progress = steps.length > 1 ? ((currentStep + 1) / steps.length) * 100 : 100;
-
   return (
     <div className="max-w-4xl mx-auto bg-card p-6 md:p-10 rounded-2xl shadow-xl">
       <div className="text-center mb-4">
@@ -225,14 +233,7 @@ export function PartnerSignUpForm() {
         </p>
       </div>
       
-       <div className="my-8">
-            <div className="flex justify-between mb-1">
-                <span className="text-sm font-medium text-primary">Step {currentStep + 1} of {steps.length}</span>
-                <span className="text-sm font-medium text-primary">{Math.round(progress)}% Complete</span>
-            </div>
-            <Progress value={progress} className="w-full" />
-      </div>
-
+      <FormProgress currentStep={currentStep} totalSteps={steps.length} />
 
       <Form {...form}>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-10">
