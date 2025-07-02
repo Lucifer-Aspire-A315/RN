@@ -4,7 +4,7 @@
 import React, { useState, useMemo } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { UnrefinedPartnerSignUpSchema, PartnerSignUpSchema, type PartnerSignUpFormData } from '@/lib/schemas';
+import { PartnerSignUpSchema, type PartnerSignUpFormData } from '@/lib/schemas';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -20,6 +20,7 @@ import { partnerSignUpAction } from '@/app/actions/authActions';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { FormProgress } from '../shared/FormProgress';
+import type { z } from 'zod';
 
 // Reusable File Input Component
 interface FormFileInputProps {
@@ -93,13 +94,19 @@ export function PartnerSignUpForm() {
   const businessModel = watch('businessModel');
 
   const allSections = useMemo(() => {
-    const dsaPersonalFields = Object.keys(UnrefinedPartnerSignUpSchema.optionsMap.get('dsa')?.shape.personalDetails.shape || {});
-    const dsaProfessionalFields = Object.keys(UnrefinedPartnerSignUpSchema.optionsMap.get('dsa')?.shape.professionalFinancial.shape || {});
-    const dsaScopeFields = Object.keys(UnrefinedPartnerSignUpSchema.optionsMap.get('dsa')?.shape.businessScope.shape || {});
-    const dsaDocsFields = Object.keys(UnrefinedPartnerSignUpSchema.optionsMap.get('dsa')?.shape.dsaDocumentUploads.shape || {});
+    // Access the underlying discriminated union schema
+    const discriminatedUnionSchema = PartnerSignUpSchema._def.schema as z.ZodDiscriminatedUnion<"businessModel", any>;
+    const dsaSchema = discriminatedUnionSchema.optionsMap.get('dsa');
+    const merchantSchema = discriminatedUnionSchema.optionsMap.get('merchant');
+
+    // Safely extract field names
+    const dsaPersonalFields = dsaSchema && 'personalDetails' in dsaSchema.shape ? Object.keys(dsaSchema.shape.personalDetails.shape) : [];
+    const dsaProfessionalFields = dsaSchema && 'professionalFinancial' in dsaSchema.shape ? Object.keys(dsaSchema.shape.professionalFinancial.shape) : [];
+    const dsaScopeFields = dsaSchema && 'businessScope' in dsaSchema.shape ? Object.keys(dsaSchema.shape.businessScope.shape) : [];
+    const dsaDocsFields = dsaSchema && 'dsaDocumentUploads' in dsaSchema.shape ? Object.keys(dsaSchema.shape.dsaDocumentUploads.shape) : [];
     
-    const merchantInfoFields = Object.keys(UnrefinedPartnerSignUpSchema.optionsMap.get('merchant')?.shape.businessInformation.shape || {});
-    const merchantDocsFields = Object.keys(UnrefinedPartnerSignUpSchema.optionsMap.get('merchant')?.shape.merchantDocumentUploads.shape || {});
+    const merchantInfoFields = merchantSchema && 'businessInformation' in merchantSchema.shape ? Object.keys(merchantSchema.shape.businessInformation.shape) : [];
+    const merchantDocsFields = merchantSchema && 'merchantDocumentUploads' in merchantSchema.shape ? Object.keys(merchantSchema.shape.merchantDocumentUploads.shape) : [];
 
     return {
       modelSelection: {
