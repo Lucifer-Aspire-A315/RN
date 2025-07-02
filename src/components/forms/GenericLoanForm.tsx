@@ -93,7 +93,6 @@ export function GenericLoanForm<TData extends Record<string, any>>({
   const form = useForm<TData>({
     resolver: zodResolver(schema),
     defaultValues,
-    mode: 'onTouched',
   });
 
   const { control, handleSubmit, getValues, setError, clearErrors, trigger, reset, setValue, watch } = form;

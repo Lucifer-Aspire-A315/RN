@@ -110,7 +110,6 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
   const form = useForm<TData>({
     resolver: zodResolver(schema),
     defaultValues,
-    mode: 'onTouched',
   });
 
   const { control, handleSubmit, reset, watch, setValue, setError, trigger } = form;

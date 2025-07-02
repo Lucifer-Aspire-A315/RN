@@ -51,7 +51,6 @@ export function PartnerSignUpForm() {
       businessModel: 'referral',
       declaration: false,
     },
-    mode: 'onTouched',
   });
 
   const { control, handleSubmit, watch, formState: { errors }, setError, trigger } = form;
@@ -451,6 +450,54 @@ export function PartnerSignUpForm() {
                 </div>
                  <div className={currentStep === 3 ? 'block' : 'hidden'}>
                     <FormSection title={allSections.merchantDocs?.title || ''} subtitle={allSections.merchantDocs?.subtitle}>
+                         <FormField
+                            control={control}
+                            name="merchantDocumentUploads.panCard"
+                            render={({ field: { value, onChange, ...fieldProps } }) => (
+                                <FormItem>
+                                <FormLabel className="flex items-center">
+                                    <UploadCloud className="w-5 h-5 mr-2 inline-block text-muted-foreground" /> Proprietor's PAN Card
+                                </FormLabel>
+                                <FormControl>
+                                    <Input {...fieldProps} type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={(event) => { onChange(event.target.files && event.target.files[0]); }} className="cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700" />
+                                </FormControl>
+                                {value instanceof File && <p className="text-xs text-muted-foreground mt-1">Selected: {value.name}</p>}
+                                <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                         <FormField
+                            control={control}
+                            name="merchantDocumentUploads.aadhaarCard"
+                            render={({ field: { value, onChange, ...fieldProps } }) => (
+                                <FormItem>
+                                <FormLabel className="flex items-center">
+                                    <UploadCloud className="w-5 h-5 mr-2 inline-block text-muted-foreground" /> Proprietor's Aadhaar Card
+                                </FormLabel>
+                                <FormControl>
+                                    <Input {...fieldProps} type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={(event) => { onChange(event.target.files && event.target.files[0]); }} className="cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700" />
+                                </FormControl>
+                                {value instanceof File && <p className="text-xs text-muted-foreground mt-1">Selected: {value.name}</p>}
+                                <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                         <FormField
+                            control={control}
+                            name="merchantDocumentUploads.photograph"
+                            render={({ field: { value, onChange, ...fieldProps } }) => (
+                                <FormItem>
+                                <FormLabel className="flex items-center">
+                                    <UploadCloud className="w-5 h-5 mr-2 inline-block text-muted-foreground" /> Proprietor's Photograph
+                                </FormLabel>
+                                <FormControl>
+                                    <Input {...fieldProps} type="file" accept="image/*" onChange={(event) => { onChange(event.target.files && event.target.files[0]); }} className="cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700" />
+                                </FormControl>
+                                {value instanceof File && <p className="text-xs text-muted-foreground mt-1">Selected: {value.name}</p>}
+                                <FormMessage />
+                                </FormItem>
+                            )}
+                        />
                         <FormField
                             control={control}
                             name="merchantDocumentUploads.gstCertificate"
@@ -477,54 +524,6 @@ export function PartnerSignUpForm() {
                                 </FormLabel>
                                 <FormControl>
                                     <Input {...fieldProps} type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={(event) => { onChange(event.target.files && event.target.files[0]); }} className="cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700" />
-                                </FormControl>
-                                {value instanceof File && <p className="text-xs text-muted-foreground mt-1">Selected: {value.name}</p>}
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                         <FormField
-                            control={control}
-                            name="merchantDocumentUploads.panCard"
-                            render={({ field: { value, onChange, ...fieldProps } }) => (
-                                <FormItem>
-                                <FormLabel className="flex items-center">
-                                    <UploadCloud className="w-5 h-5 mr-2 inline-block text-muted-foreground" /> Proprietor's PAN Card
-                                </FormLabel>
-                                <FormControl>
-                                    <Input {...fieldProps} type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={(event) => { onChange(event.target.files && event.target.files[0]); }} className="cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700" />
-                                </FormControl>
-                                {value instanceof File && <p className="text-xs text-muted-foreground mt-1">Selected: {value.name}</p>}
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={control}
-                            name="merchantDocumentUploads.aadhaarCard"
-                            render={({ field: { value, onChange, ...fieldProps } }) => (
-                                <FormItem>
-                                <FormLabel className="flex items-center">
-                                    <UploadCloud className="w-5 h-5 mr-2 inline-block text-muted-foreground" /> Proprietor's Aadhaar Card
-                                </FormLabel>
-                                <FormControl>
-                                    <Input {...fieldProps} type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={(event) => { onChange(event.target.files && event.target.files[0]); }} className="cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700" />
-                                </FormControl>
-                                {value instanceof File && <p className="text-xs text-muted-foreground mt-1">Selected: {value.name}</p>}
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={control}
-                            name="merchantDocumentUploads.photograph"
-                            render={({ field: { value, onChange, ...fieldProps } }) => (
-                                <FormItem>
-                                <FormLabel className="flex items-center">
-                                    <UploadCloud className="w-5 h-5 mr-2 inline-block text-muted-foreground" /> Proprietor's Photograph
-                                </FormLabel>
-                                <FormControl>
-                                    <Input {...fieldProps} type="file" accept="image/*" onChange={(event) => { onChange(event.target.files && event.target.files[0]); }} className="cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700" />
                                 </FormControl>
                                 {value instanceof File && <p className="text-xs text-muted-foreground mt-1">Selected: {value.name}</p>}
                                 <FormMessage />
