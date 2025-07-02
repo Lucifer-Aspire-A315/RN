@@ -26,6 +26,46 @@ const stringOrFileSchema = (types: string[]) => z.union([
 
 // #endregion
 
+// #region --- GOLDEN SCHEMAS (NEW STANDARD) ---
+
+export const PersonalDetailsSchema = z.object({
+  fullName: z.string().min(1, "Full name is required"),
+  fatherOrHusbandName: z.string().min(1, "This field is required"),
+  dob: z.string().min(1, "Date of Birth is required"),
+  gender: z.enum(['male', 'female', 'other'], { required_error: "Gender is required" }),
+  email: z.string().email("Invalid email address"),
+  mobileNumber: z.string().regex(/^\d{10}$/, "A valid 10-digit mobile number is required"),
+  panNumber: z.string().regex(/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, "Invalid PAN format"),
+  aadhaarNumber: z.string().regex(/^\d{12}$/, "Invalid Aadhaar format (must be 12 digits)"),
+});
+export type PersonalDetailsFormData = z.infer<typeof PersonalDetailsSchema>;
+
+export const AddressSchema = z.object({
+  currentAddress: z.string().min(1, "Current address is required"),
+  isPermanentAddressSame: z.enum(['yes', 'no'], { required_error: "Please select an option" }),
+  permanentAddress: z.string().optional(),
+}).superRefine((data, ctx) => {
+    if (data.isPermanentAddressSame === 'no' && !data.permanentAddress?.trim()) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Permanent address is required", path: ["permanentAddress"] });
+    }
+});
+export type AddressFormData = z.infer<typeof AddressSchema>;
+
+export const KycDocumentsSchema = z.object({
+  panCard: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES).refine(val => val, { message: "PAN Card is required." }),
+  aadhaarCard: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES).refine(val => val, { message: "Aadhaar Card is required." }),
+  photograph: stringOrFileSchema(ACCEPTED_IMAGE_TYPES).refine(val => val, { message: "Photograph is required." }),
+});
+export type KycDocumentsFormData = z.infer<typeof KycDocumentsSchema>;
+
+// #endregion
+
+
+// =========================================================================
+//                      EXISTING SCHEMAS (TO BE REFACTORED)
+// =========================================================================
+
+
 // #region --- REUSABLE FORM SECTION SCHEMAS ---
 
 export const ApplicantDetailsSchema = z.object({
