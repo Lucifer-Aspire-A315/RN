@@ -56,7 +56,7 @@ const slides = [
     key: 'main',
     title: <>Your Trusted Partner for <br /><span className="text-primary">Financial Success</span></>,
     description: "Empowering your dreams with transparent, technology-driven financial services. From personal loans to business solutions, we're here to help you grow.",
-    imageSrc: '/right-side.png',
+    imageSrc: 'https://placehold.co/600x400.png',
     dataAiHint: 'financial growth',
     ctaButtonText: 'Explore Our Services',
     ctaAction: 'scroll' as const,
@@ -74,7 +74,7 @@ const slides = [
     key: 'loans',
     title: <>Flexible Loans for <br /><span className="text-accent">Every Need</span></>,
     description: "Whether it's for a new home, a personal goal, or business expansion, find the perfect loan with competitive rates and easy processing.",
-    imageSrc: '/hero-loan.png',
+    imageSrc: 'https://placehold.co/600x400.png',
     dataAiHint: 'loan approval',
     ctaButtonText: 'View Loan Options',
     ctaAction: 'scroll' as const,
@@ -87,7 +87,7 @@ const slides = [
     key: 'ca-services',
     title: <>Expert CA Services for <br /><span className="text-blue-500">Business Compliance</span></>,
     description: "Stay compliant and focused on your business. We offer GST registration, ITR filing, and complete financial management services.",
-    imageSrc: '/hero-ca.png',
+    imageSrc: 'https://placehold.co/600x400.png',
     dataAiHint: 'financial planning',
     ctaButtonText: 'Explore CA Services',
     ctaAction: 'setView' as const,
@@ -100,7 +100,7 @@ const slides = [
     key: 'gov-schemes',
     title: <>Unlock Growth with <br /><span className="text-emerald-500">Government Schemes</span></>,
     description: "We provide expert guidance and assistance for a variety of government-backed loan schemes to empower entrepreneurs and small businesses.",
-    imageSrc: '/hero-govt.png',
+    imageSrc: 'https://placehold.co/600x400.png',
     dataAiHint: 'small business',
     ctaButtonText: 'View Schemes',
     ctaAction: 'setView' as const,
@@ -286,12 +286,10 @@ export function HeroSlider({ setCurrentPage }: HeroSliderProps) {
           <div className={cn("absolute inset-0 transition-opacity duration-1000", activeSlide === 0 ? "opacity-100" : "opacity-0 pointer-events-none")}>
               <div className="absolute inset-0 bg-secondary/20" />
               <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,hsl(var(--primary)/.1),rgba(255,255,255,0))]"></div>
-              <div className="absolute inset-0 bg-[url('/grid-texture.svg')] bg-repeat opacity-5 animate-grid-scroll" />
           </div>
 
           <div className={cn("absolute inset-0 transition-opacity duration-1000 hero-interactive-glow", activeSlide === 1 ? "opacity-100" : "opacity-0 pointer-events-none")}>
                <div className="absolute inset-0 bg-secondary/20" />
-               <div className="absolute inset-0 bg-[url('/blueprint-texture.svg')] bg-repeat opacity-10" />
           </div>
 
           <div className={cn("absolute inset-0 transition-opacity duration-1000", activeSlide === 2 ? "opacity-100" : "opacity-0 pointer-events-none")}>

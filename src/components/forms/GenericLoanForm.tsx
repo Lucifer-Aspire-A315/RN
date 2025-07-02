@@ -201,13 +201,21 @@ export function GenericLoanForm<TData extends Record<string, any>>({
 
       if (result.success) {
         toast({ title: mode === 'edit' ? "Application Updated!" : "Application Submitted!", description: result.message, duration: 5000 });
-        if (mode === 'create' && handleBackClick) {
+        
+        // Navigate away after a short delay
+        setTimeout(() => {
+          if (handleBackClick) {
+            handleBackClick();
+          } else {
+            router.push('/dashboard');
+          }
+        }, 1500);
+
+        if (mode === 'create') {
             reset(); 
             setSelectedFiles({});
-            setTimeout(() => {
-              handleBackClick();
-            }, 2000);
         }
+
       } else {
         toast({ variant: "destructive", title: mode === 'edit' ? "Update Failed" : "Application Failed", description: result.message || "An unknown error occurred.", duration: 9000 });
         if (result.errors) {

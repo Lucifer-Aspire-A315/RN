@@ -149,10 +149,6 @@ export default {
           'from': { transform: 'rotate(0deg)' },
           'to': { transform: 'rotate(360deg)' },
         },
-        'grid-scroll': {
-          '0%': { 'background-position': '0% 50%' },
-          '100%': { 'background-position': '100% 50%' },
-        },
         'sonar-pulse': {
           '0%': { transform: 'scale(0.5)', opacity: '0' },
           '50%': { opacity: '1' },
@@ -171,7 +167,6 @@ export default {
         'pulse-soft': 'pulse-soft 5s ease-in-out infinite',
         'tilt-float': 'tilt-float 8s ease-in-out infinite',
         'spin-slow': 'spin-slow 30s linear infinite',
-        'grid-scroll': 'grid-scroll 30s linear infinite',
         'sonar-pulse': 'sonar-pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
       },
     },
