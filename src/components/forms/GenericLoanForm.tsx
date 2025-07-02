@@ -140,15 +140,6 @@ export function GenericLoanForm<TData extends Record<string, any>>({
   
   const getNestedValue = (obj: any, path: string) => path.split('.').reduce((o, i) => (o ? o[i] : undefined), obj);
   
-  const getFirstDocumentUploadsKey = (data: TData): string | null => {
-    for (const key in data) {
-        if(key.toLowerCase().includes('documentuploads')) {
-            return key;
-        }
-    }
-    return null;
-  };
-  
   const watchedValues = watch();
 
   const visibleSections = useMemo(() => {
@@ -182,16 +173,10 @@ export function GenericLoanForm<TData extends Record<string, any>>({
     const payloadForServer = JSON.parse(JSON.stringify(data));
 
     try {
-      const kycDocsKey = 'kycDocuments';
-      if (payloadForServer[kycDocsKey]) {
-        const uploadedUrls = await processFileUploads(data[kycDocsKey], toast);
-        Object.assign(payloadForServer[kycDocsKey], uploadedUrls);
-      }
-
-      const otherDocsKey = getFirstDocumentUploadsKey(payloadForServer);
-      if (otherDocsKey && otherDocsKey !== kycDocsKey && payloadForServer[otherDocsKey]) {
-        const uploadedUrls = await processFileUploads(data[otherDocsKey], toast);
-        Object.assign(payloadForServer[otherDocsKey], uploadedUrls);
+      const documentUploadsKey = 'documentUploads';
+      if (payloadForServer[documentUploadsKey]) {
+        const uploadedUrls = await processFileUploads(data[documentUploadsKey], toast);
+        Object.assign(payloadForServer[documentUploadsKey], uploadedUrls);
       }
       
       let result: ServerActionResponse;

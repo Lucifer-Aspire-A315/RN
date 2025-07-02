@@ -21,7 +21,9 @@ const homeLoanSections = [
     subtitle: "व्यक्तिगत जानकारी",
     fields: [
       { name: "personalDetails.fullName", label: "Full Name", type: "text", placeholder: "Full Name" },
+      { name: "personalDetails.fatherOrHusbandName", label: "Father's / Spouse's Name", type: "text", placeholder: "Father's or Spouse's Full Name" },
       { name: "personalDetails.dob", label: "Date of Birth", type: "date" },
+      { name: "personalDetails.gender", label: "Gender", type: "radio", options: [{value: "male", label: "Male"}, {value: "female", label: "Female"}, {value: "other", label: "Other"}] },
       { name: "personalDetails.mobileNumber", label: "Mobile Number", type: "tel", placeholder: "10-digit mobile" },
       { name: "personalDetails.email", label: "Email ID", type: "email", placeholder: "example@mail.com" },
       { name: "personalDetails.panNumber", label: "PAN Number", type: "text", placeholder: "ABCDE1234F", isPAN: true },
@@ -32,7 +34,7 @@ const homeLoanSections = [
     title: "Address Details",
     subtitle: "पते की जानकारी",
     fields: [
-      { name: "addressDetails.residentialAddress", label: "Current Residential Address", type: "textarea", placeholder: "Enter your current full address", colSpan: 2 },
+      { name: "addressDetails.currentAddress", label: "Current Residential Address", type: "textarea", placeholder: "Enter your current full address", colSpan: 2 },
       { 
         name: "addressDetails.isPermanentAddressSame", 
         label: "Is Permanent Address same as Current Address?", 
@@ -88,9 +90,9 @@ const homeLoanSections = [
     title: "Upload Required Documents",
     subtitle: "Accepted File Types: PDF, Word, Excel, JPG, PNG. Max File Size: 10 MB per file.",
     fields: [
-      { name: "kycDocuments.panCard", label: "PAN Card", type: "file", colSpan: 2 },
-      { name: "kycDocuments.aadhaarCard", label: "Aadhaar Card", type: "file", colSpan: 2 },
-      { name: "kycDocuments.photograph", label: "Passport Size Photograph", type: "file", colSpan: 2 },
+      { name: "documentUploads.panCard", label: "PAN Card", type: "file", colSpan: 2 },
+      { name: "documentUploads.aadhaarCard", label: "Aadhaar Card", type: "file", colSpan: 2 },
+      { name: "documentUploads.photograph", label: "Passport Size Photograph", type: "file", colSpan: 2 },
       { name: "documentUploads.incomeProof", label: "Income Proof (Salary Slip / ITR)", type: "file", colSpan: 2 },
       { name: "documentUploads.bankStatement", label: "Bank Statement (Last 6 Months)", type: "file", colSpan: 2, accept: ".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png" },
       { name: "documentUploads.propertyDocs", label: "Property Documents / Sale Agreement", type: "file", colSpan: 2 },
@@ -103,9 +105,9 @@ const homeLoanSections = [
 
 export function HomeLoanApplicationForm({ onBack, backButtonText, initialData, applicationId, mode = 'create' }: HomeLoanApplicationFormProps) {
   const defaultValues: HomeLoanApplicationFormData = {
-    personalDetails: { fullName: '', dob: '', mobileNumber: '', email: '', panNumber: '', aadhaarNumber: '' },
+    personalDetails: { fullName: '', fatherOrHusbandName: '', dob: '', gender: undefined, mobileNumber: '', email: '', panNumber: '', aadhaarNumber: '' },
     addressDetails: {
-      residentialAddress: '',
+      currentAddress: '',
       isPermanentAddressSame: "yes",
       permanentAddress: '',
     },
@@ -129,12 +131,10 @@ export function HomeLoanApplicationForm({ onBack, backButtonText, initialData, a
       outstandingAmount: undefined, 
       emiAmount: undefined,
     },
-    kycDocuments: {
-      panCard: undefined,
-      aadhaarCard: undefined,
-      photograph: undefined,
-    },
     documentUploads: {
+        panCard: undefined,
+        aadhaarCard: undefined,
+        photograph: undefined,
         incomeProof: undefined,
         bankStatement: undefined,
         propertyDocs: undefined,

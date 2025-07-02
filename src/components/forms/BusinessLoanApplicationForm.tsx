@@ -17,6 +17,20 @@ interface BusinessLoanApplicationFormProps {
 
 const businessLoanSections = [
   {
+    title: "Applicant's Personal Details",
+    subtitle: "आवेदक की व्यक्तिगत जानकारी",
+    fields: [
+      { name: "personalDetails.fullName", label: "Applicant Name", type: "text", placeholder: "Full Name" },
+      { name: "personalDetails.fatherOrHusbandName", label: "Father's / Spouse's Name", type: "text", placeholder: "Father's or Spouse's Full Name" },
+      { name: "personalDetails.dob", label: "Date of Birth (जन्म तिथि)", type: "date" },
+      { name: "personalDetails.gender", label: "Gender", type: "radio", options: [{value: "male", label: "Male"}, {value: "female", label: "Female"}, {value: "other", label: "Other"}] },
+      { name: "personalDetails.mobileNumber", label: "Mobile Number", type: "tel", placeholder: "10-digit mobile" },
+      { name: "personalDetails.email", label: "Email ID", type: "email", placeholder: "example@mail.com" },
+      { name: "personalDetails.panNumber", label: "PAN Number (पैन नंबर)", type: "text", placeholder: "ABCDE1234F", isPAN: true },
+      { name: "personalDetails.aadhaarNumber", label: "Aadhaar Number (आधार नंबर)", type: "text", placeholder: "123456789012", isAadhaar: true },
+    ]
+  },
+  {
     title: "Business Details",
     subtitle: "व्यवसाय की जानकारी",
     fields: [
@@ -33,18 +47,6 @@ const businessLoanSections = [
       { name: "businessDetails.businessAddress", label: "Business Address", type: "textarea", placeholder: "Full business address", colSpan: 2 },
       { name: "businessDetails.annualTurnover", label: "Annual Turnover (₹)", type: "number", placeholder: "e.g., 5000000", prefix: "₹" },
       { name: "businessDetails.profitAfterTax", label: "Profit After Tax (कर के बाद लाभ)", type: "number", placeholder: "e.g., 500000", prefix: "₹" },
-    ]
-  },
-  {
-    title: "Applicant's Personal Details",
-    subtitle: "आवेदक की व्यक्तिगत जानकारी",
-    fields: [
-      { name: "personalDetails.fullName", label: "Applicant Name", type: "text", placeholder: "Full Name" },
-      { name: "personalDetails.dob", label: "Date of Birth (जन्म तिथि)", type: "date" },
-      { name: "personalDetails.mobileNumber", label: "Mobile Number", type: "tel", placeholder: "10-digit mobile" },
-      { name: "personalDetails.email", label: "Email ID", type: "email", placeholder: "example@mail.com" },
-      { name: "personalDetails.panNumber", label: "PAN Number (पैन नंबर)", type: "text", placeholder: "ABCDE1234F", isPAN: true },
-      { name: "personalDetails.aadhaarNumber", label: "Aadhaar Number (आधार नंबर)", type: "text", placeholder: "123456789012", isAadhaar: true },
     ]
   },
   {
@@ -76,9 +78,9 @@ const businessLoanSections = [
     title: "Upload Required Documents",
     subtitle: "Accepted File Types: PDF, Word, Excel, JPG, PNG. Max File Size: 10 MB per file.",
     fields: [
-      { name: "kycDocuments.panCard", label: "PAN Card", type: "file", colSpan: 2 },
-      { name: "kycDocuments.aadhaarCard", label: "Aadhaar Card", type: "file", colSpan: 2 },
-      { name: "kycDocuments.photograph", label: "Passport Size Photo", type: "file", colSpan: 2 },
+      { name: "documentUploads.panCard", label: "PAN Card", type: "file", colSpan: 2 },
+      { name: "documentUploads.aadhaarCard", label: "Aadhaar Card", type: "file", colSpan: 2 },
+      { name: "documentUploads.photograph", label: "Passport Size Photo", type: "file", colSpan: 2 },
       { name: "documentUploads.gstOrUdyamCertificate", label: "GST Registration / Udyam Certificate", type: "file", colSpan: 2 },
       { name: "documentUploads.businessProof", label: "Shop Act / Business Proof", type: "file", colSpan: 2 },
       { name: "documentUploads.bankStatement", label: "Bank Statement (Last 6–12 Months)", type: "file", colSpan: 2, accept: ".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png" },
@@ -92,7 +94,7 @@ const businessLoanSections = [
 
 export function BusinessLoanApplicationForm({ onBack, backButtonText, initialData, applicationId, mode = 'create' }: BusinessLoanApplicationFormProps) {
   const defaultValues: BusinessLoanApplicationFormData = {
-    personalDetails: { fullName: '', dob: '', mobileNumber: '', email: '', panNumber: '', aadhaarNumber: '' },
+    personalDetails: { fullName: '', fatherOrHusbandName: '', dob: '', gender: undefined, mobileNumber: '', email: '', panNumber: '', aadhaarNumber: '' },
     businessDetails: {
       businessName: '',
       businessType: undefined, 
@@ -115,12 +117,10 @@ export function BusinessLoanApplicationForm({ onBack, backButtonText, initialDat
         bankName: '',
         outstandingAmount: undefined,
     },
-    kycDocuments: { 
+    documentUploads: {
         panCard: undefined,
         aadhaarCard: undefined,
         photograph: undefined,
-    },
-    documentUploads: {
         gstOrUdyamCertificate: undefined,
         businessProof: undefined,
         bankStatement: undefined,

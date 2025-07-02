@@ -68,15 +68,6 @@ export type KycDocumentsFormData = z.infer<typeof KycDocumentsSchema>;
 
 // #region --- REUSABLE FORM SECTION SCHEMAS ---
 
-export const ApplicantDetailsSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  dob: z.string().min(1, "Date of Birth is required"),
-  mobile: z.string().regex(/^\d{10}$/, "Invalid mobile number (must be 10 digits)"),
-  email: z.string().email("Invalid email address"),
-  pan: z.string().regex(/^([A-Z]{5}[0-9]{4}[A-Z]{1})$/, "Invalid PAN format"),
-  aadhaar: z.string().regex(/^\d{12}$/, "Invalid Aadhaar format (must be 12 digits)"),
-});
-
 export const EmploymentIncomeSchema = z.object({
   employmentType: z.enum(["salaried", "self-employed"], { required_error: "Occupation Type is required" }),
   companyName: z.string().min(1, "Company / Business Name is required"),
@@ -107,20 +98,6 @@ export type ExistingLoansFormData = z.infer<typeof ExistingLoansSchema>;
 
 // #region --- HOME LOAN ---
 
-const HomeLoanAddressDetailsSchema = z.object({
-      residentialAddress: z.string().min(1, "Current residential address is required"),
-      isPermanentAddressSame: z.enum(["yes", "no"], { required_error: "Please specify if your permanent address is the same." }),
-      permanentAddress: z.string().optional(),
-    }).superRefine((data, ctx) => {
-      if (data.isPermanentAddressSame === "no" && (!data.permanentAddress || data.permanentAddress.trim() === "")) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "Permanent Address is required if different.",
-          path: ["permanentAddress"]
-        });
-      }
-});
-
 const HomeLoanPropertyDetailsSchema = z.object({
   loanAmountRequired: z.preprocess((val) => (val === "" || val === null || val === undefined ? undefined : Number(val)), z.number({ invalid_type_error: "Must be a number" }).min(1, "Loan Amount Required is required")),
   loanTenureRequired: z.preprocess((val) => (val === "" || val === null || val === undefined ? undefined : Number(val)), z.number({ invalid_type_error: "Must be a number" }).min(1, "Loan Tenure is required (in years)")),
@@ -131,10 +108,7 @@ const HomeLoanPropertyDetailsSchema = z.object({
   hasExistingLoans: z.enum(["yes", "no"], { required_error: "Please specify if you have existing loans" }),
 });
 
-const HomeLoanDocumentUploadSchema = z.object({
-  panCard: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES),
-  aadhaarCard: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES),
-  photograph: stringOrFileSchema(ACCEPTED_IMAGE_TYPES),
+const HomeLoanDocumentUploadsSchema = KycDocumentsSchema.extend({
   incomeProof: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES),
   bankStatement: stringOrFileSchema(ACCEPTED_BANK_STATEMENT_TYPES),
   propertyDocs: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES),
@@ -144,12 +118,12 @@ const HomeLoanDocumentUploadSchema = z.object({
 });
 
 export const HomeLoanApplicationSchema = z.object({
-  applicantDetails: ApplicantDetailsSchema,
-  addressDetails: HomeLoanAddressDetailsSchema,
+  personalDetails: PersonalDetailsSchema,
+  addressDetails: AddressSchema,
   employmentIncome: EmploymentIncomeSchema,
   loanPropertyDetails: HomeLoanPropertyDetailsSchema,
   existingLoans: ExistingLoansSchema.optional(),
-  documentUploads: HomeLoanDocumentUploadSchema.optional(),
+  documentUploads: HomeLoanDocumentUploadsSchema.optional(),
 }).superRefine((data, ctx) => {
   if (data.loanPropertyDetails.hasExistingLoans === "yes") {
       const loanData = data.existingLoans;
@@ -170,10 +144,6 @@ export type HomeLoanApplicationFormData = z.infer<typeof HomeLoanApplicationSche
 
 // #region --- PERSONAL LOAN ---
 
-const PersonalLoanApplicantDetailsSchema = ApplicantDetailsSchema.extend({
-    residentialAddress: z.string().min(1, "Full address is required"),
-});
-
 const PersonalLoanDetailsSchema = z.object({
     loanAmountRequired: z.preprocess((val) => (val === "" || val === null || val === undefined ? undefined : Number(val)), z.number({ invalid_type_error: "Must be a number" }).min(1, "Loan amount is required")),
     purposeOfLoan: z.enum(["medical_emergency", "travel", "education", "wedding", "home_renovation", "other"], { required_error: "Purpose of Loan is required" }),
@@ -186,10 +156,7 @@ const PersonalLoanDetailsSchema = z.object({
     }
 });
 
-const PersonalLoanDocumentUploadSchema = z.object({
-  panCard: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES),
-  aadhaarCard: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES),
-  photograph: stringOrFileSchema(ACCEPTED_IMAGE_TYPES),
+const PersonalLoanDocumentUploadsSchema = KycDocumentsSchema.extend({
   incomeProof: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES),
   bankStatement: stringOrFileSchema(ACCEPTED_BANK_STATEMENT_TYPES),
   employmentProof: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES),
@@ -197,11 +164,12 @@ const PersonalLoanDocumentUploadSchema = z.object({
 });
 
 export const PersonalLoanApplicationSchema = z.object({
-  applicantDetails: PersonalLoanApplicantDetailsSchema,
+  personalDetails: PersonalDetailsSchema,
+  addressDetails: AddressSchema,
   employmentIncome: EmploymentIncomeSchema,
   loanDetails: PersonalLoanDetailsSchema,
   existingLoans: ExistingLoansSchema.optional(),
-  documentUploads: PersonalLoanDocumentUploadSchema.optional(),
+  documentUploads: PersonalLoanDocumentUploadsSchema.optional(),
 }).superRefine((data, ctx) => {
   if (data.loanDetails.hasExistingLoans === "yes") {
     const loanData = data.existingLoans;
@@ -246,10 +214,7 @@ const BusinessLoanDetailsSchema = z.object({
   }
 });
 
-const BusinessLoanDocumentUploadSchema = z.object({
-  panCard: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES),
-  aadhaarCard: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES),
-  applicantPhoto: stringOrFileSchema(ACCEPTED_IMAGE_TYPES),
+const BusinessLoanDocumentUploadsSchema = KycDocumentsSchema.extend({
   gstOrUdyamCertificate: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES).optional(),
   businessProof: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES),
   bankStatement: stringOrFileSchema(ACCEPTED_BANK_STATEMENT_TYPES),
@@ -260,11 +225,11 @@ const BusinessLoanDocumentUploadSchema = z.object({
 });
 
 export const BusinessLoanApplicationSchema = z.object({
-  applicantDetails: ApplicantDetailsSchema,
+  personalDetails: PersonalDetailsSchema,
   businessDetails: BusinessDetailsSchema,
   loanDetails: BusinessLoanDetailsSchema,
   existingLoans: ExistingLoansSchema.optional(),
-  documentUploads: BusinessLoanDocumentUploadSchema.optional(),
+  documentUploads: BusinessLoanDocumentUploadsSchema.optional(),
 }).superRefine((data, ctx) => {
     if (data.loanDetails.hasExistingLoans === "yes") {
         const loanData = data.existingLoans;
@@ -282,10 +247,8 @@ export type BusinessLoanApplicationFormData = z.infer<typeof BusinessLoanApplica
 
 // #region --- CREDIT CARD ---
 
-const CreditCardApplicantDetailsSchema = ApplicantDetailsSchema.extend({
-    residentialAddress: z.string().min(1, "Full address is required"),
-    city: z.string().min(1, "City is required"),
-    pincode: z.string().regex(/^\d{6}$/, "Invalid Pincode (must be 6 digits)"),
+const CreditCardAddressSchema = z.object({
+  currentAddress: z.string().min(1, "Current address is required"),
 });
 
 const CreditCardPreferencesSchema = z.object({
@@ -308,10 +271,7 @@ const CreditCardPreferencesSchema = z.object({
   }
 });
 
-const CreditCardDocumentUploadSchema = z.object({
-  panCard: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES),
-  aadhaarCard: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES),
-  photograph: stringOrFileSchema(ACCEPTED_IMAGE_TYPES),
+const CreditCardDocumentUploadsSchema = KycDocumentsSchema.extend({
   incomeProof: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES),
   bankStatement: stringOrFileSchema(ACCEPTED_BANK_STATEMENT_TYPES),
   employmentProof: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES),
@@ -319,10 +279,11 @@ const CreditCardDocumentUploadSchema = z.object({
 });
 
 export const CreditCardApplicationSchema = z.object({
-  applicantDetails: CreditCardApplicantDetailsSchema,
+  personalDetails: PersonalDetailsSchema,
+  addressDetails: CreditCardAddressSchema,
   employmentIncome: EmploymentIncomeSchema,
   creditCardPreferences: CreditCardPreferencesSchema,
-  documentUploads: CreditCardDocumentUploadSchema.optional(),
+  documentUploads: CreditCardDocumentUploadsSchema.optional(),
 });
 export type CreditCardApplicationFormData = z.infer<typeof CreditCardApplicationSchema>;
 
@@ -339,10 +300,8 @@ const MachineryLoanDetailsSchema = z.object({
   hasExistingLoans: z.enum(["yes", "no"], { required_error: "Please specify if you have existing loans" }),
 });
 
-const MachineryLoanDocumentUploadSchema = z.object({
+const MachineryLoanDocumentUploadsSchema = KycDocumentsSchema.extend({
   quotation: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES),
-  panCard: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES),
-  aadhaarCard: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES),
   gstOrUdyamCertificate: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES),
   bankStatement: stringOrFileSchema(ACCEPTED_BANK_STATEMENT_TYPES),
   itrLast2Years: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES),
@@ -350,11 +309,11 @@ const MachineryLoanDocumentUploadSchema = z.object({
 });
 
 export const MachineryLoanApplicationSchema = z.object({
-  applicantDetails: ApplicantDetailsSchema,
+  personalDetails: PersonalDetailsSchema,
   businessDetails: BusinessDetailsSchema,
   machineryLoanDetails: MachineryLoanDetailsSchema,
   existingLoans: ExistingLoansSchema.optional(),
-  documentUploads: MachineryLoanDocumentUploadSchema,
+  documentUploads: MachineryLoanDocumentUploadsSchema,
 }).superRefine((data, ctx) => {
     if (data.machineryLoanDetails.hasExistingLoans === "yes") {
         const loanData = data.existingLoans;
@@ -788,21 +747,9 @@ const referralPartnerSchema = z.object({
   mobileNumber: z.string().regex(/^\d{10}$/, "Invalid mobile number (must be 10 digits)"),
 }).merge(passwordSchema);
 
-const DsaPersonalDetailsSchema = PersonalDetailsSchema.extend({
-    // DSA doesn't need a separate address object, can be flat
-    currentAddress: z.string().min(1, "Current address is required"),
-    isPermanentAddressSame: z.enum(['yes', 'no'], { required_error: "Please select an option" }),
-    permanentAddress: z.string().optional(),
-}).superRefine((data, ctx) => {
-    if (data.isPermanentAddressSame === 'no' && !data.permanentAddress?.trim()) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Permanent address is required", path: ["permanentAddress"] });
-    }
-});
-
-
 const dsaPartnerSchema = z.object({
   businessModel: z.literal('dsa'),
-  personalDetails: DsaPersonalDetailsSchema,
+  personalDetails: PersonalDetailsSchema.merge(AddressSchema),
   professionalFinancial: z.object({
     highestQualification: z.string().min(1, "Highest qualification is required"),
     presentOccupation: z.string().min(1, "Present occupation is required"),

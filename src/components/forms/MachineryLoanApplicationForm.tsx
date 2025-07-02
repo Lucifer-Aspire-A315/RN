@@ -21,7 +21,9 @@ const machineryLoanSections = [
     subtitle: "आवेदक की जानकारी",
     fields: [
       { name: "personalDetails.fullName", label: "Applicant Name", type: "text", placeholder: "Full Name" },
+      { name: "personalDetails.fatherOrHusbandName", label: "Father's / Spouse's Name", type: "text", placeholder: "Father's or Spouse's Full Name" },
       { name: "personalDetails.dob", label: "Date of Birth (जन्म तिथि)", type: "date" },
+      { name: "personalDetails.gender", label: "Gender", type: "radio", options: [{value: "male", label: "Male"}, {value: "female", label: "Female"}, {value: "other", label: "Other"}] },
       { name: "personalDetails.mobileNumber", label: "Mobile Number", type: "tel", placeholder: "10-digit mobile" },
       { name: "personalDetails.email", label: "Email ID", type: "email", placeholder: "example@mail.com" },
       { name: "personalDetails.panNumber", label: "PAN Number (पैन नंबर)", type: "text", placeholder: "ABCDE1234F", isPAN: true },
@@ -73,8 +75,9 @@ const machineryLoanSections = [
     subtitle: "Accepted File Types: PDF, Word, Excel, JPG, PNG. Max File Size: 10 MB per file.",
     fields: [
       { name: "documentUploads.quotation", label: "Machinery Quotation / Proforma Invoice", type: "file", colSpan: 2 },
-      { name: "kycDocuments.panCard", label: "PAN Card", type: "file", colSpan: 2 },
-      { name: "kycDocuments.aadhaarCard", label: "Aadhaar Card", type: "file", colSpan: 2 },
+      { name: "documentUploads.panCard", label: "PAN Card", type: "file", colSpan: 2 },
+      { name: "documentUploads.aadhaarCard", label: "Aadhaar Card", type: "file", colSpan: 2 },
+      { name: "documentUploads.photograph", label: "Passport Size Photograph", type: "file", colSpan: 2 },
       { name: "documentUploads.gstOrUdyamCertificate", label: "GST Registration / Udyam Certificate", type: "file", colSpan: 2 },
       { name: "documentUploads.bankStatement", label: "Bank Statement (Last 6–12 Months)", type: "file", colSpan: 2, accept: ".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png" },
       { name: "documentUploads.itrLast2Years", label: "ITR for Last 2 Years", type: "file", colSpan: 2 },
@@ -85,7 +88,7 @@ const machineryLoanSections = [
 
 export function MachineryLoanApplicationForm({ onBack, backButtonText, initialData, applicationId, mode = 'create' }: MachineryLoanApplicationFormProps) {
   const defaultValues: MachineryLoanApplicationFormData = {
-    personalDetails: { fullName: '', dob: '', mobileNumber: '', email: '', panNumber: '', aadhaarNumber: '' },
+    personalDetails: { fullName: '', fatherOrHusbandName: '', dob: '', gender: undefined, mobileNumber: '', email: '', panNumber: '', aadhaarNumber: '' },
     businessDetails: {
       businessName: '',
       businessType: undefined, 
@@ -109,11 +112,10 @@ export function MachineryLoanApplicationForm({ onBack, backButtonText, initialDa
         bankName: '',
         outstandingAmount: undefined,
     },
-    kycDocuments: {
-      panCard: undefined,
-      aadhaarCard: undefined,
-    },
     documentUploads: { 
+        panCard: undefined,
+        aadhaarCard: undefined,
+        photograph: undefined,
         quotation: undefined,
         gstOrUdyamCertificate: undefined,
         bankStatement: undefined,
