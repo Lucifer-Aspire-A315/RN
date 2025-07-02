@@ -48,6 +48,7 @@ const itrFilingSections = [
         fields: [
             { name: "kycDocuments.panCard", label: "PAN Card", type: "file", colSpan: 2 },
             { name: "kycDocuments.aadhaarCard", label: "Aadhaar Card", type: "file", colSpan: 2 },
+            { name: "kycDocuments.photograph", label: "Applicant Photograph", type: "file", accept: ".jpg,.jpeg,.png", colSpan: 2 },
             { name: "documentUploads.form16", label: "Form 16 (if Salaried)", type: "file", colSpan: 2 },
             { name: "documentUploads.salarySlips", label: "Salary Slips (if applicable)", type: "file", colSpan: 2 },
             { name: "documentUploads.bankStatement", label: "Bank Statement (Full FY)", type: "file", colSpan: 2, accept: ".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png" },
@@ -70,6 +71,8 @@ export function ItrFilingConsultationForm({ onBack, initialData, applicationId, 
       aadhaarNumber: '',
       address: '',
       cityAndState: '',
+      fatherOrHusbandName: '',
+      gender: undefined,
     },
     incomeSourceType: {
       salariedEmployee: false,
@@ -83,6 +86,7 @@ export function ItrFilingConsultationForm({ onBack, initialData, applicationId, 
     kycDocuments: {
         panCard: undefined,
         aadhaarCard: undefined,
+        photograph: undefined,
     },
     documentUploads: {
         form16: undefined,

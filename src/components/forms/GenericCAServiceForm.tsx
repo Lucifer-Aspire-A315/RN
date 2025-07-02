@@ -10,12 +10,12 @@ import { Input } from '@/components/ui/input';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
-import { Form, FormField, FormItem, FormLabel, FormMessage, useFormField } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from '@/contexts/AuthContext';
 import { ArrowLeft, Loader2, UploadCloud } from 'lucide-react';
 import { FormSection, FormFieldWrapper } from './FormSection';
-import { processFileUploads } from '@/lib/form-helpers';
+import { processNestedFileUploads } from '@/lib/form-helpers';
 import { useRouter } from 'next/navigation';
 import { FormProgress } from '../shared/FormProgress';
 
@@ -38,40 +38,6 @@ interface SectionConfig {
   subtitle?: string;
   fields: FieldConfig[];
 }
-
-// Reusable File Input Component
-interface FormFileInputProps {
-  fieldLabel: React.ReactNode;
-  rhfName: string;
-  rhfRef: React.Ref<HTMLInputElement>;
-  rhfOnBlur: () => void;
-  rhfOnChange: (file: File | null) => void;
-  selectedFile: File | null | undefined;
-  accept?: string;
-}
-
-const FormFileInput: React.FC<FormFileInputProps> = ({ fieldLabel, rhfRef, rhfName, rhfOnBlur, rhfOnChange, selectedFile, accept }) => {
-  const { formItemId } = useFormField();
-  return (
-    <FormItem>
-      <FormLabel htmlFor={formItemId} className="flex items-center">
-        <UploadCloud className="w-5 h-5 mr-2 inline-block text-muted-foreground" /> {fieldLabel}
-      </FormLabel>
-      <Input id={formItemId} type="file" ref={rhfRef} name={rhfName} onBlur={rhfOnBlur}
-        onChange={(e) => rhfOnChange(e.target.files?.[0] ?? null)}
-        accept={accept || ".pdf,.jpg,.jpeg,.png"}
-        className="cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700"
-      />
-      {selectedFile && (
-        <p className="text-xs text-muted-foreground mt-1">
-          Selected: {selectedFile.name} ({(selectedFile.size / 1024).toFixed(2)} KB)
-        </p>
-      )}
-      <FormMessage />
-    </FormItem>
-  );
-};
-
 
 interface GenericCAServiceFormProps<T extends Record<string, any>> {
   onBack?: () => void;
@@ -103,7 +69,6 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
   const { toast } = useToast();
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [selectedFiles, setSelectedFiles] = useState<Record<string, File | null>>({});
   const { currentUser } = useAuth();
   const [currentStep, setCurrentStep] = useState(0);
 
@@ -112,7 +77,7 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
     defaultValues,
   });
 
-  const { control, handleSubmit, reset, watch, setValue, setError, trigger } = form;
+  const { control, handleSubmit, reset, watch, setError, trigger, setValue } = form;
 
   const getNestedValue = (obj: any, path: string) => path.split('.').reduce((o, i) => (o ? o[i] : undefined), obj);
   
@@ -134,16 +99,6 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
     }
   }, [visibleSections, currentStep]);
 
-  const getFirstDocumentUploadsKey = (): string | null => {
-    for (const section of sections) {
-        for (const field of section.fields) {
-            if (field.type === 'file') {
-                return field.name.split('.')[0];
-            }
-        }
-    }
-    return null;
-  };
   
   const handleBackClick = onBack || (mode === 'edit' ? () => router.back() : undefined);
 
@@ -156,14 +111,8 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
       return;
     }
 
-    const dataToSubmit = JSON.parse(JSON.stringify(data));
-
     try {
-      const documentUploadsKey = getFirstDocumentUploadsKey();
-      if (documentUploadsKey && data[documentUploadsKey]) {
-        const uploadedUrls = await processFileUploads(data[documentUploadsKey], toast);
-        Object.assign(dataToSubmit[documentUploadsKey], uploadedUrls);
-      }
+      const dataToSubmit = await processNestedFileUploads(JSON.parse(JSON.stringify(data)));
       
       let result;
       if (mode === 'edit' && applicationId && updateAction) {
@@ -185,7 +134,6 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
 
         if (mode === 'create') {
             reset();
-            setSelectedFiles({});
         }
       } else {
         toast({ variant: "destructive", title: mode === 'edit' ? "Update Failed" : "Application Failed", description: result.message || "An unknown error occurred.", duration: 9000 });
@@ -223,45 +171,61 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
     setCurrentStep(prev => Math.max(0, prev - 1));
   };
   
-  const renderField = (fieldConfig: FieldConfig, form: UseFormReturn<TData>) => {
+  const renderField = (fieldConfig: FieldConfig) => {
     return (
       <FormField key={fieldConfig.name} control={control} name={fieldConfig.name as any}
         render={({ field }) => {
           switch (fieldConfig.type) {
             case 'file':
+              const { value, onChange, ...restOfField } = field;
               return (
-                <FormFileInput
-                  fieldLabel={fieldConfig.label}
-                  rhfRef={field.ref}
-                  rhfName={field.name}
-                  rhfOnBlur={field.onBlur}
-                  rhfOnChange={(file: File | null) => {
-                    setValue(field.name as any, file, { shouldValidate: true, shouldDirty: true });
-                    setSelectedFiles(prev => ({ ...prev, [field.name]: file }));
-                  }}
-                  selectedFile={selectedFiles[field.name]}
-                  accept={fieldConfig.accept}
-                />
+                <FormItem>
+                  <FormLabel className="flex items-center">
+                    <UploadCloud className="w-5 h-5 mr-2 inline-block text-muted-foreground" />
+                    {fieldConfig.label}
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      type="file"
+                      {...restOfField}
+                      onChange={(event) => onChange(event.target.files?.[0] ?? null)}
+                      accept={fieldConfig.accept || ".pdf,.jpg,.jpeg,.png"}
+                      className="cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700"
+                    />
+                  </FormControl>
+                  {value instanceof File && (
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Selected: {value.name} ({(value.size / 1024).toFixed(2)} KB)
+                    </p>
+                  )}
+                  <FormMessage />
+                </FormItem>
               );
             case 'radio':
               return (
                 <FormItem>
                   <FormLabel>{fieldConfig.label}</FormLabel>
-                  <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex flex-wrap gap-x-4 gap-y-2">
-                    {fieldConfig.options?.map(opt => (
-                      <FormItem key={opt.value} className="flex items-center space-x-2">
-                        <RadioGroupItem value={opt.value} />
-                        <FormLabel className="font-normal">{opt.label}</FormLabel>
-                      </FormItem>
-                    ))}
-                  </RadioGroup>
+                   <FormControl>
+                    <RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex flex-wrap gap-x-4 gap-y-2">
+                        {fieldConfig.options?.map(opt => (
+                        <FormItem key={opt.value} className="flex items-center space-x-2">
+                            <FormControl>
+                            <RadioGroupItem value={opt.value} />
+                            </FormControl>
+                            <FormLabel className="font-normal">{opt.label}</FormLabel>
+                        </FormItem>
+                        ))}
+                    </RadioGroup>
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               );
             case 'checkbox':
                  return (
                     <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-3 shadow-sm">
-                        <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                        <FormControl>
+                            <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                        </FormControl>
                         <FormLabel className="font-normal leading-snug">{fieldConfig.label}</FormLabel>
                     </FormItem>
                 );
@@ -269,7 +233,9 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
                 return (
                     <FormItem>
                         <FormLabel>{fieldConfig.label}</FormLabel>
-                        <Textarea placeholder={fieldConfig.placeholder} {...field} rows={fieldConfig.rows || 3} />
+                        <FormControl>
+                            <Textarea placeholder={fieldConfig.placeholder} {...field} rows={fieldConfig.rows || 3} />
+                        </FormControl>
                         <FormMessage />
                     </FormItem>
                 );
@@ -277,7 +243,9 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
               return (
                 <FormItem>
                   <FormLabel>{fieldConfig.label}</FormLabel>
-                  <Input type={fieldConfig.type} placeholder={fieldConfig.placeholder} {...field} value={field.value ?? ''} />
+                  <FormControl>
+                    <Input type={fieldConfig.type} placeholder={fieldConfig.placeholder} {...field} value={field.value ?? ''} />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               );
@@ -317,7 +285,7 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
                         }
                         return (
                           <FormFieldWrapper key={fieldConfig.name} className={fieldConfig.colSpan === 2 ? 'md:col-span-2' : ''}>
-                            {renderField(fieldConfig, form)}
+                            {renderField(fieldConfig)}
                           </FormFieldWrapper>
                         );
                       })}

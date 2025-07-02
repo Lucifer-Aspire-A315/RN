@@ -23,6 +23,7 @@ const accountingSections = [
             { name: "personalDetails.mobileNumber", label: "Mobile Number", type: "tel", placeholder: "10-digit mobile" },
             { name: "personalDetails.email", label: "Email ID", type: "email", placeholder: "example@mail.com" },
             { name: "personalDetails.panNumber", label: "PAN Number", type: "text", placeholder: "ABCDE1234F" },
+            { name: "personalDetails.aadhaarNumber", label: "Aadhaar Number", type: "text", placeholder: "123456789012" },
         ]
     },
      {
@@ -59,7 +60,9 @@ const accountingSections = [
         title: "Upload Required Documents",
         subtitle: "Accepted File Types: PDF, Excel, JPG, PNG. Max File Size: 10 MB per document.",
         fields: [
-            { name: "documentUploads.kycDocuments.panCard", label: "PAN Card of Business/Owner", type: "file", colSpan: 2, accept: ".pdf,.jpg,.jpeg,.png" },
+            { name: "kycDocuments.photograph", label: "Applicant Photograph", type: "file", accept: ".jpg,.jpeg,.png" },
+            { name: "kycDocuments.panCard", label: "PAN Card of Business/Owner", type: "file", accept: ".pdf,.jpg,.jpeg,.png" },
+            { name: "kycDocuments.aadhaarCard", label: "Aadhaar Card of Applicant", type: "file", accept: ".pdf,.jpg,.jpeg,.png" },
             { name: "documentUploads.gstCertificate", label: "GST Certificate (if available)", type: "file", colSpan: 2, accept: ".pdf,.jpg,.jpeg,.png" },
             { name: "documentUploads.previousYearFinancials", label: "Previous Year Financial Statements", type: "file", colSpan: 2, accept: ".pdf,.xls,.xlsx,.jpg,.jpeg,.png" },
             { name: "documentUploads.bankStatement", label: "Bank Statement (Last 6–12 Months)", type: "file", colSpan: 2, accept: ".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png" },
@@ -78,6 +81,10 @@ export function AccountingBookkeepingForm({ onBack, initialData, applicationId, 
       mobileNumber: '',
       email: '',
       panNumber: '',
+      fatherOrHusbandName: '',
+      dob: '',
+      gender: undefined,
+      aadhaarNumber: '',
     },
     businessDetails: {
       businessName: '',
@@ -96,8 +103,12 @@ export function AccountingBookkeepingForm({ onBack, initialData, applicationId, 
       otherAccountingService: false,
       otherAccountingServiceDetail: '',
     },
+    kycDocuments: {
+        panCard: undefined,
+        aadhaarCard: undefined,
+        photograph: undefined,
+    },
     documentUploads: {
-        kycDocuments: { panCard: undefined },
         gstCertificate: undefined,
         previousYearFinancials: undefined,
         bankStatement: undefined,

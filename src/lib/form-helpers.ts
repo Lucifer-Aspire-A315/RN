@@ -22,60 +22,44 @@ function fileToDataUri(file: File): Promise<string> {
     });
 }
 
-
 /**
- * Processes and uploads a dictionary of files by sending them as Base64 strings to a server action.
- * 1. Converts each file to a Base64 data URI string on the client.
- * 2. Calls a server action to handle the upload to Firebase Storage.
- * 3. The server action decodes the string and saves the file.
- * This method avoids client-side CORS issues associated with direct-to-storage uploads.
+ * Recursively traverses a data object, finds all `File` instances,
+ * uploads them via a server action, and replaces the `File` object
+ * with the returned public URL.
  * 
- * @param documentUploadsData A record where keys are field names and values are File objects or other data.
- * @param toast A function to display toast notifications for progress and errors.
- * @returns A promise that resolves to a record of field keys to their uploaded URLs.
+ * @param data The data object to process (e.g., the form data).
+ * @returns A promise that resolves to a new object with Files replaced by URLs.
  * @throws An error if any file upload fails, which should be caught by the calling form.
  */
-export async function processFileUploads(
-  documentUploadsData: Record<string, any>,
-  toast: ToastFn
-): Promise<Record<string, string>> {
-  
-  const uploadedFileUrls: Record<string, string> = {};
+export async function processNestedFileUploads(data: any): Promise<any> {
+    if (!data || typeof data !== 'object') {
+        return data;
+    }
 
-  const filesToUpload = Object.entries(documentUploadsData)
-    .filter(([, value]) => value instanceof File);
-  
-  if (filesToUpload.length === 0) {
-    return {};
-  }
+    const processedData = Array.isArray(data) ? [...data] : { ...data };
 
-  for (const [key, file] of filesToUpload) {
-    if (file instanceof File) {
-        try {
-            toast({ title: `Uploading ${file.name}...`, description: "Please keep this window open." });
+    for (const key in processedData) {
+        if (Object.prototype.hasOwnProperty.call(processedData, key)) {
+            const value = processedData[key];
 
-            // 1. Convert the file to a Base64 data URI on the client
-            const dataUri = await fileToDataUri(file);
-
-            // 2. Send the data URI to the server action for upload
-            const uploadResponse = await uploadFileAsStringAction(dataUri, file.name);
-
-            if (!uploadResponse.success || !uploadResponse.publicUrl) {
-                throw new Error(uploadResponse.error || `Server failed to upload ${file.name}.`);
+            if (value instanceof File) {
+                try {
+                    const dataUri = await fileToDataUri(value);
+                    const uploadResponse = await uploadFileAsStringAction(dataUri, value.name);
+                    if (!uploadResponse.success || !uploadResponse.publicUrl) {
+                        throw new Error(uploadResponse.error || `Server failed to upload ${value.name}.`);
+                    }
+                    processedData[key] = uploadResponse.publicUrl;
+                } catch (error: any) {
+                    console.error(`Upload process failed for field "${key}":`, error);
+                    // Re-throw to be caught by the form's submit handler
+                    throw new Error(`Upload Failed for ${value.name}: ${error.message}`);
+                }
+            } else if (typeof value === 'object' && value !== null) {
+                processedData[key] = await processNestedFileUploads(value);
             }
-            
-            // 3. Store the permanent public URL for saving to the database
-            uploadedFileUrls[key] = uploadResponse.publicUrl;
-            toast({ title: `Successfully uploaded ${file.name}!` });
-
-        } catch (error: any) {
-            console.error(`Upload process failed for field "${key}":`, error);
-            toast({ variant: 'destructive', title: `Upload Failed for ${file.name}`, description: error.message, duration: 9000 });
-            // Stop the entire form submission if one file fails by re-throwing the error
-            throw error;
         }
     }
-  }
-  
-  return uploadedFileUrls;
+
+    return processedData;
 }

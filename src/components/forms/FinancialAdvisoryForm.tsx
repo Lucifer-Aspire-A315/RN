@@ -23,6 +23,8 @@ const financialAdvisorySections = [
             { name: "personalDetails.mobileNumber", label: "Mobile Number", type: "tel", placeholder: "10-digit mobile" },
             { name: "personalDetails.email", label: "Email ID", type: "email", placeholder: "example@mail.com" },
             { name: "personalDetails.dob", label: "Date of Birth", type: "date" },
+            { name: "personalDetails.panNumber", label: "PAN Number", type: "text", placeholder: "ABCDE1234F" },
+            { name: "personalDetails.aadhaarNumber", label: "Aadhaar Number", type: "text", placeholder: "123456789012" },
             { name: "personalDetails.occupation", label: "Occupation", type: "radio", colSpan: 2, options: [
                 { value: "salaried", label: "Salaried" },
                 { value: "business", label: "Business" },
@@ -68,13 +70,14 @@ const financialAdvisorySections = [
     },
     {
         title: "Upload Required Documents",
-        subtitle: "Optional but Recommended. Accepted File Types: PDF, Word, Excel, JPG, PNG. Max File Size: 5 MB per document.",
+        subtitle: "Optional but Recommended. Accepted File Types: PDF, Word, JPG, PNG. Max File Size: 5 MB per document.",
         fields: [
-            { name: "kycDocuments.panCard", label: "PAN Card", type: "file", colSpan: 2 },
-            { name: "kycDocuments.aadhaarCard", label: "Aadhaar Card", type: "file", colSpan: 2 },
+            { name: "kycDocuments.photograph", label: "Applicant Photograph", type: "file", accept: ".jpg,.jpeg,.png" },
+            { name: "kycDocuments.panCard", label: "PAN Card", type: "file", accept: ".pdf,.jpg,.jpeg,.png" },
+            { name: "kycDocuments.aadhaarCard", label: "Aadhaar Card", type: "file", accept: ".pdf,.jpg,.jpeg,.png" },
             { name: "documentUploads.salarySlipsIncomeProof", label: "Salary Slips / Income Proof", type: "file", colSpan: 2 },
             { name: "documentUploads.lastYearItrForm16", label: "Last Year’s ITR or Form 16", type: "file", colSpan: 2 },
-            { name: "documentUploads.bankStatement", label: "Bank Statement (3–6 Months)", type: "file", colSpan: 2, accept: ".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png" },
+            { name: "documentUploads.bankStatement", label: "Bank Statement (3–6 Months)", type: "file", colSpan: 2, accept: ".pdf,.doc,.docx,.jpg,.jpeg,.png" },
             { name: "documentUploads.investmentProofs", label: "Investment Proofs (Mutual Funds, LIC, etc.)", type: "file", colSpan: 2 },
             { name: "documentUploads.existingLoanEmiDetails", label: "Existing Loan / EMI Details (if any)", type: "file", colSpan: 2 },
         ]
@@ -94,6 +97,10 @@ export function FinancialAdvisoryForm({ onBack, initialData, applicationId, mode
       maritalStatus: undefined,
       dependentMembersAdults: undefined,
       dependentMembersChildren: undefined,
+      panNumber: '',
+      aadhaarNumber: '',
+      fatherOrHusbandName: '',
+      gender: undefined,
     },
     advisoryServicesRequired: {
       taxSavingPlan: false,
@@ -122,6 +129,7 @@ export function FinancialAdvisoryForm({ onBack, initialData, applicationId, mode
     kycDocuments: {
       panCard: undefined,
       aadhaarCard: undefined,
+      photograph: undefined,
     },
     documentUploads: {
         salarySlipsIncomeProof: undefined,

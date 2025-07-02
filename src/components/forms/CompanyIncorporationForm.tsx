@@ -67,13 +67,13 @@ const companyIncorporationSections = [
     },
     {
         title: "Upload Required Documents",
-        subtitle: "For Each Director/Partner. Accepted File Types: PDF, Word, Excel, JPG, PNG. Max File Size: 10 MB per document.",
+        subtitle: "For Each Director/Partner. Accepted File Types: PDF, Word, JPG, PNG. Max File Size: 10 MB per document.",
         fields: [
             { name: "kycDocuments.panCard", label: "Director/Partner PAN Card", type: "file", colSpan: 2 },
             { name: "kycDocuments.aadhaarCard", label: "Director/Partner Aadhaar Card", type: "file", colSpan: 2 },
             { name: "kycDocuments.photograph", label: "Director/Partner Passport Photo", type: "file", colSpan: 2 },
             { name: "documentUploads.businessAddressProof", label: "Electricity Bill / Rent Agreement (Business Address Proof)", type: "file", colSpan: 2 },
-            { name: "documentUploads.directorBankStatement", label: "Bank Statement (Last 1 month)", type: "file", colSpan: 2, accept: ".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png" },
+            { name: "documentUploads.directorBankStatement", label: "Bank Statement (Last 1 month)", type: "file", colSpan: 2, accept: ".pdf,.doc,.docx,.jpg,.jpeg,.png" },
             { name: "documentUploads.dsc", label: "Digital Signature Certificate (DSC, if available)", type: "file", colSpan: 2 },
         ]
     },
@@ -109,6 +109,8 @@ export function CompanyIncorporationForm({ onBack, initialData, applicationId, m
       cityAndState: '',
       panNumber: '',
       aadhaarNumber: '',
+      fatherOrHusbandName: '',
+      gender: undefined,
     },
     companyDetails: {
       companyType: undefined,

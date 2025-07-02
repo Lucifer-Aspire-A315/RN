@@ -23,6 +23,7 @@ const auditAndAssuranceSections = [
             { name: "personalDetails.mobileNumber", label: "Mobile Number", type: "tel", placeholder: "10-digit mobile" },
             { name: "personalDetails.email", label: "Email ID", type: "email", placeholder: "example@mail.com" },
             { name: "personalDetails.panNumber", label: "PAN Number", type: "text", placeholder: "ABCDE1234F" },
+            { name: "personalDetails.aadhaarNumber", label: "Aadhaar Number", type: "text", placeholder: "123456789012" },
         ]
     },
     {
@@ -58,7 +59,9 @@ const auditAndAssuranceSections = [
         title: "Upload Required Documents",
         subtitle: "Accepted File Types: PDF, Excel, JPG, PNG. Max File Size: 10 MB per document.",
         fields: [
-            { name: "documentUploads.kycDocuments.panCard", label: "PAN Card of Business/Promoter", type: "file", colSpan: 2, accept: ".pdf,.jpg,.jpeg,.png" },
+            { name: "kycDocuments.photograph", label: "Contact Person Photograph", type: "file", accept: ".jpg,.jpeg,.png" },
+            { name: "kycDocuments.panCard", label: "PAN Card of Business/Promoter", type: "file", accept: ".pdf,.jpg,.jpeg,.png" },
+            { name: "kycDocuments.aadhaarCard", label: "Aadhaar of Contact Person", type: "file", accept: ".pdf,.jpg,.jpeg,.png" },
             { name: "documentUploads.gstCertificate", label: "GST Certificate (if available)", type: "file", colSpan: 2, accept: ".pdf,.jpg,.jpeg,.png" },
             { name: "documentUploads.lastFinancials", label: "Last 2 Years Financial Statements", type: "file", colSpan: 2, accept: ".pdf,.xls,.xlsx,.jpg,.jpeg,.png" },
             { name: "documentUploads.bankStatement", label: "Bank Statement (Last 1 Year)", type: "file", colSpan: 2, accept: ".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png" },
@@ -74,7 +77,11 @@ export function AuditAndAssuranceForm({ onBack, initialData, applicationId, mode
       fullName: '',
       mobileNumber: '',
       email: '',
-      panNumber: ''
+      panNumber: '',
+      aadhaarNumber: '',
+      fatherOrHusbandName: '',
+      dob: '',
+      gender: undefined,
     },
     businessDetails: {
       businessName: '',
@@ -92,8 +99,12 @@ export function AuditAndAssuranceForm({ onBack, initialData, applicationId, mode
         otherAuditService: false,
         otherAuditServiceDetail: '',
     },
+    kycDocuments: {
+        panCard: undefined,
+        aadhaarCard: undefined,
+        photograph: undefined,
+    },
     documentUploads: {
-        kycDocuments: { panCard: undefined },
         gstCertificate: undefined,
         lastFinancials: undefined,
         bankStatement: undefined,

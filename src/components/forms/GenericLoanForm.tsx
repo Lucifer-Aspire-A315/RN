@@ -8,14 +8,14 @@ import type { ZodType, ZodTypeDef } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, useFormField } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { validateIdentificationDetails, type ValidateIdentificationDetailsOutput } from '@/ai/flows/validate-identification-details';
 import { ArrowLeft, Loader2, Info, UploadCloud } from 'lucide-react';
 import { FormSection, FormFieldWrapper } from './FormSection';
 import { useAuth } from '@/contexts/AuthContext';
 import { Textarea } from '../ui/textarea';
-import { processFileUploads } from '@/lib/form-helpers';
+import { processNestedFileUploads } from '@/lib/form-helpers';
 import { useRouter } from 'next/navigation';
 import { FormProgress } from '../shared/FormProgress';
 
@@ -95,7 +95,7 @@ export function GenericLoanForm<TData extends Record<string, any>>({
     defaultValues,
   });
 
-  const { control, handleSubmit, getValues, setError, clearErrors, trigger, reset, setValue, watch } = form;
+  const { control, handleSubmit, getValues, setError, clearErrors, trigger, reset, watch } = form;
   
   const getNestedValue = (obj: any, path: string) => path.split('.').reduce((o, i) => (o ? o[i] : undefined), obj);
   
@@ -129,14 +129,8 @@ export function GenericLoanForm<TData extends Record<string, any>>({
       return;
     }
 
-    const payloadForServer = JSON.parse(JSON.stringify(data));
-
     try {
-      const documentUploadsKey = 'documentUploads';
-      if (payloadForServer[documentUploadsKey]) {
-        const uploadedUrls = await processFileUploads(data[documentUploadsKey], toast);
-        Object.assign(payloadForServer[documentUploadsKey], uploadedUrls);
-      }
+      const payloadForServer = await processNestedFileUploads(JSON.parse(JSON.stringify(data)));
       
       let result: ServerActionResponse;
       if (mode === 'edit' && applicationId && updateAction) {

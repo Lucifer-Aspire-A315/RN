@@ -6,7 +6,7 @@ import { db } from '@/lib/firebase';
 import { checkSessionAction } from './authActions';
 import type { UserApplication } from '@/lib/types';
 import { getCollectionName } from '@/lib/utils';
-import { processFileUploads } from '@/lib/form-helpers';
+import { processNestedFileUploads } from '@/lib/form-helpers';
 import { revalidatePath } from 'next/cache';
 
 interface ServerActionResponse {
@@ -43,6 +43,8 @@ export async function submitApplicationAction(
     }
     
     const { fullName: applicantFullName, email: applicantEmail } = personalDetails;
+    
+    const processedFormData = await processNestedFileUploads(formData);
 
     const applicationData = {
       applicantDetails: {
@@ -60,7 +62,7 @@ export async function submitApplicationAction(
       applicationType,
       serviceCategory,
       ...(schemeNameForDisplay && { schemeNameForDisplay }),
-      formData,
+      formData: processedFormData,
       status: 'submitted',
       createdAt: Timestamp.now(),
       updatedAt: Timestamp.now(),
@@ -179,22 +181,9 @@ export async function updateApplicationAction(
 
     const payloadForServer = JSON.parse(JSON.stringify(data));
     
-    // Find any key that includes "documentuploads" case-insensitively
-    const findDocumentUploadsKey = (obj: any): string | null => {
-        if (!obj || typeof obj !== 'object') return null;
-        for (const key in obj) {
-            if (key.toLowerCase().includes('documentuploads')) {
-                return key;
-            }
-        }
-        return null;
-    };
-
-    const documentUploadsKey = findDocumentUploadsKey(payloadForServer.formData);
-
-    if (documentUploadsKey && payloadForServer.formData[documentUploadsKey]) {
-        const uploadedUrls = await processFileUploads(payloadForServer.formData[documentUploadsKey], () => {});
-        Object.assign(payloadForServer.formData[documentUploadsKey], uploadedUrls);
+    // Process all file uploads recursively within the formData
+    if (payloadForServer.formData) {
+        payloadForServer.formData = await processNestedFileUploads(payloadForServer.formData);
     }
     
     const applicantUserId = submitterType === 'normal' ? submitterId : null;
