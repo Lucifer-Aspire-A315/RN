@@ -234,7 +234,7 @@ export function GenericLoanForm<TData extends Record<string, any>>({
   };
   
   const renderField = (fieldConfig: FieldConfig) => {
-    const onBlur = (fieldConfig.isPAN || fieldConfig.isAadhaar) ? handleIDValidation : undefined;
+    const onBlur = fieldConfig.isAadhaar ? handleIDValidation : undefined;
     
     return (
       <FormField
