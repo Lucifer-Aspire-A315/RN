@@ -19,10 +19,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 type LoginType = 'dsa' | 'merchant' | 'referral' | 'admin';
 
 const loginOptions = [
-    { type: 'dsa' as LoginType, icon: <UserPlus className="w-8 h-8 mb-2" />, title: "DSA Partner", description: "Login as a Direct Selling Agent." },
-    { type: 'merchant' as LoginType, icon: <Store className="w-8 h-8 mb-2" />, title: "Merchant Partner", description: "Login as a Merchant Partner." },
-    { type: 'referral' as LoginType, icon: <Users className="w-8 h-8 mb-2" />, title: "Referral Partner", description: "Login as a Referral Partner." },
-    { type: 'admin' as LoginType, icon: <ShieldCheck className="w-8 h-8 mb-2" />, title: "Admin", description: "Login as an Administrator." },
+    { type: 'dsa' as LoginType, icon: UserPlus, title: "DSA Partner", description: "Login as a Direct Selling Agent." },
+    { type: 'merchant' as LoginType, icon: Store, title: "Merchant Partner", description: "Login as a Merchant Partner." },
+    { type: 'referral' as LoginType, icon: Users, title: "Referral Partner", description: "Login as a Referral Partner." },
+    { type: 'admin' as LoginType, icon: ShieldCheck, title: "Admin", description: "Login as an Administrator." },
 ]
 
 export function PartnerLoginForm() {
@@ -85,24 +85,27 @@ export function PartnerLoginForm() {
 
   if (!selectedLogin) {
     return (
-         <Card className="max-w-2xl mx-auto shadow-xl">
+         <Card className="max-w-3xl mx-auto shadow-xl">
              <CardHeader className="text-center">
                 <LogIn className="w-12 h-12 mx-auto text-primary mb-2" />
-                <CardTitle className="text-2xl">Partner & Admin Login</CardTitle>
-                <CardDescription>Please select your login type.</CardDescription>
+                <CardTitle className="text-3xl">Partner & Admin Login</CardTitle>
+                <CardDescription className="text-lg">Please select your login type to continue.</CardDescription>
              </CardHeader>
-             <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {loginOptions.map(opt => (
-                     <button
-                        key={opt.type}
-                        onClick={() => setSelectedLogin(opt.type)}
-                        className="flex flex-col items-center justify-center text-center p-6 border-2 rounded-lg cursor-pointer transition-all hover:border-primary hover:bg-primary/10 focus:outline-none focus:ring-2 focus:ring-primary"
-                    >
-                        {opt.icon}
-                        <span className="font-bold text-foreground">{opt.title}</span>
-                        <span className="text-xs text-muted-foreground">{opt.description}</span>
-                    </button>
-                ))}
+             <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4 p-6">
+                {loginOptions.map(opt => {
+                    const Icon = opt.icon;
+                    return (
+                        <button
+                            key={opt.type}
+                            onClick={() => setSelectedLogin(opt.type)}
+                            className="group flex flex-col items-center justify-center text-center p-6 border-2 rounded-xl cursor-pointer transition-all duration-300 ease-in-out hover:border-primary hover:bg-primary/5 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+                        >
+                            <Icon className="w-10 h-10 mb-3 text-muted-foreground transition-colors group-hover:text-primary" />
+                            <span className="font-bold text-lg text-foreground">{opt.title}</span>
+                            <span className="text-sm text-muted-foreground">{opt.description}</span>
+                        </button>
+                    )
+                })}
              </CardContent>
              <CardFooter className="flex-col gap-2 pt-6 border-t text-center">
                 <p className="text-sm text-muted-foreground">
@@ -123,6 +126,7 @@ export function PartnerLoginForm() {
   }
 
   const currentOption = loginOptions.find(opt => opt.type === selectedLogin);
+  const Icon = currentOption?.icon || LogIn;
 
   return (
     <Card className="max-w-md mx-auto shadow-xl relative">
@@ -130,7 +134,9 @@ export function PartnerLoginForm() {
              <Button variant="ghost" size="sm" onClick={() => setSelectedLogin(null)} className="absolute top-4 left-4 text-muted-foreground hover:text-foreground">
                 <ArrowLeft className="w-4 h-4 mr-1"/> Back
             </Button>
-            <div className="flex justify-center text-primary pt-8">{currentOption?.icon}</div>
+            <div className="flex justify-center text-primary pt-8">
+                <Icon className="w-10 h-10" />
+            </div>
             <CardTitle className="text-2xl">{currentOption?.title} Login</CardTitle>
             <CardDescription>Access your {currentOption?.type} account.</CardDescription>
         </CardHeader>
