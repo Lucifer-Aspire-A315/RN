@@ -1,11 +1,10 @@
-
 "use client";
 
 import React from 'react';
 import { GovernmentSchemeLoanApplicationSchema, type GovernmentSchemeLoanApplicationFormData } from '@/lib/schemas';
 import { FileText } from 'lucide-react';
 import { GenericLoanForm } from './GenericLoanForm';
-import { submitApplicationAction, updateGovernmentSchemeLoanApplicationAction } from '@/app/actions/applicationActions';
+import { submitGovernmentSchemeLoanApplicationAction, updateGovernmentSchemeLoanApplicationAction } from '@/app/actions/governmentSchemeActions';
 
 interface GovernmentSchemeLoanApplicationFormProps {
   onBack?: () => void;
@@ -132,7 +131,6 @@ export function GovernmentSchemeLoanApplicationForm({ onBack, selectedScheme, ot
   };
 
   const applicationType = initialData?.loanDetailsGov.selectedScheme || defaultValues.loanDetailsGov.selectedScheme;
-  const displayName = initialData?.loanDetailsGov.otherSchemeName || defaultValues.loanDetailsGov.otherSchemeName;
   const formSubtitle = mode === 'edit'
     ? `Editing Application for: ${applicationType}`
     : `Applying for: ${applicationType}`;
@@ -147,7 +145,7 @@ export function GovernmentSchemeLoanApplicationForm({ onBack, selectedScheme, ot
       schema={GovernmentSchemeLoanApplicationSchema}
       defaultValues={defaultValues}
       sections={governmentSchemeSections}
-      submitAction={(data) => submitApplicationAction(data, 'governmentScheme', applicationType, displayName)}
+      submitAction={submitGovernmentSchemeLoanApplicationAction}
       updateAction={updateGovernmentSchemeLoanApplicationAction}
       applicationId={applicationId}
       mode={mode}

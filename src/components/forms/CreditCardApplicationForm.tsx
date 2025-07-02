@@ -5,7 +5,7 @@ import React from 'react';
 import { CreditCardIcon } from 'lucide-react';
 import { GenericLoanForm } from './GenericLoanForm';
 import { CreditCardApplicationSchema, type CreditCardApplicationFormData } from '@/lib/schemas';
-import { submitApplicationAction, updateLoanApplicationAction } from '@/app/actions/applicationActions';
+import { submitLoanApplicationAction, updateLoanApplicationAction } from '@/app/actions/loanActions';
 
 interface CreditCardApplicationFormProps {
   onBack?: () => void;
@@ -110,7 +110,7 @@ export function CreditCardApplicationForm({ onBack, backButtonText, initialData,
       schema={CreditCardApplicationSchema}
       defaultValues={initialData || defaultValues}
       sections={creditCardSections}
-      submitAction={(data) => submitApplicationAction(data, 'loan', 'Credit Card')}
+      submitAction={(data) => submitLoanApplicationAction(data, 'Credit Card')}
       updateAction={updateLoanApplicationAction}
       applicationId={applicationId}
       mode={mode}

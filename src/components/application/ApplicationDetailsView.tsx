@@ -234,8 +234,11 @@ export function ApplicationDetailsView({ applicationId, serviceCategory, title, 
     const { formData, submittedBy, createdAt, updatedAt } = applicationData;
     const applicationTypeInfo = applicationData.schemeNameForDisplay || applicationData.applicationType;
 
-    // Isolate the applicant info, which can be under different keys
-    const applicantInfo = formData.applicantDetails || formData.applicantDetailsGov || formData.applicantFounderDetails;
+    // Isolate the applicant info, which can be under different keys inside formData
+    const applicantInfoFromForm = formData.applicantDetails || formData.applicantDetailsGov || formData.applicantFounderDetails;
+    
+    // Get the display name, checking for `fullName` or `name` as a fallback.
+    const applicantDisplayName = applicationData.applicantDetails?.fullName || applicantInfoFromForm?.fullName || applicantInfoFromForm?.name || 'N/A';
     
     // Create a new object for the rest of the form data to avoid mutating the original
     const otherFormData = {...formData};
@@ -282,7 +285,7 @@ export function ApplicationDetailsView({ applicationId, serviceCategory, title, 
                     <CardContent className="text-sm space-y-3">
                          <div>
                             <p className="font-semibold text-foreground">Applicant:</p>
-                            <p className="text-muted-foreground">{applicantInfo?.fullName || 'N/A'}</p>
+                            <p className="text-muted-foreground">{applicantDisplayName}</p>
                          </div>
                          <div>
                             <p className="font-semibold text-foreground">Submitted By:</p>
@@ -322,11 +325,11 @@ export function ApplicationDetailsView({ applicationId, serviceCategory, title, 
             <div className="lg:col-span-2 space-y-6">
                 
                 {/* Applicant & Submitter Info Card */}
-                {(applicantInfo || submittedBy) && (
+                {(applicantInfoFromForm || submittedBy) && (
                      <Card className="shadow-sm">
                         <CardHeader><CardTitle className="text-lg flex items-center gap-2"><User className="w-5 h-5"/> Applicant & Submitter Info</CardTitle></CardHeader>
                         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 pt-0">
-                             {applicantInfo && Object.entries(applicantInfo).map(([key, value]) => (<DetailItem key={key} itemKey={key} itemValue={value} />))}
+                             {applicantInfoFromForm && Object.entries(applicantInfoFromForm).map(([key, value]) => (<DetailItem key={key} itemKey={key} itemValue={value} />))}
                              {submittedBy && Object.entries(submittedBy).map(([key, value]) => (<DetailItem key={`submitter_${key}`} itemKey={`Submitter ${formatKey(key)}`} itemValue={value} />))}
                         </CardContent>
                     </Card>
@@ -373,5 +376,6 @@ export function ApplicationDetailsView({ applicationId, serviceCategory, title, 
     </>
   );
 }
+
 
 

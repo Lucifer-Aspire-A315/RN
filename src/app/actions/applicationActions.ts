@@ -26,18 +26,19 @@ export async function submitApplicationAction(
   console.log(`[AppSubmitAction] Received application for category "${serviceCategory}", type "${applicationType}".`);
 
   try {
-    await cookies().get('priming-cookie-submit');
-    const submitterUserId = cookies().get('user_id')?.value;
-    const submitterUserName = cookies().get('user_name')?.value;
-    const submitterUserEmail = cookies().get('user_email')?.value;
-    const submitterUserType = cookies().get('user_type')?.value as 'normal' | 'partner' | undefined;
-
-    if (!submitterUserId || !submitterUserName || !submitterUserEmail || !submitterUserType) {
+    const submitter = await checkSessionAction();
+    if (!submitter) {
       console.error(`[AppSubmitAction] Critical user info missing for ${serviceCategory} application.`);
       return { success: false, message: 'User authentication details missing. Please log in again.' };
     }
 
+    const { id: submitterUserId, fullName: submitterUserName, email: submitterUserEmail, type: submitterUserType } = submitter;
+    
     const partnerId = submitterUserType === 'partner' ? submitterUserId : null;
+    
+    // For normal users applying for themselves, their user ID is the applicant ID.
+    // For partners, the applicant is their client, who may not have a user ID.
+    const applicantUserId = submitterUserType === 'normal' ? submitterUserId : null;
 
     let applicantFullName = '';
     let applicantEmail = '';
@@ -65,7 +66,7 @@ export async function submitApplicationAction(
 
     const applicationData = {
       applicantDetails: {
-        userId: null,
+        userId: applicantUserId,
         fullName: applicantFullName,
         email: applicantEmail,
       },
@@ -188,8 +189,9 @@ export async function updateApplicationAction(
       throw new Error('Application not found.');
     }
 
-    const applicationData = docSnap.data();
-    const submitterId = applicationData.submittedBy?.userId;
+    const existingApplicationData = docSnap.data();
+    const submitterId = existingApplicationData.submittedBy?.userId;
+    const submitterType = existingApplicationData.submittedBy?.userType;
 
     if (user.id !== submitterId && !user.isAdmin) {
       throw new Error('Unauthorized: You do not have permission to perform this action.');
@@ -214,21 +216,23 @@ export async function updateApplicationAction(
         Object.assign(payloadForServer.formData[documentUploadsKey], uploadedUrls);
     }
     
+    const applicantUserId = submitterType === 'normal' ? submitterId : null;
+
     if (serviceCategory === 'loan' && payloadForServer.formData.applicantDetails) {
         payloadForServer.applicantDetails = {
-            userId: null, 
+            userId: applicantUserId, 
             fullName: payloadForServer.formData.applicantDetails.name,
             email: payloadForServer.formData.applicantDetails.email,
         };
     } else if (serviceCategory === 'caService' && payloadForServer.formData.applicantDetails) {
         payloadForServer.applicantDetails = {
-            userId: null,
+            userId: applicantUserId,
             fullName: payloadForServer.formData.applicantDetails.fullName,
             email: payloadForServer.formData.applicantDetails.emailId,
         };
     } else if (serviceCategory === 'governmentScheme' && payloadForServer.formData.applicantDetailsGov) {
          payloadForServer.applicantDetails = {
-            userId: null,
+            userId: applicantUserId,
             fullName: payloadForServer.formData.applicantDetailsGov.fullName,
             email: payloadForServer.formData.applicantDetailsGov.emailId,
         };
@@ -250,17 +254,4 @@ export async function updateApplicationAction(
     console.error(`[AppUpdateAction] Error updating application ${applicationId}:`, error.message, error.stack);
     return { success: false, message: error.message || 'Failed to update application.' };
   }
-}
-
-// Wrapper actions for simple calls from form components
-export async function updateLoanApplicationAction(applicationId: string, data: any) {
-    return updateApplicationAction(applicationId, 'loan', { formData: data });
-}
-
-export async function updateCAServiceApplicationAction(applicationId: string, data: any) {
-    return updateApplicationAction(applicationId, 'caService', { formData: data });
-}
-
-export async function updateGovernmentSchemeLoanApplicationAction(applicationId: string, data: any) {
-    return updateApplicationAction(applicationId, 'governmentScheme', { formData: data });
 }

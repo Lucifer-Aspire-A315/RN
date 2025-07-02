@@ -4,7 +4,7 @@
 import React from 'react';
 import { AuditAndAssuranceFormSchema, type AuditAndAssuranceFormData } from '@/lib/schemas';
 import { ClipboardCheck } from 'lucide-react';
-import { submitApplicationAction, updateCAServiceApplicationAction } from '@/app/actions/applicationActions';
+import { submitAuditAndAssuranceAction, updateCAServiceApplicationAction } from '@/app/actions/caServiceActions';
 import { GenericCAServiceForm } from './GenericCAServiceForm';
 
 interface AuditAndAssuranceFormProps {
@@ -101,7 +101,7 @@ export function AuditAndAssuranceForm({ onBack, initialData, applicationId, mode
       schema={AuditAndAssuranceFormSchema}
       defaultValues={initialData || defaultValues}
       sections={auditAndAssuranceSections}
-      submitAction={(data) => submitApplicationAction(data, 'caService', 'Audit and Assurance Service')}
+      submitAction={submitAuditAndAssuranceAction}
       updateAction={updateCAServiceApplicationAction}
       applicationId={applicationId}
       mode={mode}

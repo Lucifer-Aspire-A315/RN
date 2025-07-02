@@ -4,7 +4,7 @@
 import React from 'react';
 import { CompanyIncorporationFormSchema, type CompanyIncorporationFormData } from '@/lib/schemas';
 import { Building2 } from 'lucide-react';
-import { submitApplicationAction, updateCAServiceApplicationAction } from '@/app/actions/applicationActions';
+import { submitCompanyIncorporationAction, updateCAServiceApplicationAction } from '@/app/actions/caServiceActions';
 import { GenericCAServiceForm } from './GenericCAServiceForm';
 
 interface CompanyIncorporationFormProps {
@@ -144,7 +144,7 @@ export function CompanyIncorporationForm({ onBack, initialData, applicationId, m
         schema={CompanyIncorporationFormSchema}
         defaultValues={initialData || defaultValues}
         sections={companyIncorporationSections}
-        submitAction={(data) => submitApplicationAction(data, 'caService', 'Company Incorporation')}
+        submitAction={submitCompanyIncorporationAction}
         updateAction={updateCAServiceApplicationAction}
         applicationId={applicationId}
         mode={mode}

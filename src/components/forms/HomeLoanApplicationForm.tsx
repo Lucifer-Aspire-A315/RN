@@ -5,7 +5,7 @@ import React from 'react';
 import { Home as HomeIcon } from 'lucide-react';
 import { GenericLoanForm } from './GenericLoanForm';
 import { HomeLoanApplicationSchema, type HomeLoanApplicationFormData } from '@/lib/schemas';
-import { submitApplicationAction, updateLoanApplicationAction } from '@/app/actions/applicationActions';
+import { submitLoanApplicationAction, updateLoanApplicationAction } from '@/app/actions/loanActions';
 
 interface HomeLoanApplicationFormProps {
   onBack?: () => void;
@@ -45,7 +45,7 @@ const homeLoanSections = [
   },
   {
     title: "Employment / Income Details",
-    subtitle: "रोजगार और आय की जानकारी",
+    subtitle: "रोजगार और आय ਦੀ जानकारी",
     fields: [
       { name: "employmentIncome.employmentType", label: "Occupation Type", type: "radio", options: [{value: "salaried", label: "Salaried"}, {value: "self-employed", label: "Self-Employed / Business"}], colSpan: 2},
       { name: "employmentIncome.companyName", label: "Company / Business Name", type: "text", placeholder: "Company Name" },
@@ -152,7 +152,7 @@ export function HomeLoanApplicationForm({ onBack, backButtonText, initialData, a
       schema={HomeLoanApplicationSchema}
       defaultValues={initialData || defaultValues}
       sections={homeLoanSections}
-      submitAction={(data) => submitApplicationAction(data, 'loan', 'Home Loan')}
+      submitAction={(data) => submitLoanApplicationAction(data, 'Home Loan')}
       updateAction={updateLoanApplicationAction}
       applicationId={applicationId}
       mode={mode}
