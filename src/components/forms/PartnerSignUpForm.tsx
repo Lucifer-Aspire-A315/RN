@@ -5,6 +5,7 @@ import React, { useState, useMemo } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { PartnerSignUpSchema, type PartnerSignUpFormData } from '@/lib/schemas';
+import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -20,7 +21,19 @@ import { partnerSignUpAction } from '@/app/actions/authActions';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { FormProgress } from '../shared/FormProgress';
-import type { z } from 'zod';
+
+
+// Helper function to safely extract field keys from a Zod schema
+const getKeysFromZodObject = (schema: z.ZodTypeAny): string[] => {
+    if (schema instanceof z.ZodObject) {
+        return Object.keys(schema.shape);
+    }
+    // Handle ZodEffects (e.g., from .refine() or .superRefine())
+    if (schema instanceof z.ZodEffects) {
+        return getKeysFromZodObject(schema.innerType());
+    }
+    return [];
+};
 
 // Reusable File Input Component
 interface FormFileInputProps {
@@ -98,15 +111,18 @@ export function PartnerSignUpForm() {
     const discriminatedUnionSchema = PartnerSignUpSchema._def.schema as z.ZodDiscriminatedUnion<"businessModel", any>;
     const dsaSchema = discriminatedUnionSchema.optionsMap.get('dsa');
     const merchantSchema = discriminatedUnionSchema.optionsMap.get('merchant');
+    
+    const dsaShape = dsaSchema?.shape as z.ZodObject<any>['shape'] | undefined;
+    const merchantShape = merchantSchema?.shape as z.ZodObject<any>['shape'] | undefined;
 
     // Safely extract field names
-    const dsaPersonalFields = dsaSchema && 'personalDetails' in dsaSchema.shape ? Object.keys(dsaSchema.shape.personalDetails.shape) : [];
-    const dsaProfessionalFields = dsaSchema && 'professionalFinancial' in dsaSchema.shape ? Object.keys(dsaSchema.shape.professionalFinancial.shape) : [];
-    const dsaScopeFields = dsaSchema && 'businessScope' in dsaSchema.shape ? Object.keys(dsaSchema.shape.businessScope.shape) : [];
-    const dsaDocsFields = dsaSchema && 'dsaDocumentUploads' in dsaSchema.shape ? Object.keys(dsaSchema.shape.dsaDocumentUploads.shape) : [];
+    const dsaPersonalFields = dsaShape?.personalDetails ? getKeysFromZodObject(dsaShape.personalDetails) : [];
+    const dsaProfessionalFields = dsaShape?.professionalFinancial ? getKeysFromZodObject(dsaShape.professionalFinancial) : [];
+    const dsaScopeFields = dsaShape?.businessScope ? getKeysFromZodObject(dsaShape.businessScope) : [];
+    const dsaDocsFields = dsaShape?.dsaDocumentUploads ? getKeysFromZodObject(dsaShape.dsaDocumentUploads) : [];
     
-    const merchantInfoFields = merchantSchema && 'businessInformation' in merchantSchema.shape ? Object.keys(merchantSchema.shape.businessInformation.shape) : [];
-    const merchantDocsFields = merchantSchema && 'merchantDocumentUploads' in merchantSchema.shape ? Object.keys(merchantSchema.shape.merchantDocumentUploads.shape) : [];
+    const merchantInfoFields = merchantShape?.businessInformation ? getKeysFromZodObject(merchantShape.businessInformation) : [];
+    const merchantDocsFields = merchantShape?.merchantDocumentUploads ? getKeysFromZodObject(merchantShape.merchantDocumentUploads) : [];
 
     return {
       modelSelection: {
