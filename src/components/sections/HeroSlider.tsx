@@ -74,8 +74,7 @@ const slides = [
     key: 'loans',
     title: <>Flexible Loans for <br /><span className="text-accent">Every Need</span></>,
     description: "Whether it's for a new home, a personal goal, or business expansion, find the perfect loan with competitive rates and easy processing.",
-    imageSrc: 'https://placehold.co/600x400.png',
-    dataAiHint: 'loan approval',
+    imageSrc: '/hero-loan.png',
     ctaButtonText: 'View Loan Options',
     ctaAction: 'scroll' as const,
     ctaTarget: '#services',
@@ -132,7 +131,7 @@ const ImagePresenter = ({ slide, isActive }: { slide: (typeof slides)[0], isActi
             return (
                  <div className={cn("relative flex justify-center items-center h-80 lg:h-[32rem] transition-all duration-700 ease-in-out", isActive ? "opacity-100 scale-100" : "opacity-0 scale-90")}>
                     <div className={cn("relative z-10 w-full max-w-lg p-4 bg-white dark:bg-card shadow-2xl rounded-lg", isActive ? "animate-tilt-float" : "")}>
-                        <Image src={slide.imageSrc} alt={slide.description} width={600} height={400} data-ai-hint={slide.dataAiHint} className="w-full h-auto object-contain rounded-sm" priority={isActive} />
+                        <Image src={slide.imageSrc} alt={slide.description} width={600} height={400} className="w-full h-auto object-contain rounded-sm" priority={isActive} />
                         <div className="mt-2 text-center text-sm text-muted-foreground">{slide.description}</div>
                     </div>
                 </div>
