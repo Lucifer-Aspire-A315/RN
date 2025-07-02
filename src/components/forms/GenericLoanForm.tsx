@@ -125,8 +125,7 @@ export function GenericLoanForm<TData extends Record<string, any>>({
   const { toast } = useToast();
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isVerifyingPAN, setIsVerifyingPAN] = useState(false);
-  const [isVerifyingAadhaar, setIsVerifyingAadhaar] = useState(false);
+  const [isVerifyingID, setIsVerifyingID] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<Record<string, File | null>>({});
   const { currentUser } = useAuth();
   const [currentStep, setCurrentStep] = useState(0);
@@ -141,12 +140,10 @@ export function GenericLoanForm<TData extends Record<string, any>>({
   
   const getNestedValue = (obj: any, path: string) => path.split('.').reduce((o, i) => (o ? o[i] : undefined), obj);
   
-  const getFirstDocumentUploadsKey = (): string | null => {
-    for (const section of sections) {
-        for (const field of section.fields) {
-            if (field.type === 'file') {
-                return field.name.split('.')[0];
-            }
+  const getFirstDocumentUploadsKey = (data: TData): string | null => {
+    for (const key in data) {
+        if(key.toLowerCase().includes('documentuploads')) {
+            return key;
         }
     }
     return null;
@@ -185,16 +182,21 @@ export function GenericLoanForm<TData extends Record<string, any>>({
     const payloadForServer = JSON.parse(JSON.stringify(data));
 
     try {
-      const documentUploadsKey = getFirstDocumentUploadsKey();
-      
-      if (documentUploadsKey && payloadForServer[documentUploadsKey]) {
-        const uploadedUrls = await processFileUploads(data[documentUploadsKey], toast);
-        Object.assign(payloadForServer[documentUploadsKey], uploadedUrls);
+      const kycDocsKey = 'kycDocuments';
+      if (payloadForServer[kycDocsKey]) {
+        const uploadedUrls = await processFileUploads(data[kycDocsKey], toast);
+        Object.assign(payloadForServer[kycDocsKey], uploadedUrls);
+      }
+
+      const otherDocsKey = getFirstDocumentUploadsKey(payloadForServer);
+      if (otherDocsKey && otherDocsKey !== kycDocsKey && payloadForServer[otherDocsKey]) {
+        const uploadedUrls = await processFileUploads(data[otherDocsKey], toast);
+        Object.assign(payloadForServer[otherDocsKey], uploadedUrls);
       }
       
       let result: ServerActionResponse;
       if (mode === 'edit' && applicationId && updateAction) {
-          result = await updateAction(applicationId, payloadForServer);
+          result = await updateAction(applicationId, { formData: payloadForServer });
       } else {
           result = await submitAction(payloadForServer);
       }
@@ -202,7 +204,6 @@ export function GenericLoanForm<TData extends Record<string, any>>({
       if (result.success) {
         toast({ title: mode === 'edit' ? "Application Updated!" : "Application Submitted!", description: result.message, duration: 5000 });
         
-        // Navigate away after a short delay
         setTimeout(() => {
           if (handleBackClick) {
             handleBackClick();
@@ -231,48 +232,39 @@ export function GenericLoanForm<TData extends Record<string, any>>({
     }
   }
   
-  const handleIDValidation = async (fieldName: string) => {
-    const fieldConfig = sections.flatMap(s => s.fields).find(f => f.name === fieldName);
-    if (!fieldConfig || (!fieldConfig.isPAN && !fieldConfig.isAadhaar)) return;
-  
-    const isValidFormat = await trigger(fieldName as any);
-    if (!isValidFormat) return;
+  const handleIDValidation = async () => {
+    const panPath = 'personalDetails.panNumber';
+    const aadhaarPath = 'personalDetails.aadhaarNumber';
 
-    const panField = sections.flatMap(s => s.fields).find(f => f.isPAN);
-    const aadhaarField = sections.flatMap(s => s.fields).find(f => f.isAadhaar);
+    const [panIsValid, aadhaarIsValid] = await Promise.all([
+        trigger(panPath as any),
+        trigger(aadhaarPath as any)
+    ]);
 
-    const panNumber = panField ? getValues(panField.name as any) : "";
-    const aadhaarNumber = aadhaarField ? getValues(aadhaarField.name as any) : "";
+    if (!panIsValid || !aadhaarIsValid) return;
 
-    if (fieldConfig.isPAN) setIsVerifyingPAN(true);
-    if (fieldConfig.isAadhaar) setIsVerifyingAadhaar(true);
+    const panNumber = getValues(panPath as any);
+    const aadhaarNumber = getValues(aadhaarPath as any);
 
+    if (!panNumber || !aadhaarNumber) return;
+
+    setIsVerifyingID(true);
     try {
-      if (!panNumber || !aadhaarNumber || !panNumber.match(/^([A-Z]{5}[0-9]{4}[A-Z]{1})$/) || !aadhaarNumber.match(/^\d{12}$/)) {
-        if (panField) clearErrors(panField.name as any); 
-        if (aadhaarField) clearErrors(aadhaarField.name as any);
-        return;
-      }
-
       const result: ValidateIdentificationDetailsOutput = await validateIdentificationDetails({ panNumber, aadhaarNumber });
       
       if (result.isValid) {
         toast({ title: "ID Verification Success", description: result.validationDetails });
-        if (panField) clearErrors(panField.name as any);
-        if (aadhaarField) clearErrors(aadhaarField.name as any);
+        clearErrors([panPath as any, aadhaarPath as any]); 
       } else {
-        if (panField) setError(panField.name as any, { type: "manual", message: "PAN/Aadhaar validation failed." });
-        if (aadhaarField) setError(aadhaarField.name as any, { type: "manual", message: result.validationDetails });
+        setError(aadhaarPath as any, { type: "manual", message: result.validationDetails });
         toast({ variant: "destructive", title: "ID Verification Failed", description: result.validationDetails, duration: 9000 });
       }
     } catch (error) {
       console.error("Validation error:", error);
       toast({ variant: "destructive", title: "Validation Error", description: "Could not validate ID details.", duration: 9000 });
-      if (panField) setError(panField.name as any, { type: "manual", message: "AI validation failed." });
-      if (aadhaarField) setError(aadhaarField.name as any, { type: "manual", message: "AI validation failed." });
+      setError(aadhaarPath as any, { type: "manual", message: "AI validation failed." });
     } finally {
-      if (fieldConfig.isPAN) setIsVerifyingPAN(false);
-      if (fieldConfig.isAadhaar) setIsVerifyingAadhaar(false);
+      setIsVerifyingID(false);
     }
   };
 
@@ -298,6 +290,8 @@ export function GenericLoanForm<TData extends Record<string, any>>({
   };
   
   const renderField = (fieldConfig: FieldConfig) => {
+    const onBlur = (fieldConfig.isPAN || fieldConfig.isAadhaar) ? handleIDValidation : undefined;
+    
     return (
       <FormField key={fieldConfig.name} control={control} name={fieldConfig.name as any}
         render={({ field }) => {
@@ -345,8 +339,7 @@ export function GenericLoanForm<TData extends Record<string, any>>({
                 <FormItem>
                   <FormLabel className="flex items-center">
                       {fieldConfig.label}
-                      {fieldConfig.isPAN && isVerifyingPAN && <Loader2 className="ml-2 h-4 w-4 animate-spin" />}
-                      {fieldConfig.isAadhaar && isVerifyingAadhaar && <Loader2 className="ml-2 h-4 w-4 animate-spin" />}
+                      {(fieldConfig.isPAN || fieldConfig.isAadhaar) && isVerifyingID && <Loader2 className="ml-2 h-4 w-4 animate-spin" />}
                   </FormLabel>
                    {fieldConfig.prefix ? (
                       <div className="relative">
@@ -354,7 +347,7 @@ export function GenericLoanForm<TData extends Record<string, any>>({
                       <Input 
                           type={fieldConfig.type} placeholder={fieldConfig.placeholder} {...field}
                           value={field.value ?? ''}
-                          onBlur={() => { field.onBlur(); if (fieldConfig.isPAN || fieldConfig.isAadhaar) handleIDValidation(fieldConfig.name); }}
+                          onBlur={() => { field.onBlur(); onBlur?.(); }}
                           className="pl-7"
                           disabled={fieldConfig.disabled}
                       />
@@ -363,7 +356,7 @@ export function GenericLoanForm<TData extends Record<string, any>>({
                       <Input 
                         type={fieldConfig.type} placeholder={fieldConfig.placeholder} {...field}
                         value={field.value ?? ''} 
-                        onBlur={() => { field.onBlur(); if (fieldConfig.isPAN || fieldConfig.isAadhaar) handleIDValidation(fieldConfig.name); }}
+                        onBlur={() => { field.onBlur(); onBlur?.(); }}
                         disabled={fieldConfig.disabled}
                       />
                   )}

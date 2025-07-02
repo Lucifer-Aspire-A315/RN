@@ -87,17 +87,22 @@ async function _findUserByEmail(email: string, collectionName: 'partners' | 'use
 
 async function _signUpUser(data: UserSignUpFormData | PartnerSignUpFormData, collectionName: 'partners' | 'users'): Promise<AuthServerActionResponse> {
     try {
-        const existingUser = await _findUserByEmail(data.email, collectionName);
+        const dataToSubmit = { ...data };
+        const emailToSearch = collectionName === 'partners' ? dataToSubmit.personalDetails.email : dataToSubmit.email;
+
+        const existingUser = await _findUserByEmail(emailToSearch, collectionName);
         if (existingUser) {
             return { success: false, message: 'This email address is already registered.' };
         }
 
-        const hashedPassword = await bcrypt.hash(data.password, SALT_ROUNDS);
+        const hashedPassword = await bcrypt.hash(dataToSubmit.password, SALT_ROUNDS);
+        
+        // Remove confirmation password before saving
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { confirmPassword, ...dataToSubmit } = data;
+        const { confirmPassword, ...finalData } = dataToSubmit;
 
         const userToSave: Record<string, any> = {
-            ...dataToSubmit,
+            ...finalData,
             password: hashedPassword,
             createdAt: Timestamp.fromDate(new Date()),
             type: collectionName === 'partners' ? 'partner' : 'normal',
@@ -110,11 +115,13 @@ async function _signUpUser(data: UserSignUpFormData | PartnerSignUpFormData, col
         }
         
         const docRef = await addDoc(collection(db, collectionName), userToSave);
+        
+        const fullName = collectionName === 'partners' ? dataToSubmit.personalDetails.fullName : dataToSubmit.fullName;
 
         const newUser: UserData = {
             id: docRef.id,
-            fullName: data.fullName,
-            email: data.email,
+            fullName: fullName,
+            email: emailToSearch,
             type: userToSave.type,
             isAdmin: userToSave.isAdmin,
             businessModel: (data as PartnerSignUpFormData).businessModel,
@@ -150,9 +157,11 @@ async function _loginUser(data: UserLoginFormData, collectionName: 'partners' | 
             return { success: false, message: 'Your partner account is pending approval. Please contact support.' };
         }
         
+        const fullName = collectionName === 'partners' ? userData.personalDetails?.fullName : userData.fullName;
+
         const loggedInUser: UserData = {
             id: userDoc.id,
-            fullName: userData.fullName,
+            fullName: fullName || 'Partner', // Fallback name
             email: userData.email,
             type: collectionName === 'partners' ? 'partner' : 'normal',
             isAdmin: !!userData.isAdmin,
@@ -174,7 +183,7 @@ async function _loginUser(data: UserLoginFormData, collectionName: 'partners' | 
 // #region --- EXPORTED SERVER ACTIONS ---
 
 export async function partnerSignUpAction(data: PartnerSignUpFormData): Promise<AuthServerActionResponse> {
-  console.log('[AuthActions - partnerSignUpAction] Initiated for email:', data.email);
+  console.log('[AuthActions - partnerSignUpAction] Initiated for email:', data.personalDetails.email);
   return _signUpUser(data, 'partners');
 }
 

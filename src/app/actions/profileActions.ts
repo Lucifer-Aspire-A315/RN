@@ -1,3 +1,4 @@
+
 'use server';
 
 import { doc, getDoc, type Timestamp } from 'firebase/firestore';
@@ -6,7 +7,7 @@ import { checkSessionAction } from './authActions';
 import type { PartnerSignUpFormData, UserSignUpFormData } from '@/lib/schemas';
 
 // This will be a union of all possible user data structures from sign up
-export type UserProfileData = (UserSignUpFormData | PartnerSignUpFormData) & {
+export type UserProfileData = (Omit<UserSignUpFormData, 'password'|'confirmPassword'> | Omit<PartnerSignUpFormData, 'password'|'confirmPassword'>) & {
     id: string;
     type: 'partner' | 'normal';
     isAdmin?: boolean;
@@ -35,15 +36,22 @@ export async function getUserProfileDetails(): Promise<UserProfileData | null> {
         
         // Remove sensitive information like password before returning
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { password, confirmPassword, ...profileData } = data;
+        const { password, ...profileData } = data;
         
         const createdAtTimestamp = data.createdAt as Timestamp;
 
-        return {
+        const result: UserProfileData = {
             id: docSnap.id,
             ...profileData,
             createdAt: createdAtTimestamp?.toDate().toISOString() || new Date().toISOString(),
         } as UserProfileData;
+        
+        // Standardize fullName for display consistency
+        if (type === 'partner' && (result as PartnerSignUpFormData).personalDetails?.fullName) {
+             result.fullName = (result as PartnerSignUpFormData).personalDetails.fullName;
+        }
+
+        return result;
 
     } catch (error: any) {
         console.error(`[ProfileActions] Error fetching profile details for user ${id}:`, error.message);

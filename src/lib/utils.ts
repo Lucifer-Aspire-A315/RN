@@ -29,12 +29,11 @@ export function formatApplication(doc: DocumentData, defaultCategory: UserApplic
         applicationTypeDisplay = data.schemeNameForDisplay;
     }
     
-    // Prioritize client details from applicantDetails, fallback to submitter info for display.
-    // This ensures the client's name is shown on the partner dashboard.
-    const applicantInfo = data.applicantDetails || data.submittedBy;
-    const applicantFullName = applicantInfo?.fullName || applicantInfo?.userName || 'N/A';
-    const applicantEmail = applicantInfo?.email || applicantInfo?.userEmail || 'N/A';
-    const applicantUserId = applicantInfo?.userId || 'N/A';
+    // With standardized schemas, we can now reliably get applicant details.
+    const applicantInfo = data.applicantDetails;
+    const applicantFullName = applicantInfo?.fullName || 'N/A';
+    const applicantEmail = applicantInfo?.email || 'N/A';
+    const applicantUserId = applicantInfo?.userId || null;
 
 
     return {
@@ -48,5 +47,6 @@ export function formatApplication(doc: DocumentData, defaultCategory: UserApplic
         applicationType: applicationTypeDisplay,
         createdAt: createdAtTimestamp?.toDate().toISOString() || new Date().toISOString(),
         status: data.status || 'Unknown',
+        formData: data.formData, // Pass along full form data
     };
 }

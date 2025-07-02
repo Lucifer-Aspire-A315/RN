@@ -11,7 +11,7 @@ export interface UserData {
 export interface UserApplication {
   id:string;
   applicantDetails?: {
-    userId: string;
+    userId: string | null;
     fullName: string;
     email: string;
   };
@@ -24,6 +24,8 @@ export interface UserApplication {
   applicationType: string;
   createdAt: string; // ISO string date
   status: 'Submitted' | 'In Review' | 'Approved' | 'Rejected' | 'Archived' | string;
+  // This will hold the entire form data, which now has a standardized structure
+  formData: Record<string, any>; 
 }
 
 export interface PartnerData {

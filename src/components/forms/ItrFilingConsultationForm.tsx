@@ -4,7 +4,8 @@
 import React from 'react';
 import { ItrFilingConsultationFormSchema, type ItrFilingConsultationFormData } from '@/lib/schemas';
 import { FileSpreadsheet } from 'lucide-react';
-import { submitItrFilingConsultationAction, updateCAServiceApplicationAction } from '@/app/actions/caServiceActions';
+import { submitApplicationAction } from '@/app/actions/applicationActions';
+import { updateCAServiceApplicationAction } from '@/app/actions/caServiceActions';
 import { GenericCAServiceForm } from './GenericCAServiceForm';
 
 interface ItrFilingConsultationFormProps {
@@ -16,16 +17,16 @@ interface ItrFilingConsultationFormProps {
 
 const itrFilingSections = [
     {
-        title: "Applicant Details",
+        title: "Personal Details",
         fields: [
-            { name: "applicantDetails.fullName", label: "Full Name", type: "text", placeholder: "Full Name" },
-            { name: "applicantDetails.mobileNumber", label: "Mobile Number", type: "tel", placeholder: "10-digit mobile" },
-            { name: "applicantDetails.emailId", label: "Email ID", type: "email", placeholder: "example@mail.com" },
-            { name: "applicantDetails.dob", label: "Date of Birth", type: "date" },
-            { name: "applicantDetails.panNumber", label: "PAN Number", type: "text", placeholder: "ABCDE1234F" },
-            { name: "applicantDetails.aadhaarNumber", label: "Aadhaar Number", type: "text", placeholder: "123456789012" },
-            { name: "applicantDetails.address", label: "Address", type: "textarea", placeholder: "Your full address", colSpan: 2 },
-            { name: "applicantDetails.cityAndState", label: "City & State", type: "text", placeholder: "e.g., Mumbai, Maharashtra", colSpan: 2 },
+            { name: "personalDetails.fullName", label: "Full Name", type: "text", placeholder: "Full Name" },
+            { name: "personalDetails.mobileNumber", label: "Mobile Number", type: "tel", placeholder: "10-digit mobile" },
+            { name: "personalDetails.email", label: "Email ID", type: "email", placeholder: "example@mail.com" },
+            { name: "personalDetails.dob", label: "Date of Birth", type: "date" },
+            { name: "personalDetails.panNumber", label: "PAN Number", type: "text", placeholder: "ABCDE1234F" },
+            { name: "personalDetails.aadhaarNumber", label: "Aadhaar Number", type: "text", placeholder: "123456789012" },
+            { name: "personalDetails.address", label: "Address", type: "textarea", placeholder: "Your full address", colSpan: 2 },
+            { name: "personalDetails.cityAndState", label: "City & State", type: "text", placeholder: "e.g., Mumbai, Maharashtra", colSpan: 2 },
         ]
     },
     {
@@ -45,8 +46,8 @@ const itrFilingSections = [
         title: "Upload Required Documents",
         subtitle: "Accepted File Types: PDF, Word, Excel, JPG, PNG. Max File Size: 10 MB per document.",
         fields: [
-            { name: "documentUploads.panCard", label: "PAN Card", type: "file", colSpan: 2 },
-            { name: "documentUploads.aadhaarCard", label: "Aadhaar Card", type: "file", colSpan: 2 },
+            { name: "kycDocuments.panCard", label: "PAN Card", type: "file", colSpan: 2 },
+            { name: "kycDocuments.aadhaarCard", label: "Aadhaar Card", type: "file", colSpan: 2 },
             { name: "documentUploads.form16", label: "Form 16 (if Salaried)", type: "file", colSpan: 2 },
             { name: "documentUploads.salarySlips", label: "Salary Slips (if applicable)", type: "file", colSpan: 2 },
             { name: "documentUploads.bankStatement", label: "Bank Statement (Full FY)", type: "file", colSpan: 2, accept: ".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png" },
@@ -60,10 +61,10 @@ const itrFilingSections = [
 
 export function ItrFilingConsultationForm({ onBack, initialData, applicationId, mode = 'create' }: ItrFilingConsultationFormProps) {
   const defaultValues: ItrFilingConsultationFormData = {
-    applicantDetails: {
+    personalDetails: {
       fullName: '',
       mobileNumber: '',
-      emailId: '',
+      email: '',
       dob: '',
       panNumber: '',
       aadhaarNumber: '',
@@ -79,9 +80,11 @@ export function ItrFilingConsultationForm({ onBack, initialData, applicationId, 
       otherIncomeSource: false,
       otherIncomeSourceDetail: '',
     },
-    documentUploads: {
+    kycDocuments: {
         panCard: undefined,
         aadhaarCard: undefined,
+    },
+    documentUploads: {
         form16: undefined,
         salarySlips: undefined,
         bankStatement: undefined,
@@ -101,7 +104,7 @@ export function ItrFilingConsultationForm({ onBack, initialData, applicationId, 
       schema={ItrFilingConsultationFormSchema}
       defaultValues={initialData || defaultValues}
       sections={itrFilingSections}
-      submitAction={submitItrFilingConsultationAction}
+      submitAction={(data) => submitApplicationAction(data, 'caService', 'ITR Filing & Consultation')}
       updateAction={updateCAServiceApplicationAction}
       applicationId={applicationId}
       mode={mode}

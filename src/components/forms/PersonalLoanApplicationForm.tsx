@@ -5,7 +5,7 @@ import React from 'react';
 import { User } from 'lucide-react';
 import { GenericLoanForm } from './GenericLoanForm';
 import { PersonalLoanApplicationSchema, type PersonalLoanApplicationFormData } from '@/lib/schemas';
-import { submitLoanApplicationAction, updateLoanApplicationAction } from '@/app/actions/loanActions';
+import { submitApplicationAction, updateApplicationAction } from '@/app/actions/applicationActions';
 
 interface PersonalLoanApplicationFormProps {
   onBack?: () => void;
@@ -17,16 +17,16 @@ interface PersonalLoanApplicationFormProps {
 
 const personalLoanSections = [
   {
-    title: "Applicant Information",
+    title: "Applicant's Personal Details",
     subtitle: "व्यक्तिगत जानकारी",
     fields: [
-      { name: "applicantDetails.name", label: "Full Name", type: "text", placeholder: "Full Name" },
-      { name: "applicantDetails.dob", label: "Date of Birth", type: "date" },
-      { name: "applicantDetails.mobile", label: "Mobile Number", type: "tel", placeholder: "10-digit mobile" },
-      { name: "applicantDetails.email", label: "Email ID", type: "email", placeholder: "example@mail.com" },
-      { name: "applicantDetails.residentialAddress", label: "Current Address", type: "textarea", placeholder: "Enter your current full address", colSpan: 2 },
-      { name: "applicantDetails.pan", label: "PAN Number", type: "text", placeholder: "ABCDE1234F", isPAN: true },
-      { name: "applicantDetails.aadhaar", label: "Aadhaar Number", type: "text", placeholder: "123456789012", isAadhaar: true },
+      { name: "personalDetails.fullName", label: "Full Name", type: "text", placeholder: "Full Name" },
+      { name: "personalDetails.dob", label: "Date of Birth", type: "date" },
+      { name: "personalDetails.mobileNumber", label: "Mobile Number", type: "tel", placeholder: "10-digit mobile" },
+      { name: "personalDetails.email", label: "Email ID", type: "email", placeholder: "example@mail.com" },
+      { name: "personalDetails.panNumber", label: "PAN Number", type: "text", placeholder: "ABCDE1234F", isPAN: true },
+      { name: "personalDetails.aadhaarNumber", label: "Aadhaar Number", type: "text", placeholder: "123456789012", isAadhaar: true },
+      { name: "address.residentialAddress", label: "Current Address", type: "textarea", placeholder: "Enter your current full address", colSpan: 2 },
     ]
   },
   {
@@ -70,9 +70,9 @@ const personalLoanSections = [
     title: "Upload Required Documents",
     subtitle: "Accepted File Types: PDF, Word, Excel, JPG, PNG. Max File Size: 10 MB per document.",
     fields: [
-      { name: "documentUploads.panCard", label: "PAN Card", type: "file", colSpan: 2 },
-      { name: "documentUploads.aadhaarCard", label: "Aadhaar Card", type: "file", colSpan: 2 },
-      { name: "documentUploads.photograph", label: "Passport Size Photograph", type: "file", colSpan: 2 },
+      { name: "kycDocuments.panCard", label: "PAN Card", type: "file", colSpan: 2 },
+      { name: "kycDocuments.aadhaarCard", label: "Aadhaar Card", type: "file", colSpan: 2 },
+      { name: "kycDocuments.photograph", label: "Passport Size Photograph", type: "file", colSpan: 2 },
       { name: "documentUploads.incomeProof", label: "Income Proof (Salary Slip / ITR)", type: "file", colSpan: 2 },
       { name: "documentUploads.bankStatement", label: "Bank Statement (Last 6 Months)", type: "file", colSpan: 2, accept: ".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png" },
       { name: "documentUploads.employmentProof", label: "Employment/Business Proof", type: "file", colSpan: 2 },
@@ -84,7 +84,8 @@ const personalLoanSections = [
 
 export function PersonalLoanApplicationForm({ onBack, backButtonText, initialData, applicationId, mode = 'create' }: PersonalLoanApplicationFormProps) {
   const defaultValues: PersonalLoanApplicationFormData = {
-    applicantDetails: { name: '', dob: '', mobile: '', email: '', pan: '', aadhaar: '', residentialAddress: '' },
+    personalDetails: { fullName: '', dob: '', mobileNumber: '', email: '', panNumber: '', aadhaarNumber: '' },
+    address: { residentialAddress: '' },
     employmentIncome: { 
       employmentType: undefined,
       companyName: '', 
@@ -103,10 +104,12 @@ export function PersonalLoanApplicationForm({ onBack, backButtonText, initialDat
       bankName: '',
       outstandingAmount: undefined,
     },
-    documentUploads: {
+    kycDocuments: {
       panCard: undefined,
       aadhaarCard: undefined,
       photograph: undefined,
+    },
+    documentUploads: {
       incomeProof: undefined,
       bankStatement: undefined,
       employmentProof: undefined,
@@ -125,8 +128,8 @@ export function PersonalLoanApplicationForm({ onBack, backButtonText, initialDat
       schema={PersonalLoanApplicationSchema}
       defaultValues={initialData || defaultValues}
       sections={personalLoanSections}
-      submitAction={(data) => submitLoanApplicationAction(data, 'Personal Loan')}
-      updateAction={updateLoanApplicationAction}
+      submitAction={(data) => submitApplicationAction(data, 'loan', 'Personal Loan')}
+      updateAction={(id, data) => updateApplicationAction(id, 'loan', data)}
       applicationId={applicationId}
       mode={mode}
       submitButtonText="Submit Personal Loan Application"

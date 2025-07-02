@@ -8,7 +8,6 @@ import type { UserApplication } from '@/lib/types';
 import { getCollectionName } from '@/lib/utils';
 import { processFileUploads } from '@/lib/form-helpers';
 import { revalidatePath } from 'next/cache';
-import { cookies } from 'next/headers';
 
 interface ServerActionResponse {
   success: boolean;
@@ -35,34 +34,15 @@ export async function submitApplicationAction(
     const { id: submitterUserId, fullName: submitterUserName, email: submitterUserEmail, type: submitterUserType } = submitter;
     
     const partnerId = submitterUserType === 'partner' ? submitterUserId : null;
-    
-    // For normal users applying for themselves, their user ID is the applicant ID.
-    // For partners, the applicant is their client, who may not have a user ID.
     const applicantUserId = submitterUserType === 'normal' ? submitterUserId : null;
 
-    let applicantFullName = '';
-    let applicantEmail = '';
-
-    if (serviceCategory === 'loan') {
-      const applicantData = formData.applicantDetails;
-      if (!applicantData) return { success: false, message: 'Applicant details are missing.' };
-      applicantFullName = applicantData.name;
-      applicantEmail = applicantData.email;
-    } else if (serviceCategory === 'caService') {
-      const applicantData = formData.applicantDetails || formData.applicantFounderDetails;
-      if (!applicantData) return { success: false, message: 'Applicant details are missing.' };
-      applicantFullName = applicantData.fullName;
-      applicantEmail = applicantData.emailId;
-    } else if (serviceCategory === 'governmentScheme') {
-      const applicantData = formData.applicantDetailsGov;
-      if (!applicantData) return { success: false, message: 'Applicant details are missing.' };
-      applicantFullName = applicantData.fullName;
-      applicantEmail = applicantData.emailId;
-    }
-
-    if (!applicantFullName || !applicantEmail) {
+    // Standardized access to applicant's personal details
+    const personalDetails = formData.personalDetails;
+    if (!personalDetails || !personalDetails.fullName || !personalDetails.email) {
       return { success: false, message: 'Applicant name or email could not be determined from form data.' };
     }
+    
+    const { fullName: applicantFullName, email: applicantEmail } = personalDetails;
 
     const applicationData = {
       applicantDetails: {
@@ -199,14 +179,15 @@ export async function updateApplicationAction(
 
     const payloadForServer = JSON.parse(JSON.stringify(data));
     
+    // Find any key that includes "documentuploads" case-insensitively
     const findDocumentUploadsKey = (obj: any): string | null => {
-      if (!obj || typeof obj !== 'object') return null;
-      for (const key in obj) {
-        if (key.toLowerCase().includes('documentuploads')) {
-          return key;
+        if (!obj || typeof obj !== 'object') return null;
+        for (const key in obj) {
+            if (key.toLowerCase().includes('documentuploads')) {
+                return key;
+            }
         }
-      }
-      return null;
+        return null;
     };
 
     const documentUploadsKey = findDocumentUploadsKey(payloadForServer.formData);
@@ -218,23 +199,12 @@ export async function updateApplicationAction(
     
     const applicantUserId = submitterType === 'normal' ? submitterId : null;
 
-    if (serviceCategory === 'loan' && payloadForServer.formData.applicantDetails) {
-        payloadForServer.applicantDetails = {
-            userId: applicantUserId, 
-            fullName: payloadForServer.formData.applicantDetails.name,
-            email: payloadForServer.formData.applicantDetails.email,
-        };
-    } else if (serviceCategory === 'caService' && payloadForServer.formData.applicantDetails) {
+    // Standardized update of applicantDetails in the root of the application
+    if (payloadForServer.formData.personalDetails) {
         payloadForServer.applicantDetails = {
             userId: applicantUserId,
-            fullName: payloadForServer.formData.applicantDetails.fullName,
-            email: payloadForServer.formData.applicantDetails.emailId,
-        };
-    } else if (serviceCategory === 'governmentScheme' && payloadForServer.formData.applicantDetailsGov) {
-         payloadForServer.applicantDetails = {
-            userId: applicantUserId,
-            fullName: payloadForServer.formData.applicantDetailsGov.fullName,
-            email: payloadForServer.formData.applicantDetailsGov.emailId,
+            fullName: payloadForServer.formData.personalDetails.fullName,
+            email: payloadForServer.formData.personalDetails.email,
         };
     }
 

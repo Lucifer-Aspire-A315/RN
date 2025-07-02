@@ -5,7 +5,7 @@ import React from 'react';
 import { Cog } from 'lucide-react';
 import { GenericLoanForm } from './GenericLoanForm';
 import { MachineryLoanApplicationSchema, type MachineryLoanApplicationFormData } from '@/lib/schemas';
-import { submitLoanApplicationAction, updateLoanApplicationAction } from '@/app/actions/loanActions';
+import { submitApplicationAction, updateApplicationAction } from '@/app/actions/applicationActions';
 
 interface MachineryLoanApplicationFormProps {
   onBack?: () => void;
@@ -17,15 +17,15 @@ interface MachineryLoanApplicationFormProps {
 
 const machineryLoanSections = [
   {
-    title: "Applicant Details",
+    title: "Applicant's Personal Details",
     subtitle: "आवेदक की जानकारी",
     fields: [
-      { name: "applicantDetails.name", label: "Applicant Name", type: "text", placeholder: "Full Name" },
-      { name: "applicantDetails.dob", label: "Date of Birth (जन्म तिथि)", type: "date" },
-      { name: "applicantDetails.mobile", label: "Mobile Number", type: "tel", placeholder: "10-digit mobile" },
-      { name: "applicantDetails.email", label: "Email ID", type: "email", placeholder: "example@mail.com" },
-      { name: "applicantDetails.pan", label: "PAN Number (पैन नंबर)", type: "text", placeholder: "ABCDE1234F", isPAN: true },
-      { name: "applicantDetails.aadhaar", label: "Aadhaar Number (आधार नंबर)", type: "text", placeholder: "123456789012", isAadhaar: true },
+      { name: "personalDetails.fullName", label: "Applicant Name", type: "text", placeholder: "Full Name" },
+      { name: "personalDetails.dob", label: "Date of Birth (जन्म तिथि)", type: "date" },
+      { name: "personalDetails.mobileNumber", label: "Mobile Number", type: "tel", placeholder: "10-digit mobile" },
+      { name: "personalDetails.email", label: "Email ID", type: "email", placeholder: "example@mail.com" },
+      { name: "personalDetails.panNumber", label: "PAN Number (पैन नंबर)", type: "text", placeholder: "ABCDE1234F", isPAN: true },
+      { name: "personalDetails.aadhaarNumber", label: "Aadhaar Number (आधार नंबर)", type: "text", placeholder: "123456789012", isAadhaar: true },
     ]
   },
   {
@@ -73,8 +73,8 @@ const machineryLoanSections = [
     subtitle: "Accepted File Types: PDF, Word, Excel, JPG, PNG. Max File Size: 10 MB per file.",
     fields: [
       { name: "documentUploads.quotation", label: "Machinery Quotation / Proforma Invoice", type: "file", colSpan: 2 },
-      { name: "documentUploads.panCard", label: "PAN Card", type: "file", colSpan: 2 },
-      { name: "documentUploads.aadhaarCard", label: "Aadhaar Card", type: "file", colSpan: 2 },
+      { name: "kycDocuments.panCard", label: "PAN Card", type: "file", colSpan: 2 },
+      { name: "kycDocuments.aadhaarCard", label: "Aadhaar Card", type: "file", colSpan: 2 },
       { name: "documentUploads.gstOrUdyamCertificate", label: "GST Registration / Udyam Certificate", type: "file", colSpan: 2 },
       { name: "documentUploads.bankStatement", label: "Bank Statement (Last 6–12 Months)", type: "file", colSpan: 2, accept: ".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png" },
       { name: "documentUploads.itrLast2Years", label: "ITR for Last 2 Years", type: "file", colSpan: 2 },
@@ -85,7 +85,7 @@ const machineryLoanSections = [
 
 export function MachineryLoanApplicationForm({ onBack, backButtonText, initialData, applicationId, mode = 'create' }: MachineryLoanApplicationFormProps) {
   const defaultValues: MachineryLoanApplicationFormData = {
-    applicantDetails: { name: '', dob: '', mobile: '', email: '', pan: '', aadhaar: '' },
+    personalDetails: { fullName: '', dob: '', mobileNumber: '', email: '', panNumber: '', aadhaarNumber: '' },
     businessDetails: {
       businessName: '',
       businessType: undefined, 
@@ -109,10 +109,12 @@ export function MachineryLoanApplicationForm({ onBack, backButtonText, initialDa
         bankName: '',
         outstandingAmount: undefined,
     },
+    kycDocuments: {
+      panCard: undefined,
+      aadhaarCard: undefined,
+    },
     documentUploads: { 
         quotation: undefined,
-        panCard: undefined,
-        aadhaarCard: undefined,
         gstOrUdyamCertificate: undefined,
         bankStatement: undefined,
         itrLast2Years: undefined,
@@ -130,8 +132,8 @@ export function MachineryLoanApplicationForm({ onBack, backButtonText, initialDa
       schema={MachineryLoanApplicationSchema}
       defaultValues={initialData || defaultValues}
       sections={machineryLoanSections}
-      submitAction={(data) => submitLoanApplicationAction(data, 'Machinery Loan')}
-      updateAction={updateLoanApplicationAction}
+      submitAction={(data) => submitApplicationAction(data, 'loan', 'Machinery Loan')}
+      updateAction={(id, data) => updateApplicationAction(id, 'loan', data)}
       applicationId={applicationId}
       mode={mode}
       submitButtonText="Submit Machinery Loan Application"

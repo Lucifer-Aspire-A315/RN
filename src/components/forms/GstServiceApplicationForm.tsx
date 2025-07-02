@@ -4,7 +4,8 @@
 import React from 'react';
 import { GstServiceApplicationSchema, type GstServiceApplicationFormData } from '@/lib/schemas';
 import { ReceiptText } from 'lucide-react';
-import { submitGstServiceApplicationAction, updateCAServiceApplicationAction } from '@/app/actions/caServiceActions';
+import { submitApplicationAction } from '@/app/actions/applicationActions';
+import { updateCAServiceApplicationAction } from '@/app/actions/caServiceActions';
 import { GenericCAServiceForm } from './GenericCAServiceForm';
 
 interface GstServiceApplicationFormProps {
@@ -16,21 +17,28 @@ interface GstServiceApplicationFormProps {
 
 const gstServiceSections = [
     {
-        title: "Applicant Details",
+        title: "Personal Details",
         fields: [
-            { name: "applicantDetails.fullName", label: "Full Name", type: "text", placeholder: "Full Name" },
-            { name: "applicantDetails.mobileNumber", label: "Mobile Number", type: "tel", placeholder: "10-digit mobile" },
-            { name: "applicantDetails.emailId", label: "Email ID", type: "email", placeholder: "example@mail.com", colSpan: 2 },
-            { name: "applicantDetails.businessName", label: "Business Name (if any)", type: "text", placeholder: "Your Company Name" },
-            { name: "applicantDetails.businessType", label: "Business Type", type: "radio", options: [
+            { name: "personalDetails.fullName", label: "Full Name", type: "text", placeholder: "Full Name" },
+            { name: "personalDetails.mobileNumber", label: "Mobile Number", type: "tel", placeholder: "10-digit mobile" },
+            { name: "personalDetails.email", label: "Email ID", type: "email", placeholder: "example@mail.com" },
+            { name: "personalDetails.panNumber", label: "PAN Number", type: "text", placeholder: "ABCDE1234F" },
+            { name: "personalDetails.aadhaarNumber", label: "Aadhaar Number", type: "text", placeholder: "123456789012" },
+        ]
+    },
+    {
+        title: "Business Details",
+        fields: [
+            { name: "businessDetails.businessName", label: "Business Name (if any)", type: "text", placeholder: "Your Company Name" },
+            { name: "businessDetails.businessType", label: "Business Type", type: "radio", options: [
                 { value: "proprietorship", label: "Proprietorship" },
                 { value: "partnership", label: "Partnership" },
                 { value: "pvt_ltd", label: "Pvt Ltd" },
                 { value: "other", label: "Other" }
             ]},
-            { name: "applicantDetails.otherBusinessTypeDetail", label: "Specify Other Business Type", type: "text", placeholder: "Specify type", dependsOn: { field: "applicantDetails.businessType", value: "other" } },
-            { name: "applicantDetails.natureOfBusiness", label: "Nature of Business", type: "text", placeholder: "e.g., Manufacturing, Retail" },
-            { name: "applicantDetails.stateAndCity", label: "State & City", type: "text", placeholder: "e.g., Maharashtra, Mumbai" },
+            { name: "businessDetails.otherBusinessTypeDetail", label: "Specify Other Business Type", type: "text", placeholder: "Specify type", dependsOn: { field: "businessDetails.businessType", value: "other" } },
+            { name: "businessDetails.natureOfBusiness", label: "Nature of Business", type: "text", placeholder: "e.g., Manufacturing, Retail" },
+            { name: "businessDetails.stateAndCity", label: "State & City", type: "text", placeholder: "e.g., Maharashtra, Mumbai" },
         ]
     },
     {
@@ -49,9 +57,9 @@ const gstServiceSections = [
         title: "Upload Required Documents",
         subtitle: "Accepted File Types: PDF, JPG, PNG. Max File Size: 10 MB per document.",
         fields: [
-            { name: "documentUploads.panCard", label: "PAN Card of Applicant/Business", type: "file", colSpan: 2 },
-            { name: "documentUploads.aadhaarCard", label: "Aadhaar Card of Proprietor/Director", type: "file", colSpan: 2 },
-            { name: "documentUploads.passportPhoto", label: "Passport Size Photo (JPG/PNG)", type: "file", colSpan: 2 },
+            { name: "kycDocuments.panCard", label: "PAN Card of Applicant/Business", type: "file", colSpan: 2 },
+            { name: "kycDocuments.aadhaarCard", label: "Aadhaar Card of Proprietor/Director", type: "file", colSpan: 2 },
+            { name: "kycDocuments.photograph", label: "Passport Size Photo (JPG/PNG)", type: "file", colSpan: 2 },
             { name: "documentUploads.businessProof", label: "Business Proof (e.g., Shop Act/License)", type: "file", colSpan: 2 },
             { name: "documentUploads.addressProof", label: "Electricity Bill / Rent Agreement (Address Proof)", type: "file", colSpan: 2 },
             { name: "documentUploads.bankDetails", label: "Cancelled Cheque or Bank Passbook (1st page)", type: "file", colSpan: 2 },
@@ -62,10 +70,14 @@ const gstServiceSections = [
 
 export function GstServiceApplicationForm({ onBack, initialData, applicationId, mode = 'create' }: GstServiceApplicationFormProps) {
   const defaultValues: GstServiceApplicationFormData = {
-    applicantDetails: {
+    personalDetails: {
       fullName: '',
       mobileNumber: '',
-      emailId: '',
+      email: '',
+      panNumber: '',
+      aadhaarNumber: '',
+    },
+    businessDetails: {
       businessName: '',
       businessType: undefined,
       otherBusinessTypeDetail: '',
@@ -81,10 +93,12 @@ export function GstServiceApplicationForm({ onBack, initialData, applicationId, 
       otherGstService: false,
       otherGstServiceDetail: '',
     },
+    kycDocuments: {
+      panCard: undefined,
+      aadhaarCard: undefined,
+      photograph: undefined
+    },
     documentUploads: {
-        panCard: undefined,
-        aadhaarCard: undefined,
-        passportPhoto: undefined,
         businessProof: undefined,
         addressProof: undefined,
         bankDetails: undefined,
@@ -101,7 +115,7 @@ export function GstServiceApplicationForm({ onBack, initialData, applicationId, 
       schema={GstServiceApplicationSchema}
       defaultValues={initialData || defaultValues}
       sections={gstServiceSections}
-      submitAction={submitGstServiceApplicationAction}
+      submitAction={(data) => submitApplicationAction(data, 'caService', 'GST Service Application')}
       updateAction={updateCAServiceApplicationAction}
       applicationId={applicationId}
       mode={mode}

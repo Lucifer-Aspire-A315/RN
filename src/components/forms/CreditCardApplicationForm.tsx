@@ -5,7 +5,7 @@ import React from 'react';
 import { CreditCardIcon } from 'lucide-react';
 import { GenericLoanForm } from './GenericLoanForm';
 import { CreditCardApplicationSchema, type CreditCardApplicationFormData } from '@/lib/schemas';
-import { submitLoanApplicationAction, updateLoanApplicationAction } from '@/app/actions/loanActions';
+import { submitApplicationAction, updateApplicationAction } from '@/app/actions/applicationActions';
 
 interface CreditCardApplicationFormProps {
   onBack?: () => void;
@@ -17,18 +17,18 @@ interface CreditCardApplicationFormProps {
 
 const creditCardSections = [
   {
-    title: "Applicant Information",
+    title: "Applicant's Personal Details",
     subtitle: "व्यक्तिगत जानकारी",
     fields: [
-      { name: "applicantDetails.name", label: "Full Name", type: "text", placeholder: "Full Name" },
-      { name: "applicantDetails.dob", label: "Date of Birth", type: "date" },
-      { name: "applicantDetails.mobile", label: "Mobile Number", type: "tel", placeholder: "10-digit mobile" },
-      { name: "applicantDetails.email", label: "Email ID", type: "email", placeholder: "example@mail.com" },
-      { name: "applicantDetails.pan", label: "PAN Number", type: "text", placeholder: "ABCDE1234F", isPAN: true },
-      { name: "applicantDetails.aadhaar", label: "Aadhaar Number", type: "text", placeholder: "123456789012", isAadhaar: true },
-      { name: "applicantDetails.residentialAddress", label: "Residential Address", type: "textarea", placeholder: "Full residential address", colSpan: 2 },
-      { name: "applicantDetails.city", label: "City", type: "text", placeholder: "City" },
-      { name: "applicantDetails.pincode", label: "Pincode", type: "text", placeholder: "6-digit Pincode" },
+      { name: "personalDetails.fullName", label: "Full Name", type: "text", placeholder: "Full Name" },
+      { name: "personalDetails.dob", label: "Date of Birth", type: "date" },
+      { name: "personalDetails.mobileNumber", label: "Mobile Number", type: "tel", placeholder: "10-digit mobile" },
+      { name: "personalDetails.email", label: "Email ID", type: "email", placeholder: "example@mail.com" },
+      { name: "personalDetails.panNumber", label: "PAN Number", type: "text", placeholder: "ABCDE1234F", isPAN: true },
+      { name: "personalDetails.aadhaarNumber", label: "Aadhaar Number", type: "text", placeholder: "123456789012", isAadhaar: true },
+      { name: "address.residentialAddress", label: "Residential Address", type: "textarea", placeholder: "Full residential address", colSpan: 2 },
+      { name: "address.city", label: "City", type: "text", placeholder: "City" },
+      { name: "address.pincode", label: "Pincode", type: "text", placeholder: "6-digit Pincode" },
     ]
   },
   {
@@ -62,9 +62,9 @@ const creditCardSections = [
     title: "Upload Required Documents",
     subtitle: "Accepted File Types: PDF, Word, Excel, JPG, PNG. Max File Size: 10 MB per document.",
     fields: [
-      { name: "documentUploads.panCard", label: "PAN Card", type: "file", colSpan: 2 },
-      { name: "documentUploads.aadhaarCard", label: "Aadhaar Card", type: "file", colSpan: 2 },
-      { name: "documentUploads.photograph", label: "Passport Size Photo", type: "file", colSpan: 2 },
+      { name: "kycDocuments.panCard", label: "PAN Card", type: "file", colSpan: 2 },
+      { name: "kycDocuments.aadhaarCard", label: "Aadhaar Card", type: "file", colSpan: 2 },
+      { name: "kycDocuments.photograph", label: "Passport Size Photo", type: "file", colSpan: 2 },
       { name: "documentUploads.incomeProof", label: "Income Proof (Salary Slip / ITR)", type: "file", colSpan: 2 },
       { name: "documentUploads.bankStatement", label: "Bank Statement (Last 3–6 Months)", type: "file", colSpan: 2, accept: ".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png" },
       { name: "documentUploads.employmentProof", label: "Employment/Business Proof", type: "file", colSpan: 2 },
@@ -75,7 +75,8 @@ const creditCardSections = [
 
 export function CreditCardApplicationForm({ onBack, backButtonText, initialData, applicationId, mode = 'create' }: CreditCardApplicationFormProps) {
   const defaultValues: CreditCardApplicationFormData = {
-    applicantDetails: { name: '', dob: '', mobile: '', email: '', pan: '', aadhaar: '', residentialAddress: '', city: '', pincode: '' },
+    personalDetails: { fullName: '', dob: '', mobileNumber: '', email: '', panNumber: '', aadhaarNumber: '' },
+    address: { residentialAddress: '', city: '', pincode: '' },
     employmentIncome: { 
       employmentType: undefined, 
       companyName: '', 
@@ -89,10 +90,12 @@ export function CreditCardApplicationForm({ onBack, backButtonText, initialData,
       existingCreditCardIssuer: '',
       existingCreditCardLimit: undefined,
     },
-    documentUploads: {
+    kycDocuments: {
       panCard: undefined,
       aadhaarCard: undefined,
       photograph: undefined,
+    },
+    documentUploads: {
       incomeProof: undefined,
       bankStatement: undefined,
       employmentProof: undefined,
@@ -110,8 +113,8 @@ export function CreditCardApplicationForm({ onBack, backButtonText, initialData,
       schema={CreditCardApplicationSchema}
       defaultValues={initialData || defaultValues}
       sections={creditCardSections}
-      submitAction={(data) => submitLoanApplicationAction(data, 'Credit Card')}
-      updateAction={updateLoanApplicationAction}
+      submitAction={(data) => submitApplicationAction(data, 'loan', 'Credit Card')}
+      updateAction={(id, data) => updateApplicationAction(id, 'loan', data)}
       applicationId={applicationId}
       mode={mode}
       submitButtonText="Submit Credit Card Application"

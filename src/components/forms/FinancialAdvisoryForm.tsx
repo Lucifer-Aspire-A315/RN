@@ -4,7 +4,8 @@
 import React from 'react';
 import { FinancialAdvisoryFormSchema, type FinancialAdvisoryFormData } from '@/lib/schemas';
 import { PiggyBank } from 'lucide-react';
-import { submitFinancialAdvisoryAction, updateCAServiceApplicationAction } from '@/app/actions/caServiceActions';
+import { submitApplicationAction } from '@/app/actions/applicationActions';
+import { updateCAServiceApplicationAction } from '@/app/actions/caServiceActions';
 import { GenericCAServiceForm } from './GenericCAServiceForm';
 
 interface FinancialAdvisoryFormProps {
@@ -16,24 +17,24 @@ interface FinancialAdvisoryFormProps {
 
 const financialAdvisorySections = [
     {
-        title: "Applicant Details",
+        title: "Personal Details",
         fields: [
-            { name: "applicantDetails.fullName", label: "Full Name", type: "text", placeholder: "Full Name" },
-            { name: "applicantDetails.mobileNumber", label: "Mobile Number", type: "tel", placeholder: "10-digit mobile" },
-            { name: "applicantDetails.emailId", label: "Email ID", type: "email", placeholder: "example@mail.com" },
-            { name: "applicantDetails.dob", label: "Date of Birth", type: "date" },
-            { name: "applicantDetails.occupation", label: "Occupation", type: "radio", colSpan: 2, options: [
+            { name: "personalDetails.fullName", label: "Full Name", type: "text", placeholder: "Full Name" },
+            { name: "personalDetails.mobileNumber", label: "Mobile Number", type: "tel", placeholder: "10-digit mobile" },
+            { name: "personalDetails.email", label: "Email ID", type: "email", placeholder: "example@mail.com" },
+            { name: "personalDetails.dob", label: "Date of Birth", type: "date" },
+            { name: "personalDetails.occupation", label: "Occupation", type: "radio", colSpan: 2, options: [
                 { value: "salaried", label: "Salaried" },
                 { value: "business", label: "Business" },
                 { value: "professional", label: "Professional" },
                 { value: "retired", label: "Retired" },
                 { value: "other", label: "Other" }
             ]},
-            { name: "applicantDetails.otherOccupationDetail", label: "Specify Other Occupation", type: "text", placeholder: "Specify occupation", dependsOn: { field: "applicantDetails.occupation", value: "other" } },
-            { name: "applicantDetails.cityAndState", label: "City & State", type: "text", placeholder: "e.g., Mumbai, Maharashtra" },
-            { name: "applicantDetails.maritalStatus", label: "Marital Status", type: "radio", options: [{ value: "single", label: "Single" }, { value: "married", label: "Married" }] },
-            { name: "applicantDetails.dependentMembersAdults", label: "Dependent Adults", type: "number", placeholder: "e.g., 2" },
-            { name: "applicantDetails.dependentMembersChildren", label: "Dependent Children", type: "number", placeholder: "e.g., 1" },
+            { name: "personalDetails.otherOccupationDetail", label: "Specify Other Occupation", type: "text", placeholder: "Specify occupation", dependsOn: { field: "personalDetails.occupation", value: "other" } },
+            { name: "personalDetails.cityAndState", label: "City & State", type: "text", placeholder: "e.g., Mumbai, Maharashtra" },
+            { name: "personalDetails.maritalStatus", label: "Marital Status", type: "radio", options: [{ value: "single", label: "Single" }, { value: "married", label: "Married" }] },
+            { name: "personalDetails.dependentMembersAdults", label: "Dependent Adults", type: "number", placeholder: "e.g., 2" },
+            { name: "personalDetails.dependentMembersChildren", label: "Dependent Children", type: "number", placeholder: "e.g., 1" },
         ]
     },
     {
@@ -69,8 +70,8 @@ const financialAdvisorySections = [
         title: "Upload Required Documents",
         subtitle: "Optional but Recommended. Accepted File Types: PDF, Word, Excel, JPG, PNG. Max File Size: 5 MB per document.",
         fields: [
-            { name: "documentUploads.panCard", label: "PAN Card", type: "file", colSpan: 2 },
-            { name: "documentUploads.aadhaarCard", label: "Aadhaar Card", type: "file", colSpan: 2 },
+            { name: "kycDocuments.panCard", label: "PAN Card", type: "file", colSpan: 2 },
+            { name: "kycDocuments.aadhaarCard", label: "Aadhaar Card", type: "file", colSpan: 2 },
             { name: "documentUploads.salarySlipsIncomeProof", label: "Salary Slips / Income Proof", type: "file", colSpan: 2 },
             { name: "documentUploads.lastYearItrForm16", label: "Last Year’s ITR or Form 16", type: "file", colSpan: 2 },
             { name: "documentUploads.bankStatement", label: "Bank Statement (3–6 Months)", type: "file", colSpan: 2, accept: ".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png" },
@@ -82,10 +83,10 @@ const financialAdvisorySections = [
 
 export function FinancialAdvisoryForm({ onBack, initialData, applicationId, mode = 'create' }: FinancialAdvisoryFormProps) {
   const defaultValues: FinancialAdvisoryFormData = {
-    applicantDetails: {
+    personalDetails: {
       fullName: '',
       mobileNumber: '',
-      emailId: '',
+      email: '',
       dob: '',
       occupation: undefined,
       otherOccupationDetail: '',
@@ -118,9 +119,11 @@ export function FinancialAdvisoryForm({ onBack, initialData, applicationId, mode
         none: false,
       },
     },
+    kycDocuments: {
+      panCard: undefined,
+      aadhaarCard: undefined,
+    },
     documentUploads: {
-        panCard: undefined,
-        aadhaarCard: undefined,
         salarySlipsIncomeProof: undefined,
         lastYearItrForm16: undefined,
         bankStatement: undefined,
@@ -138,7 +141,7 @@ export function FinancialAdvisoryForm({ onBack, initialData, applicationId, mode
         schema={FinancialAdvisoryFormSchema}
         defaultValues={initialData || defaultValues}
         sections={financialAdvisorySections}
-        submitAction={submitFinancialAdvisoryAction}
+        submitAction={(data) => submitApplicationAction(data, 'caService', 'Financial Advisory Service')}
         updateAction={updateCAServiceApplicationAction}
         applicationId={applicationId}
         mode={mode}

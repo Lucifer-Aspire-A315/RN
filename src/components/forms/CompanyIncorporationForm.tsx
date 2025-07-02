@@ -4,7 +4,8 @@
 import React from 'react';
 import { CompanyIncorporationFormSchema, type CompanyIncorporationFormData } from '@/lib/schemas';
 import { Building2 } from 'lucide-react';
-import { submitCompanyIncorporationAction, updateCAServiceApplicationAction } from '@/app/actions/caServiceActions';
+import { submitApplicationAction } from '@/app/actions/applicationActions';
+import { updateCAServiceApplicationAction } from '@/app/actions/caServiceActions';
 import { GenericCAServiceForm } from './GenericCAServiceForm';
 
 interface CompanyIncorporationFormProps {
@@ -16,21 +17,23 @@ interface CompanyIncorporationFormProps {
 
 const companyIncorporationSections = [
     {
-        title: "Applicant / Founder Details",
+        title: "Primary Founder's Personal Details",
         fields: [
-            { name: "applicantFounderDetails.fullName", label: "Full Name", type: "text", placeholder: "Full Name" },
-            { name: "applicantFounderDetails.mobileNumber", label: "Mobile Number", type: "tel", placeholder: "10-digit mobile" },
-            { name: "applicantFounderDetails.emailId", label: "Email ID", type: "email", placeholder: "example@mail.com" },
-            { name: "applicantFounderDetails.dob", label: "Date of Birth", type: "date" },
-            { name: "applicantFounderDetails.occupation", label: "Occupation", type: "radio", colSpan: 2, options: [
+            { name: "personalDetails.fullName", label: "Full Name", type: "text", placeholder: "Full Name" },
+            { name: "personalDetails.mobileNumber", label: "Mobile Number", type: "tel", placeholder: "10-digit mobile" },
+            { name: "personalDetails.email", label: "Email ID", type: "email", placeholder: "example@mail.com" },
+            { name: "personalDetails.dob", label: "Date of Birth", type: "date" },
+            { name: "personalDetails.panNumber", label: "PAN Number", type: "text", placeholder: "ABCDE1234F" },
+            { name: "personalDetails.aadhaarNumber", label: "Aadhaar Number", type: "text", placeholder: "123456789012" },
+            { name: "personalDetails.occupation", label: "Occupation", type: "radio", colSpan: 2, options: [
                 { value: "business", label: "Business" },
                 { value: "job", label: "Job" },
                 { value: "student", label: "Student" },
                 { value: "other", label: "Other" }
             ]},
-            { name: "applicantFounderDetails.otherOccupationDetail", label: "Specify Other Occupation", type: "text", placeholder: "Specify occupation", dependsOn: { field: "applicantFounderDetails.occupation", value: "other" } },
-            { name: "applicantFounderDetails.residentialAddress", label: "Residential Address", type: "textarea", placeholder: "Your full residential address", colSpan: 2 },
-            { name: "applicantFounderDetails.cityAndState", label: "City & State", type: "text", placeholder: "e.g., Mumbai, Maharashtra" },
+            { name: "personalDetails.otherOccupationDetail", label: "Specify Other Occupation", type: "text", placeholder: "Specify occupation", dependsOn: { field: "personalDetails.occupation", value: "other" } },
+            { name: "personalDetails.residentialAddress", label: "Residential Address", type: "textarea", placeholder: "Your full residential address", colSpan: 2 },
+            { name: "personalDetails.cityAndState", label: "City & State", type: "text", placeholder: "e.g., Mumbai, Maharashtra" },
         ]
     },
     {
@@ -66,9 +69,9 @@ const companyIncorporationSections = [
         title: "Upload Required Documents",
         subtitle: "For Each Director/Partner. Accepted File Types: PDF, Word, Excel, JPG, PNG. Max File Size: 10 MB per document.",
         fields: [
-            { name: "documentUploads.directorPanCard", label: "PAN Card", type: "file", colSpan: 2 },
-            { name: "documentUploads.directorAadhaarCard", label: "Aadhaar Card", type: "file", colSpan: 2 },
-            { name: "documentUploads.directorPhoto", label: "Passport Size Photo (JPG/PNG)", type: "file", colSpan: 2 },
+            { name: "kycDocuments.panCard", label: "Director/Partner PAN Card", type: "file", colSpan: 2 },
+            { name: "kycDocuments.aadhaarCard", label: "Director/Partner Aadhaar Card", type: "file", colSpan: 2 },
+            { name: "kycDocuments.photograph", label: "Director/Partner Passport Photo", type: "file", colSpan: 2 },
             { name: "documentUploads.businessAddressProof", label: "Electricity Bill / Rent Agreement (Business Address Proof)", type: "file", colSpan: 2 },
             { name: "documentUploads.directorBankStatement", label: "Bank Statement (Last 1 month)", type: "file", colSpan: 2, accept: ".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png" },
             { name: "documentUploads.dsc", label: "Digital Signature Certificate (DSC, if available)", type: "file", colSpan: 2 },
@@ -95,15 +98,17 @@ const companyIncorporationSections = [
 
 export function CompanyIncorporationForm({ onBack, initialData, applicationId, mode = 'create' }: CompanyIncorporationFormProps) {
   const defaultValues: CompanyIncorporationFormData = {
-    applicantFounderDetails: {
+    personalDetails: {
       fullName: '',
       mobileNumber: '',
-      emailId: '',
+      email: '',
       dob: '',
       occupation: undefined,
       otherOccupationDetail: '',
       residentialAddress: '',
       cityAndState: '',
+      panNumber: '',
+      aadhaarNumber: '',
     },
     companyDetails: {
       companyType: undefined,
@@ -117,10 +122,12 @@ export function CompanyIncorporationForm({ onBack, initialData, applicationId, m
     directorsPartners: {
       numberOfDirectorsPartners: undefined,
     },
+    kycDocuments: {
+        panCard: undefined,
+        aadhaarCard: undefined,
+        photograph: undefined,
+    },
     documentUploads: {
-        directorPanCard: undefined,
-        directorAadhaarCard: undefined,
-        directorPhoto: undefined,
         businessAddressProof: undefined,
         directorBankStatement: undefined,
         dsc: undefined,
@@ -144,7 +151,7 @@ export function CompanyIncorporationForm({ onBack, initialData, applicationId, m
         schema={CompanyIncorporationFormSchema}
         defaultValues={initialData || defaultValues}
         sections={companyIncorporationSections}
-        submitAction={submitCompanyIncorporationAction}
+        submitAction={(data) => submitApplicationAction(data, 'caService', 'Company Incorporation')}
         updateAction={updateCAServiceApplicationAction}
         applicationId={applicationId}
         mode={mode}
