@@ -846,10 +846,9 @@ const merchantPartnerSchema = z.object({
         )
     ),
   }),
-  merchantDocumentUploads: z.object({
-    gstCertificate: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES),
-    businessRegistration: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES),
-    ownerPanCard: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES),
+  merchantDocumentUploads: KycDocumentsSchema.extend({
+      gstCertificate: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES),
+      businessRegistration: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES),
   }),
   declaration: z.boolean().refine(v => v === true, { message: 'You must agree to the declaration.' }),
 }).merge(passwordSchema);

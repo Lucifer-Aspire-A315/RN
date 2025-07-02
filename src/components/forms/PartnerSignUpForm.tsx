@@ -29,9 +29,8 @@ const getKeysFromZodObject = (schema: z.ZodTypeAny): string[] => {
         return Object.keys(schema.shape);
     }
     // Handle ZodEffects (e.g., from .refine() or .superRefine())
-    if (schema instanceof z.ZodEffects) {
-        // Recursively call on the inner schema
-        return getKeysFromZodObject(schema.innerType());
+    if ('innerType' in schema._def) {
+        return getKeysFromZodObject(schema._def.innerType);
     }
     return [];
 };
@@ -440,7 +439,9 @@ export function PartnerSignUpForm() {
                     <FormSection title={allSections.merchantDocs?.title || ''} subtitle={allSections.merchantDocs?.subtitle}>
                         <FormField control={control} name="merchantDocumentUploads.gstCertificate" render={() => <FormFileInput fieldLabel="GST Certificate" form={form} fieldName="merchantDocumentUploads.gstCertificate" />} />
                         <FormField control={control} name="merchantDocumentUploads.businessRegistration" render={() => <FormFileInput fieldLabel="Business Registration Proof" form={form} fieldName="merchantDocumentUploads.businessRegistration" />} />
-                        <FormField control={control} name="merchantDocumentUploads.ownerPanCard" render={() => <FormFileInput fieldLabel="Owner's PAN Card" form={form} fieldName="merchantDocumentUploads.ownerPanCard" />} />
+                        <FormField control={control} name="merchantDocumentUploads.panCard" render={() => <FormFileInput fieldLabel="Proprietor's PAN Card" form={form} fieldName="merchantDocumentUploads.panCard" />} />
+                        <FormField control={control} name="merchantDocumentUploads.aadhaarCard" render={() => <FormFileInput fieldLabel="Proprietor's Aadhaar Card" form={form} fieldName="merchantDocumentUploads.aadhaarCard" />} />
+                        <FormField control={control} name="merchantDocumentUploads.photograph" render={() => <FormFileInput fieldLabel="Proprietor's Photograph" form={form} fieldName="merchantDocumentUploads.photograph" accept="image/*" />} />
                     </FormSection>
                      <FormField
                         control={control}
