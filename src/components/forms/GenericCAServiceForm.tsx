@@ -177,7 +177,6 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
         render={({ field }) => {
           switch (fieldConfig.type) {
             case 'file':
-              const { value, onChange, ...restOfField } = field;
               return (
                 <FormItem>
                   <FormLabel className="flex items-center">
@@ -187,15 +186,14 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
                   <FormControl>
                     <Input
                       type="file"
-                      {...restOfField}
-                      onChange={(event) => onChange(event.target.files?.[0] ?? null)}
                       accept={fieldConfig.accept || ".pdf,.jpg,.jpeg,.png"}
                       className="cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700"
+                      onChange={(e) => field.onChange(e.target.files ? e.target.files[0] : null)}
                     />
                   </FormControl>
-                  {value instanceof File && (
+                  {field.value instanceof File && (
                     <p className="text-xs text-muted-foreground mt-1">
-                      Selected: {value.name} ({(value.size / 1024).toFixed(2)} KB)
+                      Selected: {field.value.name} ({(field.value.size / 1024).toFixed(2)} KB)
                     </p>
                   )}
                   <FormMessage />
