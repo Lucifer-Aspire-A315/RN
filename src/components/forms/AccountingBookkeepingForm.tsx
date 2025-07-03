@@ -20,6 +20,9 @@ const accountingSections = [
         title: "Personal Details",
         fields: [
             { name: "personalDetails.fullName", label: "Full Name", type: "text", placeholder: "Full Name" },
+            { name: "personalDetails.fatherOrHusbandName", label: "Father's / Spouse's Name", type: "text", placeholder: "Father's or Spouse's Full Name" },
+            { name: "personalDetails.dob", label: "Date of Birth", type: "date" },
+            { name: "personalDetails.gender", label: "Gender", type: "radio", options: [{value: "male", label: "Male"}, {value: "female", label: "Female"}, {value: "other", label: "Other"}] },
             { name: "personalDetails.mobileNumber", label: "Mobile Number", type: "tel", placeholder: "10-digit mobile" },
             { name: "personalDetails.email", label: "Email ID", type: "email", placeholder: "example@mail.com" },
             { name: "personalDetails.panNumber", label: "PAN Number", type: "text", placeholder: "ABCDE1234F" },

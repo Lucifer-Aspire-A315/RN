@@ -20,9 +20,11 @@ const companyIncorporationSections = [
         title: "Primary Founder's Personal Details",
         fields: [
             { name: "personalDetails.fullName", label: "Full Name", type: "text", placeholder: "Full Name" },
+            { name: "personalDetails.fatherOrHusbandName", label: "Father's / Spouse's Name", type: "text", placeholder: "Father's or Spouse's Name" },
+            { name: "personalDetails.dob", label: "Date of Birth", type: "date" },
+            { name: "personalDetails.gender", label: "Gender", type: "radio", options: [{value: "male", label: "Male"}, {value: "female", label: "Female"}, {value: "other", label: "Other"}] },
             { name: "personalDetails.mobileNumber", label: "Mobile Number", type: "tel", placeholder: "10-digit mobile" },
             { name: "personalDetails.email", label: "Email ID", type: "email", placeholder: "example@mail.com" },
-            { name: "personalDetails.dob", label: "Date of Birth", type: "date" },
             { name: "personalDetails.panNumber", label: "PAN Number", type: "text", placeholder: "ABCDE1234F" },
             { name: "personalDetails.aadhaarNumber", label: "Aadhaar Number", type: "text", placeholder: "123456789012" },
             { name: "personalDetails.occupation", label: "Occupation", type: "radio", colSpan: 2, options: [
