@@ -335,7 +335,7 @@ export function PartnerSignUpForm() {
                                     <UploadCloud className="w-5 h-5 mr-2 inline-block text-muted-foreground" /> PAN Card Copy
                                 </FormLabel>
                                 <FormControl>
-                                    <Input {...fieldProps} type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={(event) => { onChange(event.target.files && event.target.files[0]); }} className="cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700" />
+                                    <Input {...fieldProps} type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={(event) => { onChange(event.target.files && event.target.files[0]); }} className="cursor-pointer file:text-transparent hover:bg-slate-50 dark:hover:bg-slate-700" />
                                 </FormControl>
                                 {value instanceof File && <p className="text-xs text-muted-foreground mt-1">Selected: {value.name}</p>}
                                 <FormMessage />
@@ -351,7 +351,7 @@ export function PartnerSignUpForm() {
                                     <UploadCloud className="w-5 h-5 mr-2 inline-block text-muted-foreground" /> Aadhaar Card Copy
                                 </FormLabel>
                                 <FormControl>
-                                    <Input {...fieldProps} type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={(event) => { onChange(event.target.files && event.target.files[0]); }} className="cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700" />
+                                    <Input {...fieldProps} type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={(event) => { onChange(event.target.files && event.target.files[0]); }} className="cursor-pointer file:text-transparent hover:bg-slate-50 dark:hover:bg-slate-700" />
                                 </FormControl>
                                 {value instanceof File && <p className="text-xs text-muted-foreground mt-1">Selected: {value.name}</p>}
                                 <FormMessage />
@@ -367,7 +367,7 @@ export function PartnerSignUpForm() {
                                     <UploadCloud className="w-5 h-5 mr-2 inline-block text-muted-foreground" /> Recent Photograph
                                 </FormLabel>
                                 <FormControl>
-                                    <Input {...fieldProps} type="file" accept="image/*" onChange={(event) => { onChange(event.target.files && event.target.files[0]); }} className="cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700" />
+                                    <Input {...fieldProps} type="file" accept=".jpg,.jpeg,.png" onChange={(event) => { onChange(event.target.files && event.target.files[0]); }} className="cursor-pointer file:text-transparent hover:bg-slate-50 dark:hover:bg-slate-700" />
                                 </FormControl>
                                 {value instanceof File && <p className="text-xs text-muted-foreground mt-1">Selected: {value.name}</p>}
                                 <FormMessage />
@@ -383,7 +383,7 @@ export function PartnerSignUpForm() {
                                     <UploadCloud className="w-5 h-5 mr-2 inline-block text-muted-foreground" /> Bank Statement (Last 6 Months)
                                 </FormLabel>
                                 <FormControl>
-                                    <Input {...fieldProps} type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={(event) => { onChange(event.target.files && event.target.files[0]); }} className="cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700" />
+                                    <Input {...fieldProps} type="file" accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png" onChange={(event) => { onChange(event.target.files && event.target.files[0]); }} className="cursor-pointer file:text-transparent hover:bg-slate-50 dark:hover:bg-slate-700" />
                                 </FormControl>
                                 {value instanceof File && <p className="text-xs text-muted-foreground mt-1">Selected: {value.name}</p>}
                                 <FormMessage />
@@ -451,7 +451,7 @@ export function PartnerSignUpForm() {
                                     <UploadCloud className="w-5 h-5 mr-2 inline-block text-muted-foreground" /> Proprietor's PAN Card
                                 </FormLabel>
                                 <FormControl>
-                                    <Input {...fieldProps} type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={(event) => { onChange(event.target.files && event.target.files[0]); }} className="cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700" />
+                                    <Input {...fieldProps} type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={(event) => { onChange(event.target.files && event.target.files[0]); }} className="cursor-pointer file:text-transparent hover:bg-slate-50 dark:hover:bg-slate-700" />
                                 </FormControl>
                                 {value instanceof File && <p className="text-xs text-muted-foreground mt-1">Selected: {value.name}</p>}
                                 <FormMessage />
@@ -467,7 +467,7 @@ export function PartnerSignUpForm() {
                                     <UploadCloud className="w-5 h-5 mr-2 inline-block text-muted-foreground" /> Proprietor's Aadhaar Card
                                 </FormLabel>
                                 <FormControl>
-                                    <Input {...fieldProps} type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={(event) => { onChange(event.target.files && event.target.files[0]); }} className="cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700" />
+                                    <Input {...fieldProps} type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={(event) => { onChange(event.target.files && event.target.files[0]); }} className="cursor-pointer file:text-transparent hover:bg-slate-50 dark:hover:bg-slate-700" />
                                 </FormControl>
                                 {value instanceof File && <p className="text-xs text-muted-foreground mt-1">Selected: {value.name}</p>}
                                 <FormMessage />
@@ -483,7 +483,7 @@ export function PartnerSignUpForm() {
                                     <UploadCloud className="w-5 h-5 mr-2 inline-block text-muted-foreground" /> Proprietor's Photograph
                                 </FormLabel>
                                 <FormControl>
-                                    <Input {...fieldProps} type="file" accept="image/*" onChange={(event) => { onChange(event.target.files && event.target.files[0]); }} className="cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700" />
+                                    <Input {...fieldProps} type="file" accept=".jpg,.jpeg,.png" onChange={(event) => { onChange(event.target.files && event.target.files[0]); }} className="cursor-pointer file:text-transparent hover:bg-slate-50 dark:hover:bg-slate-700" />
                                 </FormControl>
                                 {value instanceof File && <p className="text-xs text-muted-foreground mt-1">Selected: {value.name}</p>}
                                 <FormMessage />
@@ -499,7 +499,7 @@ export function PartnerSignUpForm() {
                                     <UploadCloud className="w-5 h-5 mr-2 inline-block text-muted-foreground" /> GST Certificate
                                 </FormLabel>
                                 <FormControl>
-                                    <Input {...fieldProps} type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={(event) => { onChange(event.target.files && event.target.files[0]); }} className="cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700" />
+                                    <Input {...fieldProps} type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={(event) => { onChange(event.target.files && event.target.files[0]); }} className="cursor-pointer file:text-transparent hover:bg-slate-50 dark:hover:bg-slate-700" />
                                 </FormControl>
                                 {value instanceof File && <p className="text-xs text-muted-foreground mt-1">Selected: {value.name}</p>}
                                 <FormMessage />
@@ -515,7 +515,7 @@ export function PartnerSignUpForm() {
                                     <UploadCloud className="w-5 h-5 mr-2 inline-block text-muted-foreground" /> Business Registration Proof
                                 </FormLabel>
                                 <FormControl>
-                                    <Input {...fieldProps} type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={(event) => { onChange(event.target.files && event.target.files[0]); }} className="cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700" />
+                                    <Input {...fieldProps} type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={(event) => { onChange(event.target.files && event.target.files[0]); }} className="cursor-pointer file:text-transparent hover:bg-slate-50 dark:hover:bg-slate-700" />
                                 </FormControl>
                                 {value instanceof File && <p className="text-xs text-muted-foreground mt-1">Selected: {value.name}</p>}
                                 <FormMessage />

@@ -60,7 +60,7 @@ const auditAndAssuranceSections = [
     },
     {
         title: "Upload Required Documents",
-        subtitle: "Accepted File Types: PDF, Excel, JPG, PNG. Max File Size: 10 MB per document.",
+        subtitle: "Accepted File Types: PDF, Word, Excel, JPG, PNG. Max File Size: 10 MB per document.",
         fields: [
             { name: "kycDocuments.photograph", label: "Contact Person Photograph", type: "file", accept: ".jpg,.jpeg,.png" },
             { name: "kycDocuments.panCard", label: "PAN Card of Business/Promoter", type: "file", accept: ".pdf,.jpg,.jpeg,.png" },
@@ -68,8 +68,8 @@ const auditAndAssuranceSections = [
             { name: "documentUploads.gstCertificate", label: "GST Certificate (if available)", type: "file", colSpan: 2, accept: ".pdf,.jpg,.jpeg,.png" },
             { name: "documentUploads.lastFinancials", label: "Last 2 Years Financial Statements", type: "file", colSpan: 2, accept: ".pdf,.xls,.xlsx,.jpg,.jpeg,.png" },
             { name: "documentUploads.bankStatement", label: "Bank Statement (Last 1 Year)", type: "file", colSpan: 2, accept: ".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png" },
-            { name: "documentUploads.existingAuditorDetails", label: "Details of Existing Auditors (if any)", type: "file", colSpan: 2, accept: ".pdf,.jpg,.jpeg,.png" },
-            { name: "documentUploads.otherSupportingDocs", label: "Any Other Supporting Documents", type: "file", colSpan: 2, accept: ".pdf,.xls,.xlsx,.jpg,.jpeg,.png" },
+            { name: "documentUploads.existingAuditorDetails", label: "Details of Existing Auditors (if any)", type: "file", colSpan: 2, accept: ".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png" },
+            { name: "documentUploads.otherSupportingDocs", label: "Any Other Supporting Documents", type: "file", colSpan: 2, accept: ".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png" },
         ]
     }
 ];
@@ -78,13 +78,13 @@ export function AuditAndAssuranceForm({ onBack, initialData, applicationId, mode
   const defaultValues: AuditAndAssuranceFormData = {
     personalDetails: {
       fullName: '',
+      fatherOrHusbandName: '',
+      dob: '',
+      gender: undefined,
       mobileNumber: '',
       email: '',
       panNumber: '',
       aadhaarNumber: '',
-      fatherOrHusbandName: '',
-      dob: '',
-      gender: undefined,
     },
     businessDetails: {
       businessName: '',

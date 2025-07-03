@@ -104,12 +104,12 @@ const HomeLoanPropertyDetailsSchema = z.object({
 });
 
 const HomeLoanDocumentUploadsSchema = z.object({
-  incomeProof: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES),
+  incomeProof: stringOrFileSchema(ACCEPTED_BANK_STATEMENT_TYPES),
   bankStatement: stringOrFileSchema(ACCEPTED_BANK_STATEMENT_TYPES),
-  propertyDocs: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES),
+  propertyDocs: stringOrFileSchema(ACCEPTED_BANK_STATEMENT_TYPES),
   allotmentLetter: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES).optional(),
   employmentProof: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES),
-  existingLoanStatement: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES).optional(),
+  existingLoanStatement: stringOrFileSchema(ACCEPTED_BANK_STATEMENT_TYPES).optional(),
 }).merge(KycDocumentsSchema);
 
 export const HomeLoanApplicationSchema = z.object({
@@ -152,10 +152,10 @@ const PersonalLoanDetailsSchema = z.object({
 });
 
 const PersonalLoanDocumentUploadsSchema = z.object({
-  incomeProof: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES),
+  incomeProof: stringOrFileSchema(ACCEPTED_BANK_STATEMENT_TYPES),
   bankStatement: stringOrFileSchema(ACCEPTED_BANK_STATEMENT_TYPES),
   employmentProof: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES),
-  existingLoanStatement: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES).optional(),
+  existingLoanStatement: stringOrFileSchema(ACCEPTED_BANK_STATEMENT_TYPES).optional(),
 }).merge(KycDocumentsSchema);
 
 export const PersonalLoanApplicationSchema = z.object({
@@ -211,11 +211,11 @@ const BusinessLoanDetailsSchema = z.object({
 
 const BusinessLoanDocumentUploadsSchema = z.object({
   gstOrUdyamCertificate: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES).optional(),
-  businessProof: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES),
+  businessProof: stringOrFileSchema(ACCEPTED_BANK_STATEMENT_TYPES),
   bankStatement: stringOrFileSchema(ACCEPTED_BANK_STATEMENT_TYPES),
   itrLast2Years: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES),
-  balanceSheetAndPL: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES),
-  existingLoanStatement: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES).optional(),
+  balanceSheetAndPL: stringOrFileSchema(ACCOUNTING_ACCEPTED_TYPES),
+  existingLoanStatement: stringOrFileSchema(ACCEPTED_BANK_STATEMENT_TYPES).optional(),
   machineryQuotation: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES).optional(),
 }).merge(KycDocumentsSchema);
 
@@ -267,7 +267,7 @@ const CreditCardPreferencesSchema = z.object({
 });
 
 const CreditCardDocumentUploadsSchema = z.object({
-  incomeProof: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES),
+  incomeProof: stringOrFileSchema(ACCEPTED_BANK_STATEMENT_TYPES),
   bankStatement: stringOrFileSchema(ACCEPTED_BANK_STATEMENT_TYPES),
   employmentProof: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES),
   existingCreditCardStatement: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES).optional(),
@@ -296,11 +296,11 @@ const MachineryLoanDetailsSchema = z.object({
 });
 
 const MachineryLoanDocumentUploadsSchema = z.object({
-  quotation: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES),
+  quotation: stringOrFileSchema(ACCEPTED_BANK_STATEMENT_TYPES),
   gstOrUdyamCertificate: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES),
   bankStatement: stringOrFileSchema(ACCEPTED_BANK_STATEMENT_TYPES),
   itrLast2Years: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES),
-  existingLoanStatement: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES).optional(),
+  existingLoanStatement: stringOrFileSchema(ACCEPTED_BANK_STATEMENT_TYPES).optional(),
 }).merge(KycDocumentsSchema);
 
 export const MachineryLoanApplicationSchema = z.object({
@@ -361,12 +361,12 @@ export const GovernmentSchemeLoanDetailsSchema = z.object({
 });
 
 export const GovernmentSchemeDocumentUploadsSchema = z.object({
-  businessProof: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES).optional(),
+  businessProof: stringOrFileSchema(ACCEPTED_BANK_STATEMENT_TYPES).optional(),
   bankStatement: stringOrFileSchema(ACCEPTED_BANK_STATEMENT_TYPES),
   casteCertificate: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES).optional(),
-  incomeCertificate: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES).optional(),
-  projectReport: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES).optional(),
-  existingLoanStatement: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES).optional(),
+  incomeCertificate: stringOrFileSchema(ACCEPTED_BANK_STATEMENT_TYPES).optional(),
+  projectReport: stringOrFileSchema(ACCEPTED_BANK_STATEMENT_TYPES).optional(),
+  existingLoanStatement: stringOrFileSchema(ACCEPTED_BANK_STATEMENT_TYPES).optional(),
 }).merge(KycDocumentsSchema);
 
 export const GovernmentSchemeLoanApplicationSchema = z.object({
@@ -415,8 +415,8 @@ export const GstServiceRequiredSchema = z.object({
 });
 
 export const GstDocumentUploadSchema = z.object({
-  businessProof: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES).optional(),
-  addressProof: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES),
+  businessProof: stringOrFileSchema(ACCEPTED_BANK_STATEMENT_TYPES).optional(),
+  addressProof: stringOrFileSchema(ACCEPTED_BANK_STATEMENT_TYPES),
   bankDetails: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES),
   digitalSignature: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES).optional(),
 });
@@ -456,12 +456,12 @@ export const IncomeSourceTypeSchema = z.object({
 
 export const ItrDocumentUploadSchema = z.object({
   form16: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES).optional(),
-  salarySlips: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES).optional(),
+  salarySlips: stringOrFileSchema(ACCEPTED_BANK_STATEMENT_TYPES).optional(),
   bankStatement: stringOrFileSchema(ACCEPTED_BANK_STATEMENT_TYPES),
-  investmentProofs: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES).optional(),
-  rentReceipts: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES).optional(),
-  capitalGainStatement: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES).optional(),
-  businessIncomeProof: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES).optional(),
+  investmentProofs: stringOrFileSchema(ACCEPTED_BANK_STATEMENT_TYPES).optional(),
+  rentReceipts: stringOrFileSchema(ACCEPTED_BANK_STATEMENT_TYPES).optional(),
+  capitalGainStatement: stringOrFileSchema(ACCOUNTING_ACCEPTED_TYPES).optional(),
+  businessIncomeProof: stringOrFileSchema(ACCEPTED_BANK_STATEMENT_TYPES).optional(),
 });
 
 export const ItrFilingConsultationFormSchema = z.object({
@@ -555,7 +555,7 @@ export const IncorporationDirectorsPartnersSchema = z.object({
 });
 
 export const IncorporationDocumentUploadsSchema = z.object({
-  businessAddressProof: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES),
+  businessAddressProof: stringOrFileSchema(ACCEPTED_BANK_STATEMENT_TYPES),
   directorBankStatement: stringOrFileSchema(ACCEPTED_BANK_STATEMENT_TYPES),
   dsc: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES).optional(),
 });
@@ -627,11 +627,11 @@ export const FinancialAdvisoryCurrentFinancialOverviewSchema = z.object({
 });
 
 export const FinancialAdvisoryDocumentUploadSchema = z.object({
-  salarySlipsIncomeProof: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES).optional(),
+  salarySlipsIncomeProof: stringOrFileSchema(ACCEPTED_BANK_STATEMENT_TYPES).optional(),
   lastYearItrForm16: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES).optional(),
   bankStatement: stringOrFileSchema(ACCEPTED_BANK_STATEMENT_TYPES).optional(),
-  investmentProofs: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES).optional(),
-  existingLoanEmiDetails: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES).optional(),
+  investmentProofs: stringOrFileSchema(ACCEPTED_BANK_STATEMENT_TYPES).optional(),
+  existingLoanEmiDetails: stringOrFileSchema(ACCEPTED_BANK_STATEMENT_TYPES).optional(),
 });
 
 export const FinancialAdvisoryFormSchema = z.object({
@@ -678,7 +678,7 @@ export const AuditAndAssuranceDocumentUploadSchema = z.object({
   gstCertificate: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES).optional(),
   lastFinancials: stringOrFileSchema(ACCOUNTING_ACCEPTED_TYPES),
   bankStatement: stringOrFileSchema(ACCEPTED_BANK_STATEMENT_TYPES),
-  existingAuditorDetails: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES).optional(),
+  existingAuditorDetails: stringOrFileSchema(ACCEPTED_BANK_STATEMENT_TYPES).optional(),
   otherSupportingDocs: stringOrFileSchema(ACCOUNTING_ACCEPTED_TYPES).optional(),
 });
 

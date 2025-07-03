@@ -108,16 +108,28 @@ const DetailItem = ({ itemKey, itemValue }: { itemKey: string; itemValue: any })
     
     // If the value is a non-array, non-special object, render its contents recursively.
     if (typeof itemValue === 'object' && !Array.isArray(itemValue) && !(itemValue instanceof Date) && itemValue !== null && !(itemValue instanceof File)) {
-        return (
-            <div className="md:col-span-2 space-y-4">
-                <p className="font-semibold text-md text-foreground">{formatKey(itemKey)}</p>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 border-l-2 pl-4 ml-1 border-primary/20">
-                    {Object.entries(itemValue).map(([key, value]) => (
-                        <DetailItem key={key} itemKey={key} itemValue={value} />
-                    ))}
+        const title = formatKey(itemKey);
+        // Only render a sub-section card if it's not the main form data or personal details which get special cards
+        if (itemKey !== 'formData' && itemKey !== 'personalDetails') {
+            return (
+                <div className="md:col-span-2 space-y-4">
+                    <p className="font-semibold text-md text-foreground">{title}</p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 border-l-2 pl-4 ml-1 border-primary/20">
+                        {Object.entries(itemValue).map(([key, value]) => (
+                            <DetailItem key={key} itemKey={key} itemValue={value} />
+                        ))}
+                    </div>
                 </div>
-            </div>
-        );
+            )
+        }
+        // Otherwise just render the items inline
+        return (
+             <>
+                {Object.entries(itemValue).map(([key, value]) => (
+                    <DetailItem key={key} itemKey={key} itemValue={value} />
+                ))}
+            </>
+        )
     }
     
     // Original rendering for primitive values
@@ -264,10 +276,10 @@ export function ApplicationDetailsView({ applicationId, serviceCategory, title, 
     
     // Create a new object for the rest of the form data to avoid mutating the original
     const otherFormData = {...formData};
-    delete otherFormData.personalDetails;
-    delete otherFormData.applicantDetails;
-    delete otherFormData.applicantDetailsGov;
-    delete otherFormData.applicantFounderDetails;
+    if (otherFormData.personalDetails) delete otherFormData.personalDetails;
+    if (otherFormData.applicantDetails) delete otherFormData.applicantDetails;
+    if (otherFormData.applicantDetailsGov) delete otherFormData.applicantDetailsGov;
+    if (otherFormData.applicantFounderDetails) delete otherFormData.applicantFounderDetails;
 
 
   return (
@@ -311,10 +323,6 @@ export function ApplicationDetailsView({ applicationId, serviceCategory, title, 
                             <p className="text-muted-foreground">{applicantDisplayName}</p>
                          </div>
                          <div>
-                            <p className="font-semibold text-foreground">Submitted By:</p>
-                            <p className="text-muted-foreground">{submittedBy?.userName || 'N/A'}</p>
-                         </div>
-                         <div>
                             <p className="font-semibold text-foreground">Created On:</p>
                             <p className="text-muted-foreground">{renderValue(createdAt)}</p>
                          </div>
@@ -326,6 +334,18 @@ export function ApplicationDetailsView({ applicationId, serviceCategory, title, 
                          )}
                     </CardContent>
                 </Card>
+
+                 {submittedBy && (
+                     <Card className="shadow-lg">
+                        <CardHeader><CardTitle className="text-lg flex items-center gap-2"><Handshake className="w-5 h-5"/> Submitted By</CardTitle></CardHeader>
+                        <CardContent className="space-y-2 text-sm">
+                           <DetailItem itemKey="Submitter Name" itemValue={submittedBy.userName} />
+                           <DetailItem itemKey="Submitter Email" itemValue={submittedBy.userEmail} />
+                           <DetailItem itemKey="Submitter Type" itemValue={submittedBy.userType} />
+                        </CardContent>
+                    </Card>
+                )}
+
                  {isAdmin && (
                     <Card className="shadow-lg">
                         <CardHeader><CardTitle>Admin Actions</CardTitle></CardHeader>
@@ -353,16 +373,6 @@ export function ApplicationDetailsView({ applicationId, serviceCategory, title, 
                         <CardHeader><CardTitle className="text-lg flex items-center gap-2"><User className="w-5 h-5"/> Applicant Information</CardTitle></CardHeader>
                         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 pt-0">
                              {Object.entries(applicantInfoFromForm).map(([key, value]) => (<DetailItem key={key} itemKey={key} itemValue={value} />))}
-                        </CardContent>
-                    </Card>
-                )}
-                
-                {/* Submitter Info Card */}
-                {submittedBy && (
-                     <Card className="shadow-sm">
-                        <CardHeader><CardTitle className="text-lg flex items-center gap-2"><Handshake className="w-5 h-5"/> Submitter Information</CardTitle></CardHeader>
-                        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 pt-0">
-                             {Object.entries(submittedBy).map(([key, value]) => (<DetailItem key={`submitter_${key}`} itemKey={`Submitter ${formatKey(key)}`} itemValue={value} />))}
                         </CardContent>
                     </Card>
                 )}

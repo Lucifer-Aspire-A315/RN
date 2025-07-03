@@ -60,13 +60,13 @@ const gstServiceSections = [
         title: "Upload Required Documents",
         subtitle: "Accepted File Types: PDF, JPG, PNG. Max File Size: 10 MB per document.",
         fields: [
-            { name: "kycDocuments.panCard", label: "PAN Card of Applicant/Business", type: "file", colSpan: 2 },
-            { name: "kycDocuments.aadhaarCard", label: "Aadhaar Card of Proprietor/Director", type: "file", colSpan: 2 },
-            { name: "kycDocuments.photograph", label: "Passport Size Photo (JPG/PNG)", type: "file", colSpan: 2 },
-            { name: "documentUploads.businessProof", label: "Business Proof (e.g., Shop Act/License)", type: "file", colSpan: 2 },
-            { name: "documentUploads.addressProof", label: "Electricity Bill / Rent Agreement (Address Proof)", type: "file", colSpan: 2 },
-            { name: "documentUploads.bankDetails", label: "Cancelled Cheque or Bank Passbook (1st page)", type: "file", colSpan: 2 },
-            { name: "documentUploads.digitalSignature", label: "Digital Signature (If available)", type: "file", colSpan: 2 },
+            { name: "kycDocuments.panCard", label: "PAN Card of Applicant/Business", type: "file", colSpan: 2, accept: ".pdf,.jpg,.jpeg,.png" },
+            { name: "kycDocuments.aadhaarCard", label: "Aadhaar Card of Proprietor/Director", type: "file", colSpan: 2, accept: ".pdf,.jpg,.jpeg,.png" },
+            { name: "kycDocuments.photograph", label: "Passport Size Photo (JPG/PNG)", type: "file", colSpan: 2, accept: ".jpg,.jpeg,.png" },
+            { name: "documentUploads.businessProof", label: "Business Proof (e.g., Shop Act/License)", type: "file", colSpan: 2, accept: ".pdf,.doc,.docx,.jpg,.jpeg,.png" },
+            { name: "documentUploads.addressProof", label: "Electricity Bill / Rent Agreement (Address Proof)", type: "file", colSpan: 2, accept: ".pdf,.doc,.docx,.jpg,.jpeg,.png" },
+            { name: "documentUploads.bankDetails", label: "Cancelled Cheque or Bank Passbook (1st page)", type: "file", colSpan: 2, accept: ".pdf,.jpg,.jpeg,.png" },
+            { name: "documentUploads.digitalSignature", label: "Digital Signature (If available)", type: "file", colSpan: 2, accept: ".pdf" },
         ]
     }
 ];
@@ -75,13 +75,13 @@ export function GstServiceApplicationForm({ onBack, initialData, applicationId, 
   const defaultValues: GstServiceApplicationFormData = {
     personalDetails: {
       fullName: '',
+      fatherOrHusbandName: '',
+      dob: '',
+      gender: undefined,
       mobileNumber: '',
       email: '',
       panNumber: '',
       aadhaarNumber: '',
-      fatherOrHusbandName: '',
-      dob: '',
-      gender: undefined,
     },
     businessDetails: {
       businessName: '',

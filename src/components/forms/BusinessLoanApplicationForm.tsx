@@ -78,16 +78,16 @@ const businessLoanSections = [
     title: "Upload Required Documents",
     subtitle: "Accepted File Types: PDF, Word, Excel, JPG, PNG. Max File Size: 10 MB per file.",
     fields: [
-      { name: "documentUploads.panCard", label: "PAN Card", type: "file", colSpan: 2 },
-      { name: "documentUploads.aadhaarCard", label: "Aadhaar Card", type: "file", colSpan: 2 },
-      { name: "documentUploads.photograph", label: "Passport Size Photo", type: "file", colSpan: 2 },
-      { name: "documentUploads.gstOrUdyamCertificate", label: "GST Registration / Udyam Certificate", type: "file", colSpan: 2 },
-      { name: "documentUploads.businessProof", label: "Shop Act / Business Proof", type: "file", colSpan: 2 },
+      { name: "documentUploads.panCard", label: "PAN Card", type: "file", colSpan: 2, accept: ".pdf,.jpg,.jpeg,.png" },
+      { name: "documentUploads.aadhaarCard", label: "Aadhaar Card", type: "file", colSpan: 2, accept: ".pdf,.jpg,.jpeg,.png" },
+      { name: "documentUploads.photograph", label: "Passport Size Photo", type: "file", colSpan: 2, accept: ".jpg,.jpeg,.png" },
+      { name: "documentUploads.gstOrUdyamCertificate", label: "GST Registration / Udyam Certificate", type: "file", colSpan: 2, accept: ".pdf,.jpg,.jpeg,.png" },
+      { name: "documentUploads.businessProof", label: "Shop Act / Business Proof", type: "file", colSpan: 2, accept: ".pdf,.doc,.docx,.jpg,.jpeg,.png" },
       { name: "documentUploads.bankStatement", label: "Bank Statement (Last 6–12 Months)", type: "file", colSpan: 2, accept: ".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png" },
-      { name: "documentUploads.itrLast2Years", label: "ITR for Last 2 Years", type: "file", colSpan: 2 },
-      { name: "documentUploads.balanceSheetAndPL", label: "Balance Sheet & Profit/Loss Statement", type: "file", colSpan: 2 },
-      { name: "documentUploads.existingLoanStatement", label: "Existing Loan Statement (if applicable)", type: "file", colSpan: 2 },
-      { name: "documentUploads.machineryQuotation", label: "Quotation (for Machinery Loan)", type: "file", colSpan: 2 },
+      { name: "documentUploads.itrLast2Years", label: "ITR for Last 2 Years", type: "file", colSpan: 2, accept: ".pdf,.jpg,.jpeg,.png" },
+      { name: "documentUploads.balanceSheetAndPL", label: "Balance Sheet & Profit/Loss Statement", type: "file", colSpan: 2, accept: ".pdf,.xls,.xlsx,.jpg,.jpeg,.png" },
+      { name: "documentUploads.existingLoanStatement", label: "Existing Loan Statement (if applicable)", type: "file", colSpan: 2, accept: ".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png" },
+      { name: "documentUploads.machineryQuotation", label: "Quotation (for Machinery Loan)", type: "file", colSpan: 2, accept: ".pdf,.jpg,.jpeg,.png" },
     ]
   }
 ];

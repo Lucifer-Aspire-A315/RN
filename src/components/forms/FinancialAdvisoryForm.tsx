@@ -77,11 +77,11 @@ const financialAdvisorySections = [
             { name: "kycDocuments.photograph", label: "Applicant Photograph", type: "file", accept: ".jpg,.jpeg,.png" },
             { name: "kycDocuments.panCard", label: "PAN Card", type: "file", accept: ".pdf,.jpg,.jpeg,.png" },
             { name: "kycDocuments.aadhaarCard", label: "Aadhaar Card", type: "file", accept: ".pdf,.jpg,.jpeg,.png" },
-            { name: "documentUploads.salarySlipsIncomeProof", label: "Salary Slips / Income Proof", type: "file", colSpan: 2 },
-            { name: "documentUploads.lastYearItrForm16", label: "Last Year’s ITR or Form 16", type: "file", colSpan: 2 },
+            { name: "documentUploads.salarySlipsIncomeProof", label: "Salary Slips / Income Proof", type: "file", colSpan: 2, accept: ".pdf,.doc,.docx,.jpg,.jpeg,.png" },
+            { name: "documentUploads.lastYearItrForm16", label: "Last Year’s ITR or Form 16", type: "file", colSpan: 2, accept: ".pdf,.jpg,.jpeg,.png" },
             { name: "documentUploads.bankStatement", label: "Bank Statement (3–6 Months)", type: "file", colSpan: 2, accept: ".pdf,.doc,.docx,.jpg,.jpeg,.png" },
-            { name: "documentUploads.investmentProofs", label: "Investment Proofs (Mutual Funds, LIC, etc.)", type: "file", colSpan: 2 },
-            { name: "documentUploads.existingLoanEmiDetails", label: "Existing Loan / EMI Details (if any)", type: "file", colSpan: 2 },
+            { name: "documentUploads.investmentProofs", label: "Investment Proofs (Mutual Funds, LIC, etc.)", type: "file", colSpan: 2, accept: ".pdf,.doc,.docx,.jpg,.jpeg,.png" },
+            { name: "documentUploads.existingLoanEmiDetails", label: "Existing Loan / EMI Details (if any)", type: "file", colSpan: 2, accept: ".pdf,.doc,.docx,.jpg,.jpeg,.png" },
         ]
     }
 ];
@@ -90,19 +90,19 @@ export function FinancialAdvisoryForm({ onBack, initialData, applicationId, mode
   const defaultValues: FinancialAdvisoryFormData = {
     personalDetails: {
       fullName: '',
+      fatherOrHusbandName: '',
+      dob: '',
+      gender: undefined,
       mobileNumber: '',
       email: '',
-      dob: '',
+      panNumber: '',
+      aadhaarNumber: '',
       occupation: undefined,
       otherOccupationDetail: '',
       cityAndState: '',
       maritalStatus: undefined,
       dependentMembersAdults: undefined,
       dependentMembersChildren: undefined,
-      panNumber: '',
-      aadhaarNumber: '',
-      fatherOrHusbandName: '',
-      gender: undefined,
     },
     advisoryServicesRequired: {
       taxSavingPlan: false,

@@ -90,15 +90,15 @@ const homeLoanSections = [
     title: "Upload Required Documents",
     subtitle: "Accepted File Types: PDF, Word, Excel, JPG, PNG. Max File Size: 10 MB per file.",
     fields: [
-      { name: "documentUploads.panCard", label: "PAN Card", type: "file", colSpan: 2 },
-      { name: "documentUploads.aadhaarCard", label: "Aadhaar Card", type: "file", colSpan: 2 },
-      { name: "documentUploads.photograph", label: "Passport Size Photograph", type: "file", colSpan: 2 },
-      { name: "documentUploads.incomeProof", label: "Income Proof (Salary Slip / ITR)", type: "file", colSpan: 2 },
+      { name: "documentUploads.panCard", label: "PAN Card", type: "file", colSpan: 2, accept: ".pdf,.jpg,.jpeg,.png" },
+      { name: "documentUploads.aadhaarCard", label: "Aadhaar Card", type: "file", colSpan: 2, accept: ".pdf,.jpg,.jpeg,.png" },
+      { name: "documentUploads.photograph", label: "Passport Size Photograph", type: "file", colSpan: 2, accept: ".jpg,.jpeg,.png" },
+      { name: "documentUploads.incomeProof", label: "Income Proof (Salary Slip / ITR)", type: "file", colSpan: 2, accept: ".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png" },
       { name: "documentUploads.bankStatement", label: "Bank Statement (Last 6 Months)", type: "file", colSpan: 2, accept: ".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png" },
-      { name: "documentUploads.propertyDocs", label: "Property Documents / Sale Agreement", type: "file", colSpan: 2 },
-      { name: "documentUploads.allotmentLetter", label: "Allotment Letter (if any)", type: "file", colSpan: 2 },
-      { name: "documentUploads.employmentProof", label: "Employment/Business Proof", type: "file", colSpan: 2 },
-      { name: "documentUploads.existingLoanStatement", label: "Existing Loan Statement (if applicable)", type: "file", colSpan: 2 },
+      { name: "documentUploads.propertyDocs", label: "Property Documents / Sale Agreement", type: "file", colSpan: 2, accept: ".pdf,.doc,.docx,.jpg,.jpeg,.png" },
+      { name: "documentUploads.allotmentLetter", label: "Allotment Letter (if any)", type: "file", colSpan: 2, accept: ".pdf,.jpg,.jpeg,.png" },
+      { name: "documentUploads.employmentProof", label: "Employment/Business Proof", type: "file", colSpan: 2, accept: ".pdf,.doc,.docx,.jpg,.jpeg,.png" },
+      { name: "documentUploads.existingLoanStatement", label: "Existing Loan Statement (if applicable)", type: "file", colSpan: 2, accept: ".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png" },
     ]
   }
 ];

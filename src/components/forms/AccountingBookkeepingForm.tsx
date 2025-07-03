@@ -61,7 +61,7 @@ const accountingSections = [
     },
     {
         title: "Upload Required Documents",
-        subtitle: "Accepted File Types: PDF, Excel, JPG, PNG. Max File Size: 10 MB per document.",
+        subtitle: "Accepted File Types: PDF, Word, Excel, JPG, PNG. Max File Size: 10 MB per document.",
         fields: [
             { name: "kycDocuments.photograph", label: "Applicant Photograph", type: "file", accept: ".jpg,.jpeg,.png" },
             { name: "kycDocuments.panCard", label: "PAN Card of Business/Owner", type: "file", accept: ".pdf,.jpg,.jpeg,.png" },
@@ -72,7 +72,7 @@ const accountingSections = [
             { name: "documentUploads.invoices", label: "Invoices (Sales & Purchase - PDF/Excel)", type: "file", colSpan: 2, accept: ".pdf,.xls,.xlsx,.jpg,.jpeg,.png" },
             { name: "documentUploads.payrollData", label: "Payroll Data (if applicable)", type: "file", colSpan: 2, accept: ".pdf,.xls,.xlsx,.jpg,.jpeg,.png" },
             { name: "documentUploads.tdsTaxDetails", label: "TDS & Tax Details (if any)", type: "file", colSpan: 2, accept: ".pdf,.xls,.xlsx,.jpg,.jpeg,.png" },
-            { name: "documentUploads.otherSupportingDocuments", label: "Any Other Supporting Documents", type: "file", colSpan: 2, accept: ".pdf,.xls,.xlsx,.jpg,.jpeg,.png" },
+            { name: "documentUploads.otherSupportingDocuments", label: "Any Other Supporting Documents", type: "file", colSpan: 2, accept: ".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png" },
         ]
     }
 ];
@@ -81,12 +81,12 @@ export function AccountingBookkeepingForm({ onBack, initialData, applicationId, 
   const defaultValues: AccountingBookkeepingFormData = {
     personalDetails: {
       fullName: '',
-      mobileNumber: '',
-      email: '',
-      panNumber: '',
       fatherOrHusbandName: '',
       dob: '',
       gender: undefined,
+      mobileNumber: '',
+      email: '',
+      panNumber: '',
       aadhaarNumber: '',
     },
     businessDetails: {
