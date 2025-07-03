@@ -20,29 +20,6 @@ export default function Home() {
 
   useEffect(() => {
     setIsClient(true);
-
-    const handleHashChange = () => {
-      const hash = window.location.hash;
-      if (hash === '#home' || hash === '#services' || hash === '#calculator' || hash === '#how-it-works') {
-        setTimeout(() => {
-          const element = document.getElementById(hash.substring(1));
-          if (element) element.scrollIntoView({ behavior: 'smooth' });
-        }, 0);
-      }
-    };
-
-    window.addEventListener('hashchange', handleHashChange, false);
-    if (window.location.hash) {
-       setTimeout(() => {
-        const elementId = window.location.hash.substring(1);
-        const element = document.getElementById(elementId);
-        if (element) element.scrollIntoView({ behavior: 'smooth' });
-       }, 100);
-    }
-
-    return () => {
-      window.removeEventListener('hashchange', handleHashChange, false);
-    };
   }, []);
 
 

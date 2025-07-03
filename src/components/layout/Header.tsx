@@ -46,20 +46,7 @@ export function Header() {
   
   const handleNavClick = (href: string) => {
     setMobileMenuOpen(false);
-    if (href.startsWith('/#')) {
-        const path = window.location.pathname;
-        if (path === '/') {
-            const elementId = href.substring(2);
-            const element = document.getElementById(elementId);
-            if (element) {
-                element.scrollIntoView({ behavior: 'smooth' });
-            }
-        } else {
-            router.push(href);
-        }
-    } else {
-        router.push(href);
-    }
+    router.push(href);
   };
 
 
