@@ -72,7 +72,7 @@ const ListItem = React.forwardRef<
       <Link
         ref={ref}
         className={cn(
-          "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
+          "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-primary/10 focus:bg-primary/10",
           className
         )}
         {...props}
@@ -118,7 +118,7 @@ export function Header() {
     return name.substring(0, 2).toUpperCase();
   };
   
-  const commonLinkClasses = "text-primary hover:text-accent transition-colors font-semibold no-underline";
+  const commonLinkClasses = "text-primary hover:text-primary/80 transition-colors font-semibold no-underline";
   const mobileLinkClasses = "block py-3 px-6 text-lg hover:bg-secondary/40";
 
   return (
@@ -222,7 +222,7 @@ export function Header() {
                           <div className="flex flex-col">
                             {link.children.map((child) => (
                               <SheetClose asChild key={child.label}>
-                                <Link href={child.href} className="flex items-center gap-3 pl-10 pr-4 py-3 text-base text-muted-foreground hover:text-foreground hover:bg-accent/10">
+                                <Link href={child.href} className="flex items-center gap-3 pl-10 pr-4 py-3 text-base text-muted-foreground hover:text-foreground hover:bg-primary/10">
                                   <child.icon className="w-5 h-5 text-primary" /> {child.label}
                                 </Link>
                               </SheetClose>
