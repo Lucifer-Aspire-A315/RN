@@ -17,6 +17,7 @@ import { ArrowLeft, Loader2, UploadCloud } from 'lucide-react';
 import { FormSection, FormFieldWrapper } from './FormSection';
 import { useRouter } from 'next/navigation';
 import { FormProgress } from '../shared/FormProgress';
+import { processNestedFileUploads } from '@/lib/form-helpers';
 
 // Field and Section Configuration Types
 interface FieldConfig {
@@ -85,7 +86,7 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
     defaultValues,
   });
 
-  const { control, handleSubmit, reset, watch, setError, trigger, getValues } = form;
+  const { control, handleSubmit, reset, watch, setError, trigger } = form;
 
   const getNestedValue = (obj: any, path: string) => path.split('.').reduce((o, i) => (o ? o[i] : undefined), obj);
   
@@ -120,6 +121,12 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
 
   async function onSubmit(data: TData) {
     setIsSubmitting(true);
+    if (!isDeclared) {
+        toast({ variant: "destructive", title: "Declaration Required", description: "You must agree to the declaration to submit." });
+        setIsSubmitting(false);
+        return;
+    }
+
     if (!currentUser) {
       toast({ variant: "destructive", title: "Authentication Required", description: "Please log in to submit your application." });
       setIsSubmitting(false);
@@ -127,12 +134,13 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
     }
 
     try {
+      const payloadForServer = await processNestedFileUploads(JSON.parse(JSON.stringify(data)));
       
       let result;
       if (mode === 'edit' && applicationId && updateAction) {
-        result = await updateAction(applicationId, data);
+        result = await updateAction(applicationId, payloadForServer);
       } else {
-        result = await submitAction(data);
+        result = await submitAction(payloadForServer);
       }
 
       if (result.success) {
