@@ -134,7 +134,7 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
     }
 
     try {
-      const payloadForServer = await processNestedFileUploads(JSON.parse(JSON.stringify(data)));
+      const payloadForServer = await processNestedFileUploads(data);
       
       let result;
       if (mode === 'edit' && applicationId && updateAction) {

@@ -137,7 +137,7 @@ export function GenericLoanForm<TData extends Record<string, any>>({
     }
 
     try {
-      const payloadForServer = await processNestedFileUploads(JSON.parse(JSON.stringify(data)));
+      const payloadForServer = await processNestedFileUploads(data);
       
       let result: ServerActionResponse;
       if (mode === 'edit' && applicationId && updateAction) {
@@ -230,7 +230,7 @@ export function GenericLoanForm<TData extends Record<string, any>>({
   };
 
   const handlePreviousClick = () => {
-    setCurrentStep(prev => prev - 1);
+    setCurrentStep(prev => Math.max(0, prev - 1));
   };
   
   const renderField = (fieldConfig: FieldConfig) => {

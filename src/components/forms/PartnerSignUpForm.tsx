@@ -14,7 +14,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
-import { processFileUploads } from '@/lib/form-helpers';
+import { processNestedFileUploads } from '@/lib/form-helpers';
 import { Loader2, UserPlus, Handshake, Store, Users, UploadCloud, ArrowLeft } from 'lucide-react';
 import { FormSection, FormFieldWrapper } from './FormSection';
 import { partnerSignUpAction } from '@/app/actions/authActions';
@@ -167,46 +167,38 @@ export function PartnerSignUpForm() {
 
   async function onSubmit(data: PartnerSignUpFormData) {
     setIsSubmitting(true);
-    let dataToSubmit = JSON.parse(JSON.stringify(data));
-
+    
     try {
-        if (data.businessModel === 'dsa' && data.dsaDocumentUploads) {
-            const uploadedUrls = await processFileUploads(data.dsaDocumentUploads, toast);
-            Object.assign(dataToSubmit.dsaDocumentUploads, uploadedUrls);
-        }
-        if (data.businessModel === 'merchant' && data.merchantDocumentUploads) {
-            const uploadedUrls = await processFileUploads(data.merchantDocumentUploads, toast);
-            Object.assign(dataToSubmit.merchantDocumentUploads, uploadedUrls);
-        }
+        const payloadForServer = await processNestedFileUploads(data);
+        const result = await partnerSignUpAction(payloadForServer);
 
-      const result = await partnerSignUpAction(dataToSubmit);
-      if (result.success && result.user) {
-        toast({
-          title: "Sign Up Successful",
-          description: result.message || "Your account has been created and is pending approval.",
-        });
-        form.reset();
-        router.push('/');
-      } else {
-        toast({
-          variant: "destructive",
-          title: "Sign Up Failed",
-          description: result.message || "An unknown error occurred.",
-        });
-        if (result.errors) {
-          Object.entries(result.errors).forEach(([fieldName, errorMessages]) => {
-            setError(fieldName as any, { type: 'manual', message: (errorMessages as string[]).join(', ') });
-          });
+        if (result.success && result.user) {
+            toast({
+            title: "Sign Up Successful",
+            description: result.message || "Your account has been created and is pending approval.",
+            });
+            form.reset();
+            router.push('/');
+        } else {
+            toast({
+            variant: "destructive",
+            title: "Sign Up Failed",
+            description: result.message || "An unknown error occurred.",
+            });
+            if (result.errors) {
+            Object.entries(result.errors).forEach(([fieldName, errorMessages]) => {
+                setError(fieldName as any, { type: 'manual', message: (errorMessages as string[]).join(', ') });
+            });
+            }
         }
-      }
     } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Submission Error",
-        description: error.message || "An unexpected error occurred during sign up.",
-      });
+        toast({
+            variant: "destructive",
+            title: "Submission Error",
+            description: error.message || "An unexpected error occurred during sign up.",
+        });
     } finally {
-      setIsSubmitting(false);
+        setIsSubmitting(false);
     }
   }
 
