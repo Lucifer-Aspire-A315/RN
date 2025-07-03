@@ -6,5 +6,6 @@ import type { UserApplication } from '@/lib/types';
 
 export async function updateGovernmentSchemeLoanApplicationAction(applicationId: string, data: any) {
     // This is a wrapper to call the generic update action with the correct category.
-    return updateApplicationAction(applicationId, 'governmentScheme' as UserApplication['serviceCategory'], { formData: data });
+    // The main action is now smart enough to handle the raw form data.
+    return updateApplicationAction(applicationId, 'governmentScheme' as UserApplication['serviceCategory'], data);
 }

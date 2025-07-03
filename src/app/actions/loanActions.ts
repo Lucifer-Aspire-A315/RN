@@ -99,6 +99,7 @@ export async function submitLoanApplicationAction<T extends Record<string, any>>
 
 export async function updateLoanApplicationAction(applicationId: string, data: any) {
     // This is a wrapper to call the generic update action with the correct category.
-    return updateApplicationAction(applicationId, 'loan' as UserApplication['serviceCategory'], { formData: data });
+    // The main action is now smart enough to handle the raw form data.
+    return updateApplicationAction(applicationId, 'loan' as UserApplication['serviceCategory'], data);
 }
     

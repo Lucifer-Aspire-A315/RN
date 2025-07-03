@@ -6,7 +6,6 @@ import { db } from '@/lib/firebase';
 import { checkSessionAction } from './authActions';
 import type { UserApplication } from '@/lib/types';
 import { getCollectionName } from '@/lib/utils';
-import { processNestedFileUploads } from '@/lib/form-helpers';
 import { revalidatePath } from 'next/cache';
 
 interface ServerActionResponse {
@@ -179,16 +178,15 @@ export async function updateApplicationAction(
     if (user.id !== submitterId && !user.isAdmin) {
       throw new Error('Unauthorized: You do not have permission to perform this action.');
     }
-
-    const payloadForServer = JSON.parse(JSON.stringify(data));
     
-    // File processing is now expected to be done on the client before calling this action.
-    // The data received here should already have URLs instead of File objects.
+    // Intelligent payload shaping: If the incoming data is the raw form data, wrap it.
+    // This makes the action robust to being called from different places.
+    const payloadForServer = data.formData ? data : { formData: data };
     
     const applicantUserId = submitterType === 'normal' ? submitterId : null;
 
-    // Standardized update of applicantDetails in the root of the application
-    if (payloadForServer.formData.personalDetails) {
+    // Standardized update of applicantDetails at the root of the application
+    if (payloadForServer.formData && payloadForServer.formData.personalDetails) {
         payloadForServer.applicantDetails = {
             userId: applicantUserId,
             fullName: payloadForServer.formData.personalDetails.fullName,
@@ -208,7 +206,8 @@ export async function updateApplicationAction(
     
     return { success: true, message: 'Application updated successfully!' };
 
-  } catch (error: any) {
+  } catch (error: any)
+{
     console.error(`[AppUpdateAction] Error updating application ${applicationId}:`, error.message, error.stack);
     return { success: false, message: error.message || 'Failed to update application.' };
   }
