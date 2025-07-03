@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState, useMemo, useEffect } from 'react';
-import { useForm, type UseFormReturn } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { ZodType, ZodTypeDef } from 'zod';
 import { Button } from '@/components/ui/button';
@@ -48,7 +48,7 @@ interface GenericCAServiceFormProps<T extends Record<string, any>> {
   defaultValues: T;
   sections: SectionConfig[];
   submitAction: (data: T) => Promise<{ success: boolean; message: string; errors?: Record<string, string[]> }>;
-  updateAction?: (applicationId: string, data: T) => Promise<{ success: boolean; message: string; errors?: Record<string, string[]> }>;
+  updateAction?: (applicationId: string, data: any) => Promise<{ success: boolean; message: string; errors?: Record<string, string[]> }>;
   mode?: 'create' | 'edit';
   applicationId?: string;
 }
@@ -77,7 +77,7 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
     defaultValues,
   });
 
-  const { control, handleSubmit, reset, watch, setError, trigger, setValue } = form;
+  const { control, handleSubmit, reset, watch, setError, trigger, getValues } = form;
 
   const getNestedValue = (obj: any, path: string) => path.split('.').reduce((o, i) => (o ? o[i] : undefined), obj);
   
@@ -158,18 +158,18 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
   }
 
   const handleNextClick = async () => {
-    const currentFields = visibleSections[currentStep].fields.map(field => field.name);
-    const isValid = await trigger(currentFields as any);
-
-    if(isValid) {
-       if (currentStep < visibleSections.length - 1) {
-          setCurrentStep(prev => prev + 1);
-       }
+    const fieldsInSection = visibleSections[currentStep].fields.map(field => field.name);
+    const isValid = await trigger(fieldsInSection as any, { shouldFocus: true });
+    
+    if (isValid) {
+      if (currentStep < visibleSections.length - 1) {
+        setCurrentStep(prev => prev + 1);
+      }
     } else {
       toast({
         variant: "destructive",
         title: "Validation Error",
-        description: "Please correct the errors in this section before proceeding."
+        description: "Please fill out all required fields in this section correctly.",
       });
     }
   };
@@ -231,7 +231,7 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
                  return (
                     <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-3 shadow-sm">
                         <FormControl>
-                            <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                            <Checkbox checked={!!field.value} onCheckedChange={field.onChange} />
                         </FormControl>
                         <FormLabel className="font-normal leading-snug">{fieldConfig.label}</FormLabel>
                     </FormItem>
@@ -299,23 +299,26 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
                     </FormSection>
                 </div>
               ))}
-              <div className="mt-10 pt-6 border-t border-border flex items-center justify-between">
-                {currentStep > 0 && (
-                    <Button type="button" variant="outline" onClick={handlePreviousClick}>
-                        Previous
-                    </Button>
-                )}
-                <div className="flex-grow" />
-                {currentStep < visibleSections.length - 1 && (
-                    <Button type="button" className="cta-button" onClick={handleNextClick}>
-                        Next
-                    </Button>
-                )}
-                {currentStep === visibleSections.length - 1 && (
-                    <Button type="submit" className="w-full md:w-auto cta-button" size="lg" disabled={isSubmitting}>
-                        {isSubmitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> {mode === 'edit' ? 'Updating...' : 'Submitting...'}</> : (mode === 'edit' ? 'Update Application' : 'Submit Application')}
-                    </Button>
-                )}
+              <div className="mt-8 pt-6 border-t border-border flex justify-between items-center">
+                <div>
+                    {currentStep > 0 && (
+                        <Button type="button" variant="outline" onClick={handlePreviousClick} disabled={isSubmitting}>
+                            Previous
+                        </Button>
+                    )}
+                </div>
+                <div>
+                    {currentStep < visibleSections.length - 1 && (
+                        <Button type="button" className="cta-button" onClick={handleNextClick}>
+                            Next
+                        </Button>
+                    )}
+                    {currentStep === visibleSections.length - 1 && (
+                        <Button type="submit" className="w-full md:w-auto cta-button" size="lg" disabled={isSubmitting}>
+                            {isSubmitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> {mode === 'edit' ? 'Updating...' : 'Submitting...'}</> : (mode === 'edit' ? 'Update Application' : 'Submit Application')}
+                        </Button>
+                    )}
+                </div>
               </div>
             </form>
           </Form>
