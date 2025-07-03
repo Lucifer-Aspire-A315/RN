@@ -1,22 +1,34 @@
 
 "use client";
 
+import { usePathname, useSearchParams } from 'next/navigation';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { useRouter } from 'next/navigation';
 import { ArrowLeft, UserPlus, LogIn, AlertTriangle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
-interface LoginPromptProps {
-    onBack: () => void;
-}
 
-export function LoginPrompt({ onBack }: LoginPromptProps) {
+export function LoginPrompt() {
   const { openAuthModal } = useAuth();
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const handleLogin = () => {
+    const redirectUrl = `${pathname}?${searchParams.toString()}`;
+    openAuthModal('login', redirectUrl);
+  };
   
+  const handleSignUp = () => {
+    const redirectUrl = `${pathname}?${searchParams.toString()}`;
+    openAuthModal('signup', redirectUrl);
+  };
+
   return (
     <section className="bg-secondary py-12 md:py-20">
       <div className="container mx-auto px-4 sm:px-6">
-        <Button variant="ghost" onClick={onBack} className="inline-flex items-center mb-8 text-muted-foreground hover:text-primary">
+        <Button variant="ghost" onClick={() => router.back()} className="inline-flex items-center mb-8 text-muted-foreground hover:text-primary">
           <ArrowLeft className="w-5 h-5 mr-2" />
           Back
         </Button>
@@ -28,10 +40,10 @@ export function LoginPrompt({ onBack }: LoginPromptProps) {
               <CardDescription className="mt-2 text-base">You need to be logged in to start an application.</CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col sm:flex-row gap-4 justify-center p-8 pt-2">
-              <Button size="lg" className="w-full sm:w-auto cta-button" onClick={() => openAuthModal('login')}>
+              <Button size="lg" className="w-full sm:w-auto cta-button" onClick={handleLogin}>
                 <LogIn className="mr-2" /> Login
               </Button>
-              <Button variant="outline" size="lg" className="w-full sm:w-auto" onClick={() => openAuthModal('signup')}>
+              <Button variant="outline" size="lg" className="w-full sm:w-auto" onClick={handleSignUp}>
                 <UserPlus className="mr-2" /> Create Account
               </Button>
             </CardContent>

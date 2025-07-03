@@ -13,7 +13,7 @@ interface AuthContextType {
   isLoading: boolean;
   isAuthModalOpen: boolean;
   authModalMode: 'login' | 'signup';
-  openAuthModal: (mode: 'login' | 'signup') => void;
+  openAuthModal: (mode: 'login' | 'signup', redirectUrl?: string) => void;
   closeAuthModal: () => void;
 }
 
@@ -26,20 +26,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalMode, setAuthModalMode] = useState<'login' | 'signup'>('login');
+  const [redirectUrl, setRedirectUrl] = useState<string | null>(null);
 
-  const openAuthModal = useCallback((mode: 'login' | 'signup') => {
+
+  const openAuthModal = useCallback((mode: 'login' | 'signup', url?: string) => {
     setAuthModalMode(mode);
+    setRedirectUrl(url || null);
     setIsAuthModalOpen(true);
   }, []);
 
   const closeAuthModal = useCallback(() => {
     setIsAuthModalOpen(false);
+    setRedirectUrl(null);
   }, []);
 
   const login = useCallback((userData: UserData) => {
     setCurrentUser(userData);
-    closeAuthModal(); // Close modal on successful login/signup
-  }, [closeAuthModal]);
+    setIsAuthModalOpen(false); // Close modal on successful login/signup
+    
+    // Perform redirection
+    if (redirectUrl) {
+      router.push(redirectUrl);
+    } else {
+      router.push('/dashboard');
+    }
+    setRedirectUrl(null); // Reset after use
+  }, [redirectUrl, router]);
 
   const logout = useCallback(async () => {
     const result = await performLogoutAction();

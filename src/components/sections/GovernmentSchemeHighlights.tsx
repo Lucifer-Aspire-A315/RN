@@ -4,7 +4,7 @@
 import React from 'react';
 import { NewsTicker, type NewsTickerItem } from '../shared/NewsTicker';
 import { Banknote, Factory, Users } from 'lucide-react';
-import type { SetPageView } from '@/app/page';
+import Link from 'next/link';
 
 const schemeItems: NewsTickerItem[] = [
   { text: "PM Mudra Yojana", icon: Banknote },
@@ -14,15 +14,8 @@ const schemeItems: NewsTickerItem[] = [
   { text: "Credit Guarantee Scheme", icon: Factory },
 ];
 
-interface GovernmentSchemeHighlightsProps {
-  setCurrentPage: SetPageView;
-}
 
-export function GovernmentSchemeHighlights({ setCurrentPage }: GovernmentSchemeHighlightsProps) {
-  const handleSchemeClick = () => {
-    setCurrentPage('governmentSchemes');
-  };
-
+export function GovernmentSchemeHighlights() {
   return (
     <section className="py-16 md:py-20 bg-secondary/20">
        <div className="container mx-auto px-6 text-center">
@@ -31,7 +24,9 @@ export function GovernmentSchemeHighlights({ setCurrentPage }: GovernmentSchemeH
           We provide expert guidance and assistance for a variety of government-backed loan schemes to empower entrepreneurs and small businesses.
         </p>
         <div className="mt-12">
-            <NewsTicker items={schemeItems} onContainerClick={handleSchemeClick} />
+            <Link href="/services/government-schemes">
+                <NewsTicker items={schemeItems} />
+            </Link>
         </div>
       </div>
     </section>

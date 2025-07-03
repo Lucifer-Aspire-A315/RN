@@ -1,46 +1,41 @@
 
 import { ServiceCard } from '@/components/shared/ServiceCard';
 import { Home, User, Briefcase, CreditCardIcon, Cog, LandPlot, Building } from 'lucide-react'; 
-import type { SetPageView } from '@/app/page';
-
-interface ServicesSectionProps {
-  setCurrentPage: SetPageView;
-}
 
 const loanServices = [
   {
     icon: <Home className="w-8 h-8" />,
     title: 'Home Loan (होम लोन)',
     description: 'Apne sapno ka ghar banayein hamare flexible home loan ke saath.',
-    targetPage: 'homeLoan' as const,
+    href: '/apply/home-loan',
     colorIndex: 1,
   },
   {
     icon: <User className="w-8 h-8" />,
     title: 'Personal Loan (व्यक्तिगत ऋण)',
     description: 'Shaadi, chuttiyan, ya kisi bhi zaroorat ke liye.',
-    targetPage: 'personalLoan' as const,
+    href: '/apply/personal-loan',
     colorIndex: 2,
   },
   {
     icon: <Briefcase className="w-8 h-8" />,
     title: 'Business Loan (व्यापार ऋण)',
     description: 'Apne business ko nayi unchaiyon tak le jayein.',
-    targetPage: 'businessLoan' as const,
+    href: '/apply/business-loan',
     colorIndex: 3,
   },
   {
     icon: <CreditCardIcon className="w-8 h-8" />,
     title: 'Credit Card (क्रेडिट कार्ड)',
     description: 'Premium credit cards ke saath offers aur rewards ka laabh uthayein.',
-    targetPage: 'creditCard' as const,
+    href: '/apply/credit-card',
     colorIndex: 4,
   },
   {
     icon: <Cog className="w-8 h-8" />,
     title: 'Machinery Loan (मशीनरी ऋण)',
     description: 'Nayi machinery kharidein aur apne production ko badhayein.',
-    targetPage: 'machineryLoan' as const,
+    href: '/apply/machinery-loan',
     colorIndex: 5,
   },
 ];
@@ -50,19 +45,19 @@ const otherServices = [
         icon: <LandPlot className="w-8 h-8" />,
         title: 'Government Schemes',
         description: 'Expert assistance for various government loan schemes like Mudra, PMEGP, etc.',
-        targetPage: 'governmentSchemes' as const,
+        href: '/services/government-schemes',
         colorIndex: 1,
     },
     {
         icon: <Building className="w-8 h-8" />,
         title: 'CA Services',
         description: 'GST, ITR filing, company incorporation, and other financial compliance services.',
-        targetPage: 'caServices' as const,
+        href: '/services/ca-services',
         colorIndex: 2,
     }
 ]
 
-export function ServicesSection({ setCurrentPage }: ServicesSectionProps) {
+export function ServicesSection() {
   return (
     <section id="services" className="py-16 md:py-20 bg-secondary/30">
       <div className="container mx-auto px-6 text-center">
@@ -76,8 +71,7 @@ export function ServicesSection({ setCurrentPage }: ServicesSectionProps) {
               title={service.title}
               description={service.description}
               colorIndex={service.colorIndex as 1 | 2 | 3 | 4 | 5}
-              targetPage={service.targetPage}
-              setCurrentPage={setCurrentPage}
+              href={service.href}
             />
           ))}
         </div>
@@ -92,8 +86,7 @@ export function ServicesSection({ setCurrentPage }: ServicesSectionProps) {
                         title={service.title}
                         description={service.description}
                         colorIndex={service.colorIndex as 1 | 2 | 3 | 4 | 5}
-                        targetPage={service.targetPage}
-                        setCurrentPage={setCurrentPage}
+                        href={service.href}
                     />
                 ))}
              </div>

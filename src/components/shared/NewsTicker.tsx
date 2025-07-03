@@ -12,26 +12,21 @@ export interface NewsTickerItem {
 
 interface NewsTickerProps {
   items: NewsTickerItem[];
-  onContainerClick: () => void;
 }
 
-export function NewsTicker({ items, onContainerClick }: NewsTickerProps) {
+export function NewsTicker({ items }: NewsTickerProps) {
   if (!items || items.length === 0) {
     return null;
   }
 
-  // The 'animation-play-state' property is not directly available in Tailwind by default, so we add a class
-  // `group-hover:[animation-play-state:paused]` which is a valid arbitrary property in modern Tailwind.
   return (
     <div
-      onClick={onContainerClick}
       className="group relative w-full cursor-pointer overflow-hidden"
       style={{
         maskImage: 'linear-gradient(to right, transparent, black 10%, black 90%, transparent)'
       }}
     >
       <div className="flex w-max animate-marquee group-hover:[animation-play-state:paused]">
-        {/* We duplicate the items to create a seamless loop */}
         {[...items, ...items].map((item, index) => {
           const Icon = item.icon;
           return (

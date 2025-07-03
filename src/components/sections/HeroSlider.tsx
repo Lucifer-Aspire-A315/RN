@@ -7,8 +7,8 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Users, Building, Percent, FileText, TrendingUp, Search, LineChart } from 'lucide-react';
 import { useElementInView } from '@/hooks/use-element-in-view';
-import type { PageView, SetPageView } from '@/app/page';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 const AnimatedStat = ({ title, endValue, duration = 2000, suffix = '', icon, delay }: { title: string, endValue: number, duration?: number, suffix?: string, icon: React.ReactNode, delay: number }) => {
   const [count, setCount] = useState(0);
@@ -58,11 +58,9 @@ const slides = [
     description: "Empowering your dreams with transparent, technology-driven financial services. From personal loans to business solutions, we're here to help you grow.",
     imageSrc: '/right-side.png',
     ctaButtonText: 'Explore Our Services',
-    ctaAction: 'scroll' as const,
-    ctaTarget: '#services',
+    ctaHref: '/services/loans',
     secondaryButtonText: 'How It Works',
-    secondaryAction: 'scroll' as const,
-    secondaryTarget: '#how-it-works',
+    secondaryHref: '/#how-it-works',
     stats: [
         { title: "Partner Banks & NBFCs", endValue: 150, suffix: "+", icon: <Building className="w-6 h-6" />, delay: 700 },
         { title: "Approval Rate", endValue: 98, suffix: "%", icon: <Percent className="w-6 h-6" />, delay: 900 },
@@ -75,11 +73,9 @@ const slides = [
     description: "Whether it's for a new home, a personal goal, or business expansion, find the perfect loan with competitive rates and easy processing.",
     imageSrc: '/hero-loan.png',
     ctaButtonText: 'View Loan Options',
-    ctaAction: 'scroll' as const,
-    ctaTarget: '#services',
+    ctaHref: '/services/loans',
     secondaryButtonText: 'EMI Calculator',
-    secondaryAction: 'scroll' as const,
-    secondaryTarget: '#calculator',
+    secondaryHref: '/#calculator',
   },
   {
     key: 'ca-services',
@@ -87,11 +83,9 @@ const slides = [
     description: "Stay compliant and focused on your business. We offer GST registration, ITR filing, and complete financial management services.",
     imageSrc: '/hero-ca.png',
     ctaButtonText: 'Explore CA Services',
-    ctaAction: 'setView' as const,
-    ctaTarget: 'caServices',
+    ctaHref: '/services/ca-services',
     secondaryButtonText: 'Contact Us',
-    secondaryAction: 'navigate' as const,
-    secondaryTarget: '/contact',
+    secondaryHref: '/contact',
   },
    {
     key: 'gov-schemes',
@@ -99,11 +93,9 @@ const slides = [
     description: "We provide expert guidance and assistance for a variety of government-backed loan schemes to empower entrepreneurs and small businesses.",
     imageSrc: '/hero-govt.png',
     ctaButtonText: 'View Schemes',
-    ctaAction: 'setView' as const,
-    ctaTarget: 'governmentSchemes',
+    ctaHref: '/services/government-schemes',
     secondaryButtonText: 'Learn More',
-    secondaryAction: 'scroll' as const,
-    secondaryTarget: '#how-it-works',
+    secondaryHref: '/#how-it-works',
   },
 ];
 
@@ -168,7 +160,7 @@ const ImagePresenter = ({ slide, isActive }: { slide: (typeof slides)[0], isActi
     }
 };
 
-const SlideContent = ({ slide, isActive, onNavClick }: { slide: (typeof slides)[0], isActive: boolean, onNavClick: (action: string, target: string) => void }) => {
+const SlideContent = ({ slide, isActive }: { slide: (typeof slides)[0], isActive: boolean }) => {
   return (
     <div className={cn("absolute inset-0 transition-opacity duration-1000 ease-in-out", isActive ? "opacity-100" : "opacity-0 pointer-events-none")}>
         <div className="container mx-auto px-6 relative z-10 h-full">
@@ -192,19 +184,19 @@ const SlideContent = ({ slide, isActive, onNavClick }: { slide: (typeof slides)[
                         style={{ animationDelay: '500ms', opacity: isActive ? 1 : 0 }}
                     >
                         <Button
+                            asChild
                             size="lg"
                             className="cta-button shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300"
-                            onClick={() => onNavClick(slide.ctaAction, slide.ctaTarget)}
                         >
-                            {slide.ctaButtonText}
+                            <Link href={slide.ctaHref}>{slide.ctaButtonText}</Link>
                         </Button>
                         <Button
+                            asChild
                             variant="ghost"
                             size="lg"
-                            onClick={() => onNavClick(slide.secondaryAction, slide.secondaryTarget)}
                             className="text-primary hover:text-primary hover:bg-primary/10"
                         >
-                            {slide.secondaryButtonText}
+                            <Link href={slide.secondaryHref}>{slide.secondaryButtonText}</Link>
                         </Button>
                     </div>
                     {slide.stats && (
@@ -224,36 +216,13 @@ const SlideContent = ({ slide, isActive, onNavClick }: { slide: (typeof slides)[
 };
 
 
-interface HeroSliderProps {
-    setCurrentPage: SetPageView;
-}
-
-export function HeroSlider({ setCurrentPage }: HeroSliderProps) {
+export function HeroSlider() {
   const [activeSlide, setActiveSlide] = useState(0);
-  const router = useRouter();
   const heroRef = useRef<HTMLDivElement>(null);
 
   const handleNext = useCallback(() => {
     setActiveSlide((prev) => (prev + 1) % slides.length);
   }, []);
-
-  const handleNavClick = (action: string, target: string) => {
-    switch (action) {
-      case 'setView':
-        setCurrentPage(target as PageView);
-        break;
-      case 'scroll':
-        const elementId = target.substring(1);
-        const element = document.getElementById(elementId);
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth' });
-        }
-        break;
-      case 'navigate':
-        router.push(target);
-        break;
-    }
-  };
 
   useEffect(() => {
     const timer = setInterval(handleNext, 7000);
@@ -304,7 +273,7 @@ export function HeroSlider({ setCurrentPage }: HeroSliderProps) {
       
         <div className="relative z-10 h-auto min-h-[700px] md:min-h-[600px]">
             {slides.map((slide, index) => (
-                <SlideContent key={slide.key} slide={slide} isActive={index === activeSlide} onNavClick={handleNavClick} />
+                <SlideContent key={slide.key} slide={slide} isActive={index === activeSlide} />
             ))}
         </div>
       

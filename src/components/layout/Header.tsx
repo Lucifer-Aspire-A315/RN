@@ -16,16 +16,11 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import type { PageView, SetPageView } from '@/app/page';
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from '@/contexts/AuthContext';
 import Image from 'next/image';
 
-interface HeaderProps {
-  setCurrentPage?: SetPageView;
-}
-
-export function Header({ setCurrentPage }: HeaderProps) {
+export function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const router = useRouter();
@@ -41,17 +36,16 @@ export function Header({ setCurrentPage }: HeaderProps) {
   }, []);
 
   const navLinks = [
-    { href: '/', label: 'Home', action: () => setCurrentPage?.('main') },
-    { href: '/#services', label: 'Services', action: () => setCurrentPage?.('main') },
-    { href: '/#calculator', label: 'Calculator', action: () => setCurrentPage?.('main') },
+    { href: '/', label: 'Home' },
+    { href: '/services/loans', label: 'Loans' },
+    { href: '/services/ca-services', label: 'CA Services' },
+    { href: '/services/government-schemes', label: 'Govt. Schemes' },
     { href: '/about', label: 'About Us' },
     { href: '/contact', label: 'Contact Us' },
   ];
-
-  const handleNavClick = (href: string, action?: () => void) => {
-    if (action) action();
+  
+  const handleNavClick = (href: string) => {
     setMobileMenuOpen(false);
-    
     if (href.startsWith('/#')) {
         const path = window.location.pathname;
         if (path === '/') {
@@ -89,7 +83,7 @@ export function Header({ setCurrentPage }: HeaderProps) {
   return (
     <header className={`bg-background/80 backdrop-blur-sm border-b border-border sticky top-0 z-50 transition-shadow duration-300 ${isScrolled ? 'shadow-md' : ''}`}>
       <nav className="w-full max-w-screen-2xl mx-auto px-6 sm:px-8 py-2 flex justify-between items-center">
-        <Link href="/" onClick={() => handleNavClick('/', () => setCurrentPage?.('main'))} className="flex-shrink-0 flex items-center gap-2 no-underline">
+        <Link href="/" onClick={() => handleNavClick('/')} className="flex-shrink-0 flex items-center gap-2 no-underline">
           <Image
             src="/rnfintech.png"
             alt="FinTech Logo"
@@ -101,8 +95,8 @@ export function Header({ setCurrentPage }: HeaderProps) {
         </Link>
         <div className="hidden md:flex items-center justify-center flex-grow space-x-3 lg:space-x-6">
           {navLinks.map(link => (
-            <Button variant="link" key={link.label} onClick={() => handleNavClick(link.href, link.action)} className={commonLinkClasses + " px-2"}>
-              {link.label}
+            <Button variant="link" asChild key={link.label} className={commonLinkClasses + " px-2"}>
+                <Link href={link.href}>{link.label}</Link>
             </Button>
           ))}
         </div>
@@ -187,7 +181,7 @@ export function Header({ setCurrentPage }: HeaderProps) {
               <SheetTitle className="sr-only">Menu</SheetTitle>
               <SheetDescription className="sr-only">Site navigation and user options</SheetDescription>
               <div className="p-6 border-b">
-                <Link href="/" onClick={() => handleNavClick('/', () => setCurrentPage?.('main'))} className="flex items-center gap-2 no-underline">
+                <Link href="/" onClick={() => handleNavClick('/')} className="flex items-center gap-2 no-underline">
                   <Image
                     src="/rnfintech.png"
                     alt="FinTech Logo"
@@ -201,9 +195,9 @@ export function Header({ setCurrentPage }: HeaderProps) {
               <nav className="flex flex-col py-2">
                 {navLinks.map(link => (
                    <SheetClose asChild key={link.label}>
-                    <button onClick={() => handleNavClick(link.href, link.action)} className={`${commonLinkClasses} ${mobileLinkClasses} text-left w-full`}>
-                      {link.label}
-                    </button>
+                        <Link href={link.href} className={`${commonLinkClasses} ${mobileLinkClasses} text-left w-full`}>
+                            {link.label}
+                        </Link>
                   </SheetClose>
                 ))}
                 <div className="border-t my-2 mx-6"></div>

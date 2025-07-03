@@ -1,77 +1,36 @@
 
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Home, User, Briefcase, CreditCardIcon, Cog } from 'lucide-react';
-import { HomeLoanApplicationForm } from '@/components/forms/HomeLoanApplicationForm';
-import { PersonalLoanApplicationForm } from '@/components/forms/PersonalLoanApplicationForm';
-import { BusinessLoanApplicationForm } from '@/components/forms/BusinessLoanApplicationForm';
-import { CreditCardApplicationForm } from '@/components/forms/CreditCardApplicationForm';
-import { MachineryLoanApplicationForm } from '../forms/MachineryLoanApplicationForm';
 
-type FormType = 'home' | 'personal' | 'business' | 'creditCard' | 'machinery';
+const loanOptions = [
+    { href: '/apply/home-loan', icon: Home, title: 'Home Loan', description: 'For property purchase or construction' },
+    { href: '/apply/personal-loan', icon: User, title: 'Personal Loan', description: 'For personal needs like weddings, travel' },
+    { href: '/apply/business-loan', icon: Briefcase, title: 'Business Loan', description: 'For business expansion or working capital' },
+    { href: '/apply/credit-card', icon: CreditCardIcon, title: 'Credit Card', description: 'Apply for a new credit card' },
+    { href: '/apply/machinery-loan', icon: Cog, title: 'Machinery Loan', description: 'Purchase new equipment for your business' }
+]
 
 export function PartnerLoanApplication() {
-    const [activeForm, setActiveForm] = useState<FormType | null>(null);
-
-    const handleBackToMenu = () => {
-        setActiveForm(null);
-    };
-
-    if (activeForm === 'home') {
-        return <HomeLoanApplicationForm onBack={handleBackToMenu} backButtonText="Back to Application Menu" />;
-    }
-    if (activeForm === 'personal') {
-        return <PersonalLoanApplicationForm onBack={handleBackToMenu} backButtonText="Back to Application Menu" />;
-    }
-    if (activeForm === 'business') {
-        return <BusinessLoanApplicationForm onBack={handleBackToMenu} backButtonText="Back to Application Menu" />;
-    }
-    if (activeForm === 'creditCard') {
-        return <CreditCardApplicationForm onBack={handleBackToMenu} backButtonText="Back to Application Menu" />;
-    }
-    if (activeForm === 'machinery') {
-        return <MachineryLoanApplicationForm onBack={handleBackToMenu} backButtonText="Back to Application Menu" />;
-    }
-
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Button onClick={() => setActiveForm('home')} size="lg" variant="outline" className="justify-start h-auto py-4">
-                <Home className="mr-4 h-6 w-6" />
-                <div>
-                    <p className="font-semibold">Home Loan</p>
-                    <p className="font-normal text-muted-foreground text-sm">For property purchase or construction</p>
-                </div>
-            </Button>
-            <Button onClick={() => setActiveForm('personal')} size="lg" variant="outline" className="justify-start h-auto py-4">
-                <User className="mr-4 h-6 w-6" />
-                 <div>
-                    <p className="font-semibold">Personal Loan</p>
-                    <p className="font-normal text-muted-foreground text-sm">For personal needs like weddings, travel</p>
-                </div>
-            </Button>
-            <Button onClick={() => setActiveForm('business')} size="lg" variant="outline" className="justify-start h-auto py-4">
-                <Briefcase className="mr-4 h-6 w-6" />
-                 <div>
-                    <p className="font-semibold">Business Loan</p>
-                    <p className="font-normal text-muted-foreground text-sm">For business expansion or working capital</p>
-                </div>
-            </Button>
-            <Button onClick={() => setActiveForm('creditCard')} size="lg" variant="outline" className="justify-start h-auto py-4">
-                <CreditCardIcon className="mr-4 h-6 w-6" />
-                 <div>
-                    <p className="font-semibold">Credit Card</p>
-                    <p className="font-normal text-muted-foreground text-sm">Apply for a new credit card</p>
-                </div>
-            </Button>
-            <Button onClick={() => setActiveForm('machinery')} size="lg" variant="outline" className="justify-start h-auto py-4">
-                <Cog className="mr-4 h-6 w-6" />
-                 <div>
-                    <p className="font-semibold">Machinery Loan</p>
-                    <p className="font-normal text-muted-foreground text-sm">Purchase new equipment for your business</p>
-                </div>
-            </Button>
+            {loanOptions.map(opt => {
+                const Icon = opt.icon;
+                return (
+                    <Button key={opt.href} asChild size="lg" variant="outline" className="justify-start h-auto py-4 text-left">
+                        <Link href={opt.href}>
+                             <Icon className="mr-4 h-6 w-6" />
+                            <div>
+                                <p className="font-semibold">{opt.title}</p>
+                                <p className="font-normal text-muted-foreground text-sm">{opt.description}</p>
+                            </div>
+                        </Link>
+                    </Button>
+                )
+            })}
         </div>
     );
 }

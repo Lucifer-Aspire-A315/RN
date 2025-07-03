@@ -4,11 +4,10 @@
 import type { UserData, UserApplication } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { PlusCircle } from 'lucide-react';
-import { PartnerNewApplicationPortal } from './PartnerNewApplicationPortal';
 import { ApplicationsTable } from './ApplicationsTable';
 import { Skeleton } from '../ui/skeleton';
+import Link from 'next/link';
 
 interface PartnerDashboardViewProps {
     user: UserData;
@@ -26,29 +25,6 @@ function ApplicationsTableSkeleton() {
     </div>
   );
 }
-
-const NewApplicationButton = ({ buttonText }: { buttonText: string }) => (
-    <Dialog>
-        <DialogTrigger asChild>
-            <Button>
-                <PlusCircle className="mr-2 h-4 w-4" />
-                {buttonText}
-            </Button>
-        </DialogTrigger>
-        <DialogContent className="max-w-5xl h-[90vh] flex flex-col">
-            <DialogHeader>
-                <DialogTitle>New Application Portal</DialogTitle>
-                <DialogDescription>
-                    Select a service below to start a new application for your client.
-                </DialogDescription>
-            </DialogHeader>
-            <div className="flex-grow overflow-y-auto -mx-6 px-6">
-                 <PartnerNewApplicationPortal />
-            </div>
-        </DialogContent>
-    </Dialog>
-);
-
 
 export function PartnerDashboard({ user, applications, isLoading }: PartnerDashboardViewProps) {
     if (!user.businessModel) {
@@ -77,7 +53,12 @@ export function PartnerDashboard({ user, applications, isLoading }: PartnerDashb
                     <h1 className="text-3xl font-bold tracking-tight text-foreground">{title}</h1>
                     <p className="text-muted-foreground">Welcome, {user.fullName}! Manage your partner activities here.</p>
                 </div>
-                <NewApplicationButton buttonText={buttonText} />
+                 <Button asChild>
+                    <Link href="/dashboard/new-application">
+                        <PlusCircle className="mr-2 h-4 w-4" />
+                        {buttonText}
+                    </Link>
+                </Button>
             </div>
             
             <Card>

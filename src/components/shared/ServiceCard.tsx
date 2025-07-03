@@ -1,16 +1,15 @@
 
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
-import type { SetPageView, PageView } from '@/app/page';
 import { cn } from '@/lib/utils';
+import Link from 'next/link';
 
 interface ServiceCardProps {
   icon: React.ReactNode;
   title: string;
   description: string;
   colorIndex: 1 | 2 | 3 | 4 | 5;
-  targetPage: PageView;
-  setCurrentPage: SetPageView;
+  href: string;
 }
 
 export function ServiceCard({
@@ -18,8 +17,7 @@ export function ServiceCard({
   title,
   description,
   colorIndex,
-  targetPage,
-  setCurrentPage,
+  href,
 }: ServiceCardProps) {
   const colors = {
     1: { shadow: 'group-hover:shadow-[0_0_20px_hsl(var(--chart-1))]', iconBg: 'bg-chart-1/10', iconText: 'text-chart-1', gradientFrom: 'from-chart-1/20' },
@@ -32,10 +30,10 @@ export function ServiceCard({
   const colorClasses = colors[colorIndex] || colors[1];
   
   return (
-    <div
-      onClick={() => setCurrentPage(targetPage)}
+    <Link
+      href={href}
       className={cn(
-        "group relative cursor-pointer overflow-hidden bg-card p-6 rounded-2xl shadow-lg flex flex-col text-center items-center border border-border/10 transition-all duration-300 hover:shadow-2xl hover:-translate-y-2"
+        "group relative cursor-pointer overflow-hidden bg-card p-6 rounded-2xl shadow-lg flex flex-col text-center items-center border border-border/10 transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 no-underline"
       )}
     >
       {/* New bottom-up gradient effect */}
@@ -70,6 +68,6 @@ export function ServiceCard({
             <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
           </Button>
       </div>
-    </div>
+    </Link>
   );
 }
