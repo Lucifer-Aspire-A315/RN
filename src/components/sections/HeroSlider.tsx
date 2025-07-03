@@ -36,7 +36,14 @@ const AnimatedStat = ({ title, endValue, duration = 2000, suffix = '', icon, del
   }, [inView, endValue, duration]);
 
   return (
-    <div ref={ref} className="flex items-center gap-3 animate-fade-in-up" style={{ animationDelay: `${delay}ms`, opacity: 0 }}>
+    <div 
+        ref={ref} 
+        className="flex items-center gap-3"
+        style={{
+          animation: inView ? `fade-in-up 0.8s ease-out ${delay}ms forwards` : 'none',
+          opacity: 0,
+        }}
+    >
       <div className="flex-shrink-0 bg-primary/10 p-3 rounded-full text-primary">
         {icon}
       </div>
@@ -109,7 +116,7 @@ const ImagePresenter = ({ slide, isActive }: { slide: (typeof slides)[0], isActi
                     </div>
                     <div className={cn("relative z-10 w-full max-w-xl", isActive ? "animate-float" : "")}>
                         <div className="relative w-full rounded-2xl bg-background/50 p-2 shadow-2xl backdrop-blur-sm">
-                            <Image src={slide.imageSrc} alt={slide.description} width={600} height={400} className={cn( "relative w-full h-auto object-contain rounded-lg transition-opacity duration-700", isActive ? "opacity-100" : "opacity-0" )} style={{ animation: isActive ? "fade-in-up 0.8s ease-out forwards" : "none", animationDelay: '400ms'}} priority={isActive} />
+                            <Image src={slide.imageSrc} alt={slide.description} width={600} height={400} className={cn( "relative w-full h-auto object-contain rounded-lg transition-opacity duration-700", isActive ? "opacity-100" : "opacity-0" )} style={{ animation: isActive ? "fade-in-up 0.8s ease-out 400ms forwards" : "none", opacity: 0}} priority={isActive} />
                         </div>
                         <div className={cn( "absolute -bottom-4 left-1/2 -translate-x-1/2 w-3/4 h-10 bg-black/30 rounded-full blur-2xl transition-opacity duration-700", isActive ? "opacity-100 animate-shadow-float" : "opacity-0" )} />
                     </div>
@@ -167,21 +174,21 @@ const SlideContent = ({ slide, isActive }: { slide: (typeof slides)[0], isActive
             <div className="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center h-full">
                 <div className="text-center lg:text-left">
                     <h1
-                        className={cn("text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-foreground tracking-tight", isActive ? "animate-fade-in-up" : "")}
-                        style={{ animationDelay: '100ms', opacity: isActive ? 1 : 0 }}
+                        className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-foreground tracking-tight"
+                        style={{ animation: isActive ? "fade-in-up 0.8s ease-out 100ms forwards" : "none", opacity: 0 }}
                     >
                         {slide.title}
                     </h1>
                     <p
-                        className={cn("mt-6 text-lg text-muted-foreground max-w-lg mx-auto lg:mx-0", isActive ? "animate-fade-in-up" : "")}
-                        style={{ animationDelay: '300ms', opacity: isActive ? 1 : 0 }}
+                        className="mt-6 text-lg text-muted-foreground max-w-lg mx-auto lg:mx-0"
+                        style={{ animation: isActive ? "fade-in-up 0.8s ease-out 300ms forwards" : "none", opacity: 0 }}
                     >
                         {slide.description}
                     </p>
                     
                     <div
-                        className={cn("mt-8 flex flex-col sm:flex-row justify-center lg:justify-start gap-4", isActive ? "animate-fade-in-up" : "")}
-                        style={{ animationDelay: '500ms', opacity: isActive ? 1 : 0 }}
+                        className="mt-8 flex flex-col sm:flex-row justify-center lg:justify-start gap-4"
+                        style={{ animation: isActive ? "fade-in-up 0.8s ease-out 500ms forwards" : "none", opacity: 0 }}
                     >
                         <Button
                             asChild
