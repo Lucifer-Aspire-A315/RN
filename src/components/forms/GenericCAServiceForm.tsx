@@ -102,6 +102,13 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
   
   const handleBackClick = onBack || (mode === 'edit' ? () => router.back() : undefined);
 
+  const onInvalid = () => {
+    toast({
+        variant: "destructive",
+        title: "Incomplete Form",
+        description: "Please review all steps for errors before submitting the application.",
+    });
+  };
 
   async function onSubmit(data: TData) {
     setIsSubmitting(true);
@@ -177,6 +184,7 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
         render={({ field }) => {
           switch (fieldConfig.type) {
             case 'file':
+              const { value, onChange, ...restOfField } = field;
               return (
                 <FormItem>
                   <FormLabel className="flex items-center">
@@ -186,14 +194,15 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
                   <FormControl>
                     <Input
                       type="file"
+                      {...restOfField}
+                      onChange={(event) => onChange(event.target.files?.[0] ?? null)}
                       accept={fieldConfig.accept || ".pdf,.jpg,.jpeg,.png"}
                       className="cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700"
-                      onChange={(e) => field.onChange(e.target.files ? e.target.files[0] : null)}
                     />
                   </FormControl>
-                  {field.value instanceof File && (
+                  {value instanceof File && (
                     <p className="text-xs text-muted-foreground mt-1">
-                      Selected: {field.value.name} ({(field.value.size / 1024).toFixed(2)} KB)
+                      Selected: {value.name} ({(value.size / 1024).toFixed(2)} KB)
                     </p>
                   )}
                   <FormMessage />
@@ -272,7 +281,7 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
           <FormProgress currentStep={currentStep} totalSteps={visibleSections.length} />
 
           <Form {...form}>
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-10">
+            <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-10">
               {visibleSections.map((section, idx) => (
                  <div key={idx} className={currentStep === idx ? 'block' : 'hidden'}>
                     <FormSection title={section.title} subtitle={section.subtitle}>

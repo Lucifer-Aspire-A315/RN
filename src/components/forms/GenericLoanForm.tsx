@@ -119,6 +119,13 @@ export function GenericLoanForm<TData extends Record<string, any>>({
 
   const handleBackClick = onBack || (mode === 'edit' ? () => router.back() : undefined);
 
+  const onInvalid = () => {
+    toast({
+        variant: "destructive",
+        title: "Incomplete Form",
+        description: "Please review all steps for errors before submitting the application.",
+    });
+  };
 
   async function onSubmit(data: TData) {
     setIsSubmitting(true);
@@ -348,7 +355,7 @@ export function GenericLoanForm<TData extends Record<string, any>>({
           <FormProgress currentStep={currentStep} totalSteps={visibleSections.length} />
 
           <Form {...form}>
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-10">
+            <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-10">
               {visibleSections.map((section, sectionIdx) => (
                   <div key={sectionIdx} className={currentStep === sectionIdx ? 'block' : 'hidden'}>
                     <FormSection title={section.title} subtitle={section.subtitle}>
