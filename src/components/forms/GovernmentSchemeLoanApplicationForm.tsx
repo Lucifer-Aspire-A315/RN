@@ -5,7 +5,7 @@ import React from 'react';
 import { GovernmentSchemeLoanApplicationSchema, type GovernmentSchemeLoanApplicationFormData } from '@/lib/schemas';
 import { FileText } from 'lucide-react';
 import { GenericLoanForm } from './GenericLoanForm';
-import { submitApplicationAction, updateApplicationAction } from '@/app/actions/applicationActions';
+import { submitApplicationAction } from '@/app/actions/applicationActions';
 import { updateGovernmentSchemeLoanApplicationAction } from '@/app/actions/governmentSchemeActions';
 
 interface GovernmentSchemeLoanApplicationFormProps {
@@ -74,9 +74,9 @@ const governmentSchemeSections = [
     title: "Upload Required Documents",
     subtitle: "File types allowed: PDF, Word, Excel, JPG, PNG. Max size: 10 MB per document.",
     fields: [
-      { name: "kycDocuments.aadhaarCard", label: "Aadhaar Card", type: "file", colSpan: 2 },
-      { name: "kycDocuments.panCard", label: "PAN Card", type: "file", colSpan: 2 },
-      { name: "kycDocuments.photograph", label: "Passport Size Photo", type: "file", colSpan: 2 },
+      { name: "documentUploads.aadhaarCard", label: "Aadhaar Card", type: "file", colSpan: 2 },
+      { name: "documentUploads.panCard", label: "PAN Card", type: "file", colSpan: 2 },
+      { name: "documentUploads.photograph", label: "Passport Size Photo", type: "file", colSpan: 2 },
       { name: "documentUploads.businessProof", label: "Business Proof (Udyam / Registration)", type: "file", colSpan: 2 },
       { name: "documentUploads.bankStatement", label: "Bank Statement (Last 6 Months)", type: "file", colSpan: 2, accept: ".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png" },
       { name: "documentUploads.casteCertificate", label: "Caste Certificate (if applicable)", type: "file", colSpan: 2 },
@@ -123,12 +123,10 @@ export function GovernmentSchemeLoanApplicationForm({ onBack, selectedScheme, ot
       loanAmountRequired: undefined,
       loanTenure: undefined,
     },
-    kycDocuments: {
+    documentUploads: {
       aadhaarCard: undefined,
       panCard: undefined,
       photograph: undefined,
-    },
-    documentUploads: {
       businessProof: undefined,
       bankStatement: undefined,
       casteCertificate: undefined,
