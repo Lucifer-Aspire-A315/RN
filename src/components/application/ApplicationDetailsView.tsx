@@ -5,7 +5,7 @@
 import React, { useState, useTransition, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { format } from 'date-fns';
-import { ArrowLeft, Loader2, FileText, Edit, Trash2, User, FileClock, Check, CircleX, Briefcase, Building, HandCoins, Info, Handshake } from 'lucide-react';
+import { ArrowLeft, Loader2, FileText, Edit, Trash2, User, FileClock, Check, CircleX, Briefcase, Building, HandCoins, Info, Handshake, Fingerprint } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -265,7 +265,7 @@ export function ApplicationDetailsView({ applicationId, serviceCategory, title, 
     };
 
     // Prepare data for rendering by destructuring and cleaning it up.
-    const { formData, submittedBy, createdAt, updatedAt } = applicationData;
+    const { formData, submittedBy, createdAt, updatedAt, partnerId } = applicationData;
     const applicationTypeInfo = applicationData.schemeNameForDisplay || applicationData.applicationType;
 
     // Isolate the applicant info, which can be under different keys inside formData
@@ -338,17 +338,18 @@ export function ApplicationDetailsView({ applicationId, serviceCategory, title, 
                  {submittedBy && (
                      <Card className="shadow-lg">
                         <CardHeader><CardTitle className="text-lg flex items-center gap-2"><Handshake className="w-5 h-5"/> Submitted By</CardTitle></CardHeader>
-                        <CardContent className="space-y-2 text-sm">
+                        <CardContent className="space-y-4 text-sm">
                            <DetailItem itemKey="Submitter Name" itemValue={submittedBy.userName} />
                            <DetailItem itemKey="Submitter Email" itemValue={submittedBy.userEmail} />
                            <DetailItem itemKey="Submitter Type" itemValue={submittedBy.userType} />
+                           {partnerId && <DetailItem itemKey="Partner ID" itemValue={partnerId} />}
                         </CardContent>
                     </Card>
                 )}
 
                  {isAdmin && (
                     <Card className="shadow-lg">
-                        <CardHeader><CardTitle>Admin Actions</CardTitle></CardHeader>
+                        <CardHeader><CardTitle className="text-lg flex items-center gap-2"><ShieldCheck className="w-5 h-5"/> Admin Actions</CardTitle></CardHeader>
                         <CardContent className="space-y-4">
                              <Select value={selectedStatus} onValueChange={setSelectedStatus}>
                                 <SelectTrigger><SelectValue placeholder="Select a status" /></SelectTrigger>
