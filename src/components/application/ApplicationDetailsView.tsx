@@ -48,6 +48,7 @@ const formatKey = (key: string) => {
     businessInformationGov: "Business Information",
     loanDetailsGov: "Loan Details",
     documentUploadsGov: "Document Uploads",
+    currentInvestmentsTypes: "Current Investment Types",
   };
 
   if (keyMappings[key]) {
@@ -87,6 +88,11 @@ const renderValue = (value: any) => {
       return format(date, 'PPp');
     } catch { return 'Invalid Date'; }
   }
+  
+  // Prevent rendering of objects by renderValue
+  if (typeof value === 'object' && value !== null && !(value instanceof Date)) {
+    return null;
+  }
 
   if (value === null || value === undefined || value === '') {
     return <span className="text-muted-foreground">N/A</span>;
@@ -94,11 +100,27 @@ const renderValue = (value: any) => {
   return String(value);
 };
 
-// Simplified component to render a single key-value pair.
+// Recursive component to render key-value pairs, including nested objects.
 const DetailItem = ({ itemKey, itemValue }: { itemKey: string; itemValue: any }) => {
     if (!hasVisibleContent(itemValue)) {
         return null;
     }
+    
+    // If the value is a non-array, non-special object, render its contents recursively.
+    if (typeof itemValue === 'object' && !Array.isArray(itemValue) && !(itemValue instanceof Date) && itemValue !== null && !(itemValue instanceof File)) {
+        return (
+            <div className="md:col-span-2 space-y-4">
+                <p className="font-semibold text-md text-foreground">{formatKey(itemKey)}</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 border-l-2 pl-4 ml-1 border-primary/20">
+                    {Object.entries(itemValue).map(([key, value]) => (
+                        <DetailItem key={key} itemKey={key} itemValue={value} />
+                    ))}
+                </div>
+            </div>
+        );
+    }
+    
+    // Original rendering for primitive values
     return (
         <div className="flex flex-col space-y-1.5">
             <dt className="text-sm font-medium text-muted-foreground">{formatKey(itemKey)}</dt>
@@ -376,6 +398,3 @@ export function ApplicationDetailsView({ applicationId, serviceCategory, title, 
     </>
   );
 }
-
-
-
