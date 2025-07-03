@@ -212,7 +212,7 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
                       {...restOfField}
                       onChange={(event) => onChange(event.target.files?.[0] ?? null)}
                       accept={fieldConfig.accept || ".pdf,.jpg,.jpeg,.png"}
-                      className="cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700"
+                      className="cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700 file:text-transparent"
                     />
                   </FormControl>
                   {value instanceof File && (

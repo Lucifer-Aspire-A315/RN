@@ -5,7 +5,7 @@
 import React, { useState, useTransition, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { format } from 'date-fns';
-import { ArrowLeft, Loader2, FileText, Edit, Trash2, User, FileClock, Check, CircleX, Briefcase, Building, HandCoins, Info } from 'lucide-react';
+import { ArrowLeft, Loader2, FileText, Edit, Trash2, User, FileClock, Check, CircleX, Briefcase, Building, HandCoins, Info, Handshake } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -347,13 +347,22 @@ export function ApplicationDetailsView({ applicationId, serviceCategory, title, 
             {/* Right Column - Details */}
             <div className="lg:col-span-2 space-y-6">
                 
-                {/* Applicant & Submitter Info Card */}
-                {(applicantInfoFromForm || submittedBy) && (
+                {/* Applicant Info Card */}
+                {applicantInfoFromForm && (
                      <Card className="shadow-sm">
-                        <CardHeader><CardTitle className="text-lg flex items-center gap-2"><User className="w-5 h-5"/> Applicant & Submitter Info</CardTitle></CardHeader>
+                        <CardHeader><CardTitle className="text-lg flex items-center gap-2"><User className="w-5 h-5"/> Applicant Information</CardTitle></CardHeader>
                         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 pt-0">
-                             {applicantInfoFromForm && Object.entries(applicantInfoFromForm).map(([key, value]) => (<DetailItem key={key} itemKey={key} itemValue={value} />))}
-                             {submittedBy && Object.entries(submittedBy).map(([key, value]) => (<DetailItem key={`submitter_${key}`} itemKey={`Submitter ${formatKey(key)}`} itemValue={value} />))}
+                             {Object.entries(applicantInfoFromForm).map(([key, value]) => (<DetailItem key={key} itemKey={key} itemValue={value} />))}
+                        </CardContent>
+                    </Card>
+                )}
+                
+                {/* Submitter Info Card */}
+                {submittedBy && (
+                     <Card className="shadow-sm">
+                        <CardHeader><CardTitle className="text-lg flex items-center gap-2"><Handshake className="w-5 h-5"/> Submitter Information</CardTitle></CardHeader>
+                        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 pt-0">
+                             {Object.entries(submittedBy).map(([key, value]) => (<DetailItem key={`submitter_${key}`} itemKey={`Submitter ${formatKey(key)}`} itemValue={value} />))}
                         </CardContent>
                     </Card>
                 )}
