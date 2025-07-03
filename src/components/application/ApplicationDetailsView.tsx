@@ -257,13 +257,14 @@ export function ApplicationDetailsView({ applicationId, serviceCategory, title, 
     const applicationTypeInfo = applicationData.schemeNameForDisplay || applicationData.applicationType;
 
     // Isolate the applicant info, which can be under different keys inside formData
-    const applicantInfoFromForm = formData.applicantDetails || formData.applicantDetailsGov || formData.applicantFounderDetails;
+    const applicantInfoFromForm = formData.personalDetails || formData.applicantDetails || formData.applicantDetailsGov || formData.applicantFounderDetails;
     
     // Get the display name, checking for `fullName` or `name` as a fallback.
     const applicantDisplayName = applicationData.applicantDetails?.fullName || applicantInfoFromForm?.fullName || applicantInfoFromForm?.name || 'N/A';
     
     // Create a new object for the rest of the form data to avoid mutating the original
     const otherFormData = {...formData};
+    delete otherFormData.personalDetails;
     delete otherFormData.applicantDetails;
     delete otherFormData.applicantDetailsGov;
     delete otherFormData.applicantFounderDetails;

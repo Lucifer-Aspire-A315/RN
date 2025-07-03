@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import React, { useState, useMemo, useEffect } from 'react';
@@ -141,7 +142,7 @@ export function GenericLoanForm<TData extends Record<string, any>>({
       
       let result: ServerActionResponse;
       if (mode === 'edit' && applicationId && updateAction) {
-          result = await updateAction(applicationId, { formData: payloadForServer });
+          result = await updateAction(applicationId, payloadForServer);
       } else {
           result = await submitAction(payloadForServer);
       }
