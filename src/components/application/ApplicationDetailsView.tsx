@@ -1,11 +1,10 @@
 
-
 'use client';
 
 import React, { useState, useTransition, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { format } from 'date-fns';
-import { ArrowLeft, Loader2, FileText, Edit, Trash2, User, FileClock, Check, CircleX, Briefcase, Building, HandCoins, Info, Handshake, Fingerprint } from 'lucide-react';
+import { ArrowLeft, Loader2, FileText, Edit, Trash2, User, FileClock, Check, CircleX, Briefcase, Building, HandCoins, Info, Handshake, Fingerprint, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -110,7 +109,7 @@ const DetailItem = ({ itemKey, itemValue }: { itemKey: string; itemValue: any })
     if (typeof itemValue === 'object' && !Array.isArray(itemValue) && !(itemValue instanceof Date) && itemValue !== null && !(itemValue instanceof File)) {
         const title = formatKey(itemKey);
         // Only render a sub-section card if it's not the main form data or personal details which get special cards
-        if (itemKey !== 'formData' && itemKey !== 'personalDetails') {
+        if (itemKey !== 'formData' && itemKey !== 'personalDetails' && itemKey !== 'applicantDetailsGov' && itemKey !== 'applicantFounderDetails') {
             return (
                 <div className="md:col-span-2 space-y-4">
                     <p className="font-semibold text-md text-foreground">{title}</p>
@@ -272,7 +271,7 @@ export function ApplicationDetailsView({ applicationId, serviceCategory, title, 
     const applicantInfoFromForm = formData.personalDetails || formData.applicantDetails || formData.applicantDetailsGov || formData.applicantFounderDetails;
     
     // Get the display name, checking for `fullName` or `name` as a fallback.
-    const applicantDisplayName = applicationData.applicantDetails?.fullName || applicantInfoFromForm?.fullName || applicantInfoFromForm?.name || 'N/A';
+    const applicantDisplayName = applicationData.applicantDetails?.fullName || applicantInfoFromForm?.fullName || 'N/A';
     
     // Create a new object for the rest of the form data to avoid mutating the original
     const otherFormData = {...formData};
