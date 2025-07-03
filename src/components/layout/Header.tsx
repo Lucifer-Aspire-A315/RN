@@ -119,7 +119,7 @@ export function Header() {
   };
   
   const commonLinkClasses = "text-primary hover:text-primary/80 transition-colors font-semibold no-underline";
-  const mobileLinkClasses = "block py-3 px-6 text-lg hover:bg-secondary/40";
+  const mobileLinkClasses = "flex items-center py-3 px-6 text-lg hover:bg-secondary/40";
 
   return (
     <header className={`bg-background/80 backdrop-blur-sm border-b border-border sticky top-0 z-50 transition-shadow duration-300 ${isScrolled ? 'shadow-md' : ''}`}>
@@ -194,7 +194,7 @@ export function Header() {
               </DropdownMenu>
             ) : (
               <>
-                <Button variant="outline" onClick={() => openAuthModal('login')} className="font-bold border-primary text-primary hover:bg-accent hover:text-accent-foreground hover:border-accent transition-transform duration-200 hover:-translate-y-0.5 hover:shadow-md">Login</Button>
+                <Button variant="outline" onClick={() => openAuthModal('login')} className="font-bold border-primary text-primary hover:text-primary transition-transform duration-200 hover:-translate-y-0.5 hover:shadow-md">Login</Button>
                 <Button onClick={() => openAuthModal('signup')} className="transition-transform duration-200 hover:-translate-y-0.5 hover:shadow-md">Sign Up</Button>
               </>
             )}
@@ -232,7 +232,7 @@ export function Header() {
                       </AccordionItem>
                     ) : (
                       <SheetClose asChild key={link.label}>
-                        <Link href={link.href!} className={`${commonLinkClasses} ${mobileLinkClasses} text-left w-full border-b`}>{link.label}</Link>
+                        <Link href={link.href!} className={`${commonLinkClasses} flex items-center py-3 px-6 text-lg hover:bg-secondary/40 text-left w-full border-b`}>{link.label}</Link>
                       </SheetClose>
                     )
                   )}

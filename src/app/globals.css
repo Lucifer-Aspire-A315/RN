@@ -22,8 +22,8 @@
     --muted: 135 18% 80%;
     --muted-foreground: 168 10% 40%;
 
-    --accent: 16 89% 62%;             /* #F26A4B */
-    --accent-foreground: 0 0% 100%;
+    --accent: 45 93% 58%;             /* #FAD74A */
+    --accent-foreground: 168 10% 18%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
@@ -72,8 +72,8 @@
     --muted: 217.2 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;
 
-    --accent: 286.9 83.3% 58.6%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 45 93% 58%;
+    --accent-foreground: 222.2 84% 4.9%;
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
@@ -111,27 +111,4 @@
   * {
     @apply border-border;
   }
-
-  input::-webkit-outer-spin-button,
-  input::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-  }
-
-  input[type=number] {
-    -moz-appearance: textfield;
-  }
-}
-
-@layer utilities {
-    .cta-button {
-      @apply transition-transform duration-200 hover:-translate-y-0.5 hover:shadow-lg;
-    }
-    .hero-interactive-glow {
-        background-image: radial-gradient(
-            800px circle at var(--cursor-x) var(--cursor-y),
-            hsl(var(--accent) / 0.15),
-            transparent 40%
-        );
-    }
 }
