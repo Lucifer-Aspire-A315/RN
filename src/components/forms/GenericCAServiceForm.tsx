@@ -15,7 +15,6 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from '@/contexts/AuthContext';
 import { ArrowLeft, Loader2, UploadCloud } from 'lucide-react';
 import { FormSection, FormFieldWrapper } from './FormSection';
-import { processNestedFileUploads } from '@/lib/form-helpers';
 import { useRouter } from 'next/navigation';
 import { FormProgress } from '../shared/FormProgress';
 
@@ -39,6 +38,11 @@ interface SectionConfig {
   fields: FieldConfig[];
 }
 
+interface DeclarationConfig {
+  label: string;
+  description: string;
+}
+
 interface GenericCAServiceFormProps<T extends Record<string, any>> {
   onBack?: () => void;
   formTitle: string;
@@ -51,6 +55,7 @@ interface GenericCAServiceFormProps<T extends Record<string, any>> {
   updateAction?: (applicationId: string, data: any) => Promise<{ success: boolean; message: string; errors?: Record<string, string[]> }>;
   mode?: 'create' | 'edit';
   applicationId?: string;
+  declarationConfig?: DeclarationConfig;
 }
 
 export function GenericCAServiceForm<TData extends Record<string, any>>({
@@ -65,12 +70,15 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
   updateAction,
   mode = 'create',
   applicationId,
+  declarationConfig,
 }: GenericCAServiceFormProps<TData>) {
   const { toast } = useToast();
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { currentUser } = useAuth();
   const [currentStep, setCurrentStep] = useState(0);
+  const [isDeclared, setIsDeclared] = useState(!declarationConfig);
+
 
   const form = useForm<TData>({
     resolver: zodResolver(schema),
@@ -119,13 +127,12 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
     }
 
     try {
-      const dataToSubmit = await processNestedFileUploads(JSON.parse(JSON.stringify(data)));
       
       let result;
       if (mode === 'edit' && applicationId && updateAction) {
-        result = await updateAction(applicationId, dataToSubmit);
+        result = await updateAction(applicationId, data);
       } else {
-        result = await submitAction(dataToSubmit);
+        result = await submitAction(data);
       }
 
       if (result.success) {
@@ -205,6 +212,11 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
                       Selected: {value.name} ({(value.size / 1024).toFixed(2)} KB)
                     </p>
                   )}
+                   {typeof value === 'string' && value.startsWith('http') && (
+                      <p className="text-xs text-muted-foreground mt-1">
+                        <a href={value} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">View current file</a>
+                      </p>
+                    )}
                   <FormMessage />
                 </FormItem>
               );
@@ -299,6 +311,21 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
                     </FormSection>
                 </div>
               ))}
+              
+              {currentStep === visibleSections.length - 1 && declarationConfig && (
+                <div className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 shadow-sm mt-6">
+                    <Checkbox id="declaration-checkbox" checked={isDeclared} onCheckedChange={(checked) => setIsDeclared(!!checked)} />
+                    <div className="space-y-1 leading-none">
+                        <label htmlFor="declaration-checkbox" className="font-medium cursor-pointer">
+                            {declarationConfig.label}
+                        </label>
+                        <p className="text-xs text-muted-foreground">
+                            {declarationConfig.description}
+                        </p>
+                    </div>
+                </div>
+              )}
+
               <div className="mt-8 pt-6 border-t border-border flex justify-between items-center">
                 <div>
                     {currentStep > 0 && (
@@ -314,7 +341,7 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
                         </Button>
                     )}
                     {currentStep === visibleSections.length - 1 && (
-                        <Button type="submit" className="w-full md:w-auto cta-button" size="lg" disabled={isSubmitting}>
+                        <Button type="submit" className="w-full md:w-auto cta-button" size="lg" disabled={isSubmitting || !isDeclared}>
                             {isSubmitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> {mode === 'edit' ? 'Updating...' : 'Submitting...'}</> : (mode === 'edit' ? 'Update Application' : 'Submit Application')}
                         </Button>
                     )}

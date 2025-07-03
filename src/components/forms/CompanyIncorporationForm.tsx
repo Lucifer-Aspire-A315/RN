@@ -87,12 +87,6 @@ const companyIncorporationSections = [
             { name: "optionalServices.openBusinessBankAccount", label: "Opening Business Bank Account", type: "checkbox", colSpan: 2 },
             { name: "optionalServices.accountingTaxSetup", label: "Accounting & Tax Filing Setup", type: "checkbox", colSpan: 2 },
         ]
-    },
-    {
-        title: "Declaration",
-        fields: [
-            { name: "declaration", label: "I hereby declare that the details and documents submitted are true and correct. I authorize RN FinTech to initiate the company registration process on my behalf.", type: "checkbox", colSpan: 2 },
-        ]
     }
 ];
 
@@ -141,7 +135,11 @@ export function CompanyIncorporationForm({ onBack, initialData, applicationId, m
         openBusinessBankAccount: false,
         accountingTaxSetup: false,
     },
-    declaration: false,
+  };
+
+  const declarationConfig = {
+    label: "Declaration and Undertaking",
+    description: "I hereby declare that the details and documents submitted are true and correct. I authorize RN FinTech to initiate the company registration process on my behalf."
   };
 
   return (
@@ -157,6 +155,7 @@ export function CompanyIncorporationForm({ onBack, initialData, applicationId, m
         updateAction={updateCAServiceApplicationAction}
         applicationId={applicationId}
         mode={mode}
+        declarationConfig={declarationConfig}
     />
   );
 }

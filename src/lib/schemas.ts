@@ -51,10 +51,6 @@ export const AddressSchema = z.object({
 });
 export type AddressFormData = z.infer<typeof AddressSchema>;
 
-export const CreditCardAddressSchema = z.object({
-  currentAddress: z.string().min(1, "Current address is required"),
-});
-
 export const KycDocumentsSchema = z.object({
   panCard: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES).refine(val => val, { message: "PAN Card is required." }),
   aadhaarCard: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES).refine(val => val, { message: "Aadhaar Card is required." }),
@@ -114,12 +110,11 @@ const HomeLoanDocumentUploadsSchema = z.object({
   allotmentLetter: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES).optional(),
   employmentProof: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES),
   existingLoanStatement: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES).optional(),
-});
+}).merge(KycDocumentsSchema);
 
 export const HomeLoanApplicationSchema = z.object({
   personalDetails: PersonalDetailsSchema,
   addressDetails: AddressSchema,
-  kycDocuments: KycDocumentsSchema,
   employmentIncome: EmploymentIncomeSchema,
   loanPropertyDetails: HomeLoanPropertyDetailsSchema,
   existingLoans: ExistingLoansSchema.optional(),
@@ -161,12 +156,11 @@ const PersonalLoanDocumentUploadsSchema = z.object({
   bankStatement: stringOrFileSchema(ACCEPTED_BANK_STATEMENT_TYPES),
   employmentProof: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES),
   existingLoanStatement: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES).optional(),
-});
+}).merge(KycDocumentsSchema);
 
 export const PersonalLoanApplicationSchema = z.object({
   personalDetails: PersonalDetailsSchema,
   addressDetails: AddressSchema,
-  kycDocuments: KycDocumentsSchema,
   employmentIncome: EmploymentIncomeSchema,
   loanDetails: PersonalLoanDetailsSchema,
   existingLoans: ExistingLoansSchema.optional(),
@@ -223,12 +217,11 @@ const BusinessLoanDocumentUploadsSchema = z.object({
   balanceSheetAndPL: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES),
   existingLoanStatement: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES).optional(),
   machineryQuotation: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES).optional(),
-});
+}).merge(KycDocumentsSchema);
 
 export const BusinessLoanApplicationSchema = z.object({
   personalDetails: PersonalDetailsSchema,
   businessDetails: BusinessDetailsSchema,
-  kycDocuments: KycDocumentsSchema,
   loanDetails: BusinessLoanDetailsSchema,
   existingLoans: ExistingLoansSchema.optional(),
   documentUploads: BusinessLoanDocumentUploadsSchema.optional(),
@@ -248,6 +241,10 @@ export type BusinessLoanApplicationFormData = z.infer<typeof BusinessLoanApplica
 // #endregion
 
 // #region --- CREDIT CARD ---
+
+const CreditCardAddressSchema = z.object({
+  currentAddress: z.string().min(1, "Current address is required"),
+});
 
 const CreditCardPreferencesSchema = z.object({
   preferredCardType: z.enum(["basic", "rewards", "travel", "business", "other"], { required_error: "Preferred card type is required" }),
@@ -274,12 +271,11 @@ const CreditCardDocumentUploadsSchema = z.object({
   bankStatement: stringOrFileSchema(ACCEPTED_BANK_STATEMENT_TYPES),
   employmentProof: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES),
   existingCreditCardStatement: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES).optional(),
-});
+}).merge(KycDocumentsSchema);
 
 export const CreditCardApplicationSchema = z.object({
   personalDetails: PersonalDetailsSchema,
   addressDetails: CreditCardAddressSchema,
-  kycDocuments: KycDocumentsSchema,
   employmentIncome: EmploymentIncomeSchema,
   creditCardPreferences: CreditCardPreferencesSchema,
   documentUploads: CreditCardDocumentUploadsSchema.optional(),
@@ -305,12 +301,11 @@ const MachineryLoanDocumentUploadsSchema = z.object({
   bankStatement: stringOrFileSchema(ACCEPTED_BANK_STATEMENT_TYPES),
   itrLast2Years: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES),
   existingLoanStatement: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES).optional(),
-});
+}).merge(KycDocumentsSchema);
 
 export const MachineryLoanApplicationSchema = z.object({
   personalDetails: PersonalDetailsSchema,
   businessDetails: BusinessDetailsSchema,
-  kycDocuments: KycDocumentsSchema,
   machineryLoanDetails: MachineryLoanDetailsSchema,
   existingLoans: ExistingLoansSchema.optional(),
   documentUploads: MachineryLoanDocumentUploadsSchema.optional(),
@@ -372,14 +367,13 @@ export const GovernmentSchemeDocumentUploadsSchema = z.object({
   incomeCertificate: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES).optional(),
   projectReport: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES).optional(),
   existingLoanStatement: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES).optional(),
-});
+}).merge(KycDocumentsSchema);
 
 export const GovernmentSchemeLoanApplicationSchema = z.object({
   personalDetails: GovernmentSchemePersonalDetailsSchema,
   addressInformation: GovernmentSchemeAddressSchema,
   businessInformation: GovernmentSchemeBusinessInfoSchema,
   loanDetails: GovernmentSchemeLoanDetailsSchema,
-  kycDocuments: KycDocumentsSchema,
   documentUploads: GovernmentSchemeDocumentUploadsSchema.optional(),
 });
 export type GovernmentSchemeLoanApplicationFormData = z.infer<typeof GovernmentSchemeLoanApplicationSchema>;
@@ -581,9 +575,6 @@ export const CompanyIncorporationFormSchema = z.object({
   kycDocuments: KycDocumentsSchema,
   documentUploads: IncorporationDocumentUploadsSchema.optional(),
   optionalServices: IncorporationOptionalServicesSchema.optional(),
-  declaration: z.boolean().refine(val => val === true, {
-    message: "You must accept the declaration to proceed."
-  }),
 });
 export type CompanyIncorporationFormData = z.infer<typeof CompanyIncorporationFormSchema>;
 
@@ -718,7 +709,7 @@ const referralPartnerSchema = z.object({
 
 const dsaPartnerSchema = z.object({
   businessModel: z.literal('dsa'),
-  personalDetails: PersonalDetailsSchema.merge(AddressSchema),
+  personalDetails: PersonalDetailsSchema,
   professionalFinancial: z.object({
     highestQualification: z.string().min(1, "Highest qualification is required"),
     presentOccupation: z.string().min(1, "Present occupation is required"),
@@ -738,8 +729,10 @@ const dsaPartnerSchema = z.object({
       creditCard: z.boolean().default(false),
     }).refine(data => Object.values(data).some(v => v), { message: 'Select at least one product of interest', path: ['homeLoan'] }),
   }),
-  kycDocuments: KycDocumentsSchema,
-  documentUploads: z.object({
+  dsaDocumentUploads: z.object({
+    panCard: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES).refine(val => val, { message: "PAN Card is required." }),
+    aadhaarCard: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES).refine(val => val, { message: "Aadhaar Card is required." }),
+    photograph: stringOrFileSchema(ACCEPTED_IMAGE_TYPES).refine(val => val, { message: "Photograph is required." }),
     bankStatement: stringOrFileSchema(ACCEPTED_BANK_STATEMENT_TYPES),
   }),
   declaration: z.boolean().refine(v => v === true, { message: 'You must agree to the declaration.' }),
@@ -763,10 +756,12 @@ const merchantPartnerSchema = z.object({
         )
     ),
   }),
-  kycDocuments: KycDocumentsSchema,
-  documentUploads: z.object({
-      gstCertificate: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES),
-      businessRegistration: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES),
+  merchantDocumentUploads: z.object({
+    panCard: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES).refine(val => val, { message: "Proprietor's PAN Card is required." }),
+    aadhaarCard: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES).refine(val => val, { message: "Proprietor's Aadhaar Card is required." }),
+    photograph: stringOrFileSchema(ACCEPTED_IMAGE_TYPES).refine(val => val, { message: "Proprietor's Photograph is required." }),
+    gstCertificate: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES),
+    businessRegistration: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES),
   }),
   declaration: z.boolean().refine(v => v === true, { message: 'You must agree to the declaration.' }),
 }).merge(passwordSchema);
