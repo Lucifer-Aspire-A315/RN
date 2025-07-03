@@ -44,7 +44,8 @@ export async function submitApplicationAction(
     
     const { fullName: applicantFullName, email: applicantEmail } = personalDetails;
     
-    const processedFormData = await processNestedFileUploads(formData);
+    // File processing is now expected to be done on the client before calling this action.
+    // The `formData` received here should already have URLs instead of File objects.
 
     const applicationData = {
       applicantDetails: {
@@ -62,7 +63,7 @@ export async function submitApplicationAction(
       applicationType,
       serviceCategory,
       ...(schemeNameForDisplay && { schemeNameForDisplay }),
-      formData: processedFormData,
+      formData: formData, // Use the client-processed formData directly
       status: 'submitted',
       createdAt: Timestamp.now(),
       updatedAt: Timestamp.now(),
@@ -181,10 +182,8 @@ export async function updateApplicationAction(
 
     const payloadForServer = JSON.parse(JSON.stringify(data));
     
-    // Process all file uploads recursively within the formData
-    if (payloadForServer.formData) {
-        payloadForServer.formData = await processNestedFileUploads(payloadForServer.formData);
-    }
+    // File processing is now expected to be done on the client before calling this action.
+    // The data received here should already have URLs instead of File objects.
     
     const applicantUserId = submitterType === 'normal' ? submitterId : null;
 
