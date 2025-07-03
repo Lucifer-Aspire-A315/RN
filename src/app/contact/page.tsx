@@ -28,8 +28,8 @@ export default function ContactUsPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 text-center">
                 {/* Email Card */}
                 <div className="flex flex-col items-center">
-                   <div className="flex-shrink-0 bg-accent/10 p-4 rounded-full">
-                    <Mail className="w-8 h-8 text-accent" />
+                   <div className="flex-shrink-0 bg-primary/10 p-4 rounded-full">
+                    <Mail className="w-8 h-8 text-primary" />
                   </div>
                   <h3 className="text-xl font-semibold mt-4">Email Us</h3>
                   <p className="text-muted-foreground mt-1">For inquiries, support, & feedback.</p>
@@ -38,8 +38,8 @@ export default function ContactUsPage() {
                 
                 {/* Phone Card */}
                  <div className="flex flex-col items-center">
-                   <div className="flex-shrink-0 bg-accent/10 p-4 rounded-full">
-                    <Phone className="w-8 h-8 text-accent" />
+                   <div className="flex-shrink-0 bg-primary/10 p-4 rounded-full">
+                    <Phone className="w-8 h-8 text-primary" />
                   </div>
                   <h3 className="text-xl font-semibold mt-4">Call Us</h3>
                   <p className="text-muted-foreground mt-1">Talk to our experts directly.</p>
@@ -48,8 +48,8 @@ export default function ContactUsPage() {
 
                 {/* Office Card */}
                  <div className="flex flex-col items-center sm:col-span-2 md:col-span-1">
-                   <div className="flex-shrink-0 bg-accent/10 p-4 rounded-full">
-                    <Building className="w-8 h-8 text-accent" />
+                   <div className="flex-shrink-0 bg-primary/10 p-4 rounded-full">
+                    <Building className="w-8 h-8 text-primary" />
                   </div>
                   <h3 className="text-xl font-semibold mt-4">Our Office</h3>
                   <p className="text-muted-foreground mt-1">Visit for a personal consultation.</p>

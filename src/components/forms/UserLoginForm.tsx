@@ -124,7 +124,7 @@ export function UserLoginForm() {
             </p>
             <p className="text-sm text-muted-foreground text-center">
                 Are you a partner?{' '}
-                <Link href="/partner-login" className="font-medium text-accent hover:underline">
+                <Link href="/partner-login" className="font-medium text-secondary-foreground hover:text-primary transition-colors">
                 Partner Login
                 </Link>
             </p>

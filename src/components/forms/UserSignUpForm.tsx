@@ -162,7 +162,7 @@ export function UserSignUpForm() {
         </p>
         <p className="text-sm text-muted-foreground text-center">
             Want to become a partner?{' '}
-            <Link href="/partner-signup" className="font-medium text-accent hover:underline">
+            <Link href="/partner-signup" className="font-medium text-secondary-foreground hover:text-primary transition-colors">
             Partner Sign-up
             </Link>
         </p>

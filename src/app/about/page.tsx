@@ -31,12 +31,12 @@ export default function AboutUsPage() {
 
               <div className="grid md:grid-cols-2 gap-8 text-center">
                 <div className="p-6 bg-background rounded-lg border">
-                  <Target className="w-12 h-12 mx-auto text-accent" />
+                  <Target className="w-12 h-12 mx-auto text-primary" />
                   <h3 className="text-xl font-semibold mt-4">Our Mission</h3>
                   <p className="mt-2 text-muted-foreground">To make financial services accessible and understandable for everyone, using technology to create a seamless and user-friendly experience.</p>
                 </div>
                 <div className="p-6 bg-background rounded-lg border">
-                  <ShieldCheck className="w-12 h-12 mx-auto text-accent" />
+                  <ShieldCheck className="w-12 h-12 mx-auto text-primary" />
                   <h3 className="text-xl font-semibold mt-4">Our Commitment</h3>
                   <p className="mt-2 text-muted-foreground">We are dedicated to maintaining the highest standards of integrity, transparency, and security, ensuring your data and financial well-being are always protected.</p>
                 </div>

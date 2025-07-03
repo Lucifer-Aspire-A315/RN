@@ -69,7 +69,7 @@ const slides = [
   },
   {
     key: 'loans',
-    title: <>Flexible Loans for <br /><span className="text-accent">Every Need</span></>,
+    title: <>Flexible Loans for <br /><span className="text-primary">Every Need</span></>,
     description: "Whether it's for a new home, a personal goal, or business expansion, find the perfect loan with competitive rates and easy processing.",
     imageSrc: '/hero-loan.png',
     ctaButtonText: 'View Loan Options',
@@ -132,8 +132,8 @@ const ImagePresenter = ({ slide, isActive }: { slide: (typeof slides)[0], isActi
                     <div className={cn("absolute w-full max-w-md h-80 bg-primary/10 rounded-2xl shadow-lg transition-transform duration-1000", isActive ? "rotate-[-6deg] scale-100" : "rotate-0 scale-90")}>
                          <TrendingUp className="absolute bottom-4 right-4 w-12 h-12 text-primary/30" />
                     </div>
-                    <div className={cn("absolute w-full max-w-md h-80 bg-accent/10 rounded-2xl shadow-lg transition-transform duration-1000 delay-100", isActive ? "rotate-[4deg] scale-100" : "rotate-0 scale-90")}>
-                        <FileText className="absolute top-4 left-4 w-12 h-12 text-accent/30" />
+                    <div className={cn("absolute w-full max-w-md h-80 bg-blue-500/10 rounded-2xl shadow-lg transition-transform duration-1000 delay-100", isActive ? "rotate-[4deg] scale-100" : "rotate-0 scale-90")}>
+                        <FileText className="absolute top-4 left-4 w-12 h-12 text-blue-500/30" />
                     </div>
                     <div className={cn("relative z-10 w-full max-w-md h-80 bg-card rounded-2xl p-2 shadow-2xl transition-transform duration-1000 delay-200", isActive ? "rotate-[0] scale-100" : "rotate-0 scale-90")}>
                          <Image src={slide.imageSrc} alt={slide.description} layout="fill" objectFit="cover" className="rounded-lg" priority={isActive} />
