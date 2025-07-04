@@ -34,7 +34,7 @@ const ContactInfoCard = ({
     <CardContent>
       <div className="text-muted-foreground min-h-[40px]">{description}</div>
       <Button asChild variant="link" className="mt-4 text-primary">
-        <a href={href}>{linkText}</a>
+        <a href={href} target="_blank" rel="noopener noreferrer">{linkText}</a>
       </Button>
     </CardContent>
   </Card>
