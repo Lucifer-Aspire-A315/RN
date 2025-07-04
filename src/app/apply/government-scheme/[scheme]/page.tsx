@@ -6,6 +6,8 @@ import { checkSessionAction } from '@/app/actions/authActions';
 import { LoginPrompt } from '@/components/shared/LoginPrompt';
 import { notFound } from 'next/navigation';
 
+export const dynamic = 'force-dynamic';
+
 interface ApplyGovernmentSchemePageProps {
     params: {
         scheme: string;

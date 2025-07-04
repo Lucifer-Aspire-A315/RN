@@ -5,6 +5,8 @@ import { Footer } from '@/components/layout/Footer';
 import { checkSessionAction } from '@/app/actions/authActions';
 import { LoginPrompt } from '@/components/shared/LoginPrompt';
 
+export const dynamic = 'force-dynamic';
+
 export default async function ApplyAuditAssurancePage() {
   const user = await checkSessionAction();
 
