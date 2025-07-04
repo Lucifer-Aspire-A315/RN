@@ -164,9 +164,9 @@ export function PartnerDetailsView({ partnerId }: PartnerDetailsViewProps) {
                     Deactivate
                 </Button>
             </div>
-            <div className="lg:flex gap-6 items-stretch">
-                <div className="lg:w-1/3 space-y-6 min-w-0 mb-6 lg:mb-0">
-                    <Card className="shadow-lg h-full">
+            <div className="lg:grid lg:grid-cols-3 lg:gap-6 items-start">
+                <div className="lg:col-span-1 space-y-6 mb-6 lg:mb-0">
+                    <Card className="shadow-lg">
                         <CardHeader className="items-center text-center pb-4">
                             <Avatar className="w-24 h-24 mb-4 border-4 border-primary">
                                 <AvatarImage src={`https://api.dicebear.com/8.x/initials/svg?seed=${partner.fullName}`} alt={partner.fullName} />
@@ -185,8 +185,8 @@ export function PartnerDetailsView({ partnerId }: PartnerDetailsViewProps) {
                     </Card>
                 </div>
                 
-                <div className="lg:w-2/3 min-w-0">
-                    <Card className="h-full flex flex-col">
+                <div className="lg:col-span-2">
+                    <Card className="h-[600px] flex flex-col shadow-lg">
                         <CardHeader>
                             <CardTitle>Applications Submitted by {partner.fullName}</CardTitle>
                             <CardDescription>A list of all applications submitted by this partner.</CardDescription>
