@@ -40,7 +40,7 @@ export default function AboutUsPage() {
       <Header />
       <main className="flex-grow">
         {/* Hero Section */}
-        <section className="relative bg-secondary/20 py-20 md:py-32 overflow-hidden">
+        <section className="relative bg-secondary/20 pt-8 pb-20 md:pt-12 md:pb-32 overflow-hidden">
           <div className="absolute inset-0 z-0">
              <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,hsl(var(--primary)/0.1),rgba(255,255,255,0))]"></div>
           </div>
