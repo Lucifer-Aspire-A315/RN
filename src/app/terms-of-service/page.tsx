@@ -8,7 +8,7 @@ import { ArrowLeft } from 'lucide-react';
 
 export default function TermsOfServicePage() {
   return (
-    <div className="flex flex-col min-h-screen bg-secondary">
+    <div className="flex flex-col min-h-screen bg-secondary/30">
       <Header />
       <main className="flex-grow container mx-auto px-4 sm:px-6 py-8">
          <div className="max-w-4xl mx-auto">
@@ -20,45 +20,58 @@ export default function TermsOfServicePage() {
             </Button>
           <Card className="shadow-lg">
             <CardHeader>
-              <CardTitle className="text-3xl">Terms of Service</CardTitle>
+              <CardTitle className="text-3xl font-bold">Terms of Service</CardTitle>
               <CardDescription>Last Updated: {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</CardDescription>
             </CardHeader>
-            <CardContent className="prose dark:prose-invert max-w-none space-y-6 text-foreground">
-              <h2 className="text-xl font-semibold">1. Acceptance of Terms</h2>
-              <p>
-                By accessing and using the RN FinTech website ("the Service"), you accept and agree to be bound by the terms and provision of this agreement. In addition, when using these particular services, you shall be subject to any posted guidelines or rules applicable to such services. Any participation in this service will constitute acceptance of this agreement.
-              </p>
+            <CardContent className="space-y-8 text-foreground text-base leading-relaxed">
+              <section>
+                <h2 className="text-xl font-semibold mb-2">1. Acceptance of Terms</h2>
+                <p>
+                  By accessing and using the RN FinTech website and its services (collectively, "the Service"), you accept and agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use our Service.
+                </p>
+              </section>
 
-              <h2 className="text-xl font-semibold">2. Description of Service</h2>
-              <p>
-                Our service provides users with access to financial information, loan application forms, and related services. You are responsible for obtaining access to the Service, and that access may involve third-party fees (such as Internet service provider or airtime charges). You are responsible for those fees.
-              </p>
+              <section>
+                <h2 className="text-xl font-semibold mb-2">2. Description of Service</h2>
+                <p>
+                  RN FinTech operates as a financial services marketplace. Our Service connects users with various financial products and services offered by third-party banks, Non-Banking Financial Companies (NBFCs), and other financial institutions ("Financial Partners"). RN FinTech is not a direct lender and does not make credit decisions. We facilitate the application process by collecting your information and submitting it to our Financial Partners on your behalf.
+                </p>
+              </section>
 
-              <h2 className="text-xl font-semibold">3. User Accounts</h2>
-              <p>
-                To access certain features of the site, you may be required to create an account. You are responsible for maintaining the confidentiality of your account and password and for restricting access to your computer. You agree to accept responsibility for all activities that occur under your account or password. We reserve the right to refuse service, terminate accounts, remove or edit content in our sole discretion.
-              </p>
+              <section>
+                <h2 className="text-xl font-semibold mb-2">3. User Accounts & Responsibilities</h2>
+                <p>
+                  To use our Service, you may be required to create an account. You are responsible for maintaining the confidentiality of your account credentials and for all activities that occur under your account. You agree to provide accurate, current, and complete information during the registration and application processes.
+                </p>
+              </section>
+              
+              <section>
+                <h2 className="text-xl font-semibold mb-2">4. Limitation of Liability</h2>
+                <p>
+                 You expressly understand and agree that RN FinTech shall not be liable for any direct, indirect, incidental, special, consequential, or exemplary damages resulting from the use or inability to use the Service. This includes, but is not limited to, the approval or rejection of your application by our Financial Partners, the terms of any loan or service offered, or any actions taken by our Financial Partners. Our liability is strictly limited to the service fees paid by you to us for a specific transaction, if any.
+                </p>
+              </section>
 
-              <h2 className="text-xl font-semibold">4. Limitation of Liability</h2>
-              <p>
-                You expressly understand and agree that RN FinTech (including its subsidiaries, affiliates, directors, officers, employees, representatives and providers) shall not be liable for any direct, indirect, incidental, special, consequential or exemplary damages, including but not limited to damages for loss of profits, opportunity, goodwill, use, data or other intangible losses, even if RN FinTech has been advised of the possibility of such damages, resulting from (i) any failure or delay (including without limitation the use of or inability to use any component of the Website), or (ii) any use of the Website or content, or (iii) the performance or non-performance by us or any provider, even if we have been advised of the possibility of damages to such parties or any other party, or (b) any damages to or viruses that may infect your computer equipment or other property as the result of your access to the Website or your downloading of any content from the Website.
-              </p>
-              <p>
-                Notwithstanding the above, if RN FinTech is found liable for any proven and actual loss or damage which arises out of or in any way connected with any of the occurrences described above, then you agree that the liability of RN FinTech shall be restricted to, in the aggregate, any Service/transactional fees paid by you to RN FinTech in connection with such transaction(s)/ Services on this Website, if applicable.
-              </p>
-              <p>
-                RN FinTech has no control over the third party websites which would be provided to you through its Website. You acknowledge and agree that under no circumstance shall RN FinTech be liable for your using the services offered or provided by any third party service provider.
-              </p>
+              <section>
+                <h2 className="text-xl font-semibold mb-2">5. Third-Party Links</h2>
+                <p>
+                  Our Service may contain links to third-party websites or services that are not owned or controlled by RN FinTech. We have no control over, and assume no responsibility for, the content, privacy policies, or practices of any third-party websites or services.
+                </p>
+              </section>
 
-              <h2 className="text-xl font-semibold">5. Governing Law</h2>
-              <p>
-                These Terms shall be governed and construed in accordance with the laws of India, without regard to its conflict of law provisions. Our failure to enforce any right or provision of these Terms will not be considered a waiver of those rights.
-              </p>
+              <section>
+                <h2 className="text-xl font-semibold mb-2">6. Governing Law</h2>
+                <p>
+                  These Terms shall be governed and construed in accordance with the laws of India, without regard to its conflict of law provisions. Any disputes arising out of or in connection with these Terms shall be subject to the exclusive jurisdiction of the courts in Kalyan, Maharashtra.
+                </p>
+              </section>
 
-               <h2 className="text-xl font-semibold">Contact Us</h2>
-              <p>
-                If you have any questions about these Terms, please contact us at: contact@rnfintech.com
-              </p>
+              <section>
+                <h2 className="text-xl font-semibold mb-2">7. Contact Us</h2>
+                <p>
+                  If you have any questions about these Terms of Service, please contact us at: <a href="mailto:contact@rnfintech.com" className="text-primary hover:underline">contact@rnfintech.com</a>.
+                </p>
+              </section>
             </CardContent>
           </Card>
         </div>
