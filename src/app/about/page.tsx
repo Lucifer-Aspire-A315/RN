@@ -69,9 +69,8 @@ export default function AboutUsPage() {
                 <div className="relative opacity-0 animate-fade-in-up" style={{ animationDelay: '100ms' }}>
                      <div className="group rounded-2xl shadow-2xl overflow-hidden p-2 bg-gradient-to-br from-primary/20 to-accent/20 transition-all duration-500 hover:shadow-primary/30 hover:shadow-2xl">
                         <Image 
-                            src="https://placehold.co/600x450.png"
-                            alt="A diverse team collaborating in a modern office"
-                            data-ai-hint="financial planning consultation"
+                            src="/aboutus-logo.png"
+                            alt="Illustration of a financial consultant helping clients"
                             width={600}
                             height={450}
                             className="rounded-xl w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
