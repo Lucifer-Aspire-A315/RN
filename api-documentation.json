@@ -1,3 +1,4 @@
+
 {
   "apiDocumentation": {
     "version": "1.0.0",
@@ -203,6 +204,19 @@
               "urls": "string[]"
             },
             "outputSchema": "Promise<{ success: boolean; error?: string }>"
+          }
+        ]
+      },
+      {
+        "file": "src/app/actions/profileActions.ts",
+        "group": "Profile Actions",
+        "description": "Actions for fetching detailed user or partner profile data.",
+        "functions": [
+          {
+            "name": "getUserProfileDetails",
+            "description": "Fetches the full profile data for the currently logged-in user or partner.",
+            "inputSchema": {},
+            "outputSchema": "Promise<UserProfileData | null>"
           }
         ]
       }
