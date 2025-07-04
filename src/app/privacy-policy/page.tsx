@@ -8,7 +8,7 @@ import { ArrowLeft } from 'lucide-react';
 
 export default function PrivacyPolicyPage() {
   return (
-    <div className="flex flex-col min-h-screen bg-secondary">
+    <div className="flex flex-col min-h-screen bg-secondary/30">
       <Header />
       <main className="flex-grow container mx-auto px-4 sm:px-6 py-8">
         <div className="max-w-4xl mx-auto">
@@ -20,44 +20,76 @@ export default function PrivacyPolicyPage() {
             </Button>
           <Card className="shadow-lg">
             <CardHeader>
-              <CardTitle className="text-3xl">Privacy Policy</CardTitle>
+              <CardTitle className="text-3xl font-bold">Privacy Policy</CardTitle>
               <CardDescription>Last Updated: {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</CardDescription>
             </CardHeader>
-            <CardContent className="prose dark:prose-invert max-w-none space-y-6 text-foreground">
-              <p>
-                Welcome to RN FinTech. We are committed to protecting your privacy and ensuring that your personal information is handled in a safe and responsible manner. This Privacy Policy outlines how we collect, use, maintain, and disclose information collected from users (each, a "User") of the RN FinTech website ("Site").
-              </p>
+            <CardContent className="space-y-8 text-foreground text-base leading-relaxed">
+              <section>
+                <h2 className="text-xl font-semibold mb-2">1. Introduction</h2>
+                <p>
+                  Welcome to RN FinTech ("we", "our", "us"). We are committed to protecting your privacy and ensuring that your personal information is handled in a safe and responsible manner. This Privacy Policy outlines how we collect, use, share, and protect your information when you use our website, apply for financial products, or interact with our services (collectively, the "Services").
+                </p>
+              </section>
 
-              <h2 className="text-xl font-semibold">Information We Collect</h2>
-              <p>
-                We may collect personal identification information from Users in a variety of ways, including, but not limited to, when Users visit our site, register on the site, fill out a form, and in connection with other activities, services, features or resources we make available on our Site. Users may be asked for, as appropriate, name, email address, mailing address, phone number, financial information, and government-issued identification numbers.
-              </p>
+              <section>
+                <h2 className="text-xl font-semibold mb-2">2. Information We Collect</h2>
+                <p className="mb-4">To provide you with our Services, we may collect the following types of information:</p>
+                <ul className="list-disc list-inside space-y-2">
+                  <li><strong>Personal Identification Information:</strong> Name, email address, phone number, date of birth, mailing address, gender, PAN, and Aadhaar number.</li>
+                  <li><strong>Financial Information:</strong> Income details (salary slips, ITR), bank account statements, employment details, existing loan information, credit history, and other data required for processing your applications.</li>
+                  <li><strong>Documentary Data:</strong> Digital copies of your KYC documents, photographs, and any other documents you upload to support your application.</li>
+                  <li><strong>Technical Information:</strong> IP address, browser type, device information, and usage data collected automatically when you interact with our website.</li>
+                </ul>
+              </section>
 
-              <h2 className="text-xl font-semibold">How We Use Your Information</h2>
-              <p>
-                RN FinTech may collect and use Users' personal information for the following purposes:
-              </p>
-              <ul className="list-disc list-inside space-y-2">
-                <li><strong>To process applications:</strong> We use the information Users provide about themselves when placing an application only to provide service to that application. We do not share this information with outside parties except to the extent necessary to provide the service.</li>
-                <li><strong>To improve customer service:</strong> Information you provide helps us respond to your customer service requests and support needs more efficiently.</li>
-                <li><strong>To personalize user experience:</strong> We may use information in the aggregate to understand how our Users as a group use the services and resources provided on our Site.</li>
-                <li><strong>To send periodic emails:</strong> We may use the email address to send User information and updates pertaining to their application. It may also be used to respond to their inquiries, questions, and/or other requests.</li>
-              </ul>
+              <section>
+                <h2 className="text-xl font-semibold mb-2">3. How We Use Your Information</h2>
+                <p className="mb-4">Your information is used for the following primary purposes:</p>
+                <ul className="list-disc list-inside space-y-2">
+                  <li><strong>To Process Your Applications:</strong> The core use of your data is to assess your eligibility for loans, credit cards, or other financial services and to submit your application to our network of partner banks and Non-Banking Financial Companies (NBFCs).</li>
+                  <li><strong>To Communicate With You:</strong> To send you updates on your application status, respond to your inquiries, and provide customer support.</li>
+                  <li><strong>To Improve Our Services:</strong> To analyze user behavior, improve our website functionality, and develop new products and services.</li>
+                  <li><strong>For Legal and Security Purposes:</strong> To comply with legal obligations, prevent fraud, and enforce our terms of service.</li>
+                </ul>
+              </section>
 
-              <h2 className="text-xl font-semibold">Data Security</h2>
-              <p>
-                We adopt appropriate data collection, storage and processing practices and security measures to protect against unauthorized access, alteration, disclosure or destruction of your personal information, username, password, transaction information and data stored on our Site.
-              </p>
+               <section>
+                <h2 className="text-xl font-semibold mb-2">4. Sharing Your Information</h2>
+                <p className="mb-4">We do not sell your personal information. We may share your information with the following parties only as necessary to provide our Services:</p>
+                <ul className="list-disc list-inside space-y-2">
+                  <li><strong>Financial Institution Partners:</strong> We share your application data with the banks and NBFCs in our network from whom you are seeking a loan or financial product.</li>
+                  <li><strong>Service Providers:</strong> We may use third-party companies for services like cloud hosting (e.g., Firebase) and analytics. These providers are contractually obligated to protect your data.</li>
+                  <li><strong>Legal Authorities:</strong> We may disclose information if required by law or in response to valid requests by public authorities.</li>
+                </ul>
+              </section>
 
-              <h2 className="text-xl font-semibold">Changes to This Privacy Policy</h2>
-              <p>
-                RN FinTech has the discretion to update this privacy policy at any time. When we do, we will revise the updated date at the top of this page. We encourage Users to frequently check this page for any changes to stay informed about how we are helping to protect the personal information we collect.
-              </p>
+              <section>
+                <h2 className="text-xl font-semibold mb-2">5. Data Security</h2>
+                <p>
+                  We implement robust technical and organizational security measures to protect your personal information against unauthorized access, alteration, disclosure, or destruction. This includes data encryption, access controls, and secure server infrastructure.
+                </p>
+              </section>
 
-              <h2 className="text-xl font-semibold">Contact Us</h2>
-              <p>
-                If you have any questions about this Privacy Policy, the practices of this site, or your dealings with this site, please contact us at: contact@rnfintech.com
-              </p>
+              <section>
+                <h2 className="text-xl font-semibold mb-2">6. Your Rights</h2>
+                <p>
+                  You have the right to access and review the information you have provided to us. You can update your profile information and view your application status through your dashboard. For any corrections or deletions, please contact our support team.
+                </p>
+              </section>
+              
+              <section>
+                <h2 className="text-xl font-semibold mb-2">7. Changes to This Privacy Policy</h2>
+                <p>
+                  We may update this Privacy Policy from time to time. We will notify you of any significant changes by posting the new policy on this page and updating the "Last Updated" date. We encourage you to review this policy periodically.
+                </p>
+              </section>
+
+              <section>
+                <h2 className="text-xl font-semibold mb-2">8. Contact Us</h2>
+                <p>
+                  If you have any questions or concerns about this Privacy Policy or our data practices, please contact us at: <a href="mailto:contact@rnfintech.com" className="text-primary hover:underline">contact@rnfintech.com</a>
+                </p>
+              </section>
             </CardContent>
           </Card>
         </div>
