@@ -101,8 +101,8 @@ export default function ContactUsPage() {
                 icon={Phone}
                 title="Call Us"
                 description="Talk to our experts directly for quick assistance."
-                href="tel:+911234567890"
-                linkText="+91 12345 67890"
+                href="tel:+917039501225"
+                linkText=" 703-950-1225"
                 color="bg-chart-2"
               />
               <ContactInfoCard
