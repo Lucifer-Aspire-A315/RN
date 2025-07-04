@@ -43,7 +43,7 @@ export default function ContactUsPage() {
                   </div>
                   <h3 className="text-xl font-semibold mt-4">Call Us</h3>
                   <p className="text-muted-foreground mt-1">Talk to our experts directly.</p>
-                  <a href="tel:+911234567890" className="text-primary font-medium hover:underline mt-2">+91 7219688018</a>
+                  <a href="tel:+911234567890" className="text-primary font-medium hover:underline mt-2"></a>
                 </div>
 
                 {/* Office Card */}

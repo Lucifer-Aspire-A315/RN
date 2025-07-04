@@ -91,20 +91,24 @@ async function _signUpUser(data: UserSignUpFormData | PartnerSignUpFormData, col
         
         let emailToSearch: string;
         let fullName: string;
+        let mobileNumber: string;
 
         if (collectionName === 'partners') {
             const partnerData = data as PartnerSignUpFormData;
             if (partnerData.businessModel === 'referral') {
                 emailToSearch = partnerData.email;
                 fullName = partnerData.fullName;
+                mobileNumber = partnerData.mobileNumber;
             } else {
                 emailToSearch = partnerData.personalDetails.email;
                 fullName = partnerData.personalDetails.fullName;
+                mobileNumber = partnerData.personalDetails.mobileNumber;
             }
         } else {
             const userData = data as UserSignUpFormData;
             emailToSearch = userData.email;
             fullName = userData.fullName;
+            mobileNumber = userData.mobileNumber;
         }
 
         const existingUser = await _findUserByEmail(emailToSearch, collectionName);
@@ -114,7 +118,6 @@ async function _signUpUser(data: UserSignUpFormData | PartnerSignUpFormData, col
 
         const hashedPassword = await bcrypt.hash(dataToSubmit.password, SALT_ROUNDS);
         
-        // Remove confirmation password before saving
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { confirmPassword, ...finalData } = dataToSubmit;
 
@@ -130,6 +133,7 @@ async function _signUpUser(data: UserSignUpFormData | PartnerSignUpFormData, col
             // Standardize top-level fields for easy querying
             userToSave.fullName = fullName;
             userToSave.email = emailToSearch;
+            userToSave.mobileNumber = mobileNumber;
         } else {
             userToSave.isAdmin = false; // Normal users are never admins by default
         }

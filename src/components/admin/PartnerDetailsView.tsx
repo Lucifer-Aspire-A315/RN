@@ -14,6 +14,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { User, Mail, Shield, BadgeCheck, Phone, Briefcase, Trash2, Loader2, ArrowLeft } from 'lucide-react';
 import { ApplicationsTable } from '@/components/dashboard/ApplicationsTable';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface PartnerDetailsViewProps {
   partnerId: string;
@@ -163,9 +164,9 @@ export function PartnerDetailsView({ partnerId }: PartnerDetailsViewProps) {
                     Deactivate
                 </Button>
             </div>
-            <div className="grid lg:grid-cols-3 gap-6 items-start">
-                <div className="lg:col-span-1 space-y-6 min-w-0">
-                    <Card className="shadow-lg">
+            <div className="lg:flex gap-6 items-stretch">
+                <div className="lg:w-1/3 space-y-6 min-w-0 mb-6 lg:mb-0">
+                    <Card className="shadow-lg h-full">
                         <CardHeader className="items-center text-center pb-4">
                             <Avatar className="w-24 h-24 mb-4 border-4 border-primary">
                                 <AvatarImage src={`https://api.dicebear.com/8.x/initials/svg?seed=${partner.fullName}`} alt={partner.fullName} />
@@ -184,14 +185,16 @@ export function PartnerDetailsView({ partnerId }: PartnerDetailsViewProps) {
                     </Card>
                 </div>
                 
-                <div className="lg:col-span-2 min-w-0">
-                    <Card>
+                <div className="lg:w-2/3 min-w-0">
+                    <Card className="h-full flex flex-col">
                         <CardHeader>
                             <CardTitle>Applications Submitted by {partner.fullName}</CardTitle>
                             <CardDescription>A list of all applications submitted by this partner.</CardDescription>
                         </CardHeader>
-                        <CardContent>
-                            <ApplicationsTable applications={applications} />
+                        <CardContent className="flex-grow overflow-hidden">
+                           <ScrollArea className="h-full">
+                             <ApplicationsTable applications={applications} />
+                           </ScrollArea>
                         </CardContent>
                     </Card>
                 </div>
