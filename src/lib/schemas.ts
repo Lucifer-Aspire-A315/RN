@@ -358,6 +358,10 @@ export const GovernmentSchemeLoanDetailsSchema = z.object({
   otherSchemeName: z.string().optional(),
   loanAmountRequired: z.preprocess((val) => (val === "" || val === null || val === undefined ? undefined : Number(val)), z.number({ invalid_type_error: "Must be a number" }).min(1, "Loan Amount Required is required")),
   loanTenure: z.preprocess((val) => (val === "" || val === null || val === undefined ? undefined : Number(val)), z.number({ invalid_type_error: "Must be a number" }).min(1, "Loan Tenure is required (in years)")),
+}).superRefine((data, ctx) => {
+    if (data.selectedScheme === 'Other' && (!data.otherSchemeName || data.otherSchemeName.trim() === '')) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Please specify the scheme name.", path: ["otherSchemeName"] });
+    }
 });
 
 export const GovernmentSchemeDocumentUploadsSchema = z.object({

@@ -4,7 +4,7 @@ import { Footer } from '@/components/layout/Footer';
 import { ServiceCard } from '@/components/shared/ServiceCard';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { ArrowLeft, Banknote, Factory, Users } from 'lucide-react';
+import { ArrowLeft, Banknote, Factory, Users, FileQuestion } from 'lucide-react';
 
 const schemeServices = [
   {
@@ -28,6 +28,13 @@ const schemeServices = [
     href: '/apply/government-scheme/stand-up-india',
     colorIndex: 3,
   },
+  {
+    icon: <FileQuestion className="w-8 h-8" />,
+    title: 'Other Scheme',
+    description: 'Apply for another government scheme not listed here.',
+    href: '/apply/government-scheme/other',
+    colorIndex: 4,
+  },
 ];
 
 export default function GovernmentSchemesPage() {
@@ -46,7 +53,7 @@ export default function GovernmentSchemesPage() {
                 <h1 className="text-3xl font-bold text-foreground">Government Loan Schemes</h1>
                 <p className="mt-2 text-muted-foreground">Empowering entrepreneurs and small businesses with government-backed financing.</p>
             </div>
-            <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
               {schemeServices.map((service) => (
                 <ServiceCard 
                   key={service.title}

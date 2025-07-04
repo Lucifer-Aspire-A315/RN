@@ -11,18 +11,10 @@ import { updateGovernmentSchemeLoanApplicationAction } from '@/app/actions/gover
 interface GovernmentSchemeLoanApplicationFormProps {
   onBack?: () => void;
   selectedScheme?: string;
-  otherSchemeName?: string;
   initialData?: GovernmentSchemeLoanApplicationFormData | null;
   applicationId?: string;
   mode?: 'create' | 'edit';
 }
-
-const schemeDisplayNames: Record<string, string> = {
-  pmmy: "PM Mudra Yojana",
-  pmegp: "PMEGP (Khadi Board)",
-  standup: "Stand-Up India",
-  other: "Other",
-};
 
 const governmentSchemeSections = [
   {
@@ -65,7 +57,7 @@ const governmentSchemeSections = [
     title: "Loan Details",
     fields: [
       { name: "loanDetails.selectedScheme", label: "Selected Scheme", type: "text", disabled: true, colSpan: 2 },
-      { name: "loanDetails.otherSchemeName", label: "Specified Scheme Name", type: "text", disabled: true, dependsOn: { field: "loanDetails.selectedScheme", value: "Other" }, colSpan: 2 },
+      { name: "loanDetails.otherSchemeName", label: "Please Specify Scheme Name", type: "text", placeholder: "Enter the scheme name", dependsOn: { field: "loanDetails.selectedScheme", value: "Other" }, colSpan: 2 },
       { name: "loanDetails.loanAmountRequired", label: "Loan Amount Required (₹)", type: "number", placeholder: "e.g., 500000", prefix: '₹' },
       { name: "loanDetails.loanTenure", label: "Loan Tenure (in Years)", type: "number", placeholder: "e.g., 5" },
     ]
@@ -87,7 +79,7 @@ const governmentSchemeSections = [
   }
 ];
 
-export function GovernmentSchemeLoanApplicationForm({ onBack, selectedScheme, otherSchemeName, initialData, applicationId, mode = 'create' }: GovernmentSchemeLoanApplicationFormProps) {
+export function GovernmentSchemeLoanApplicationForm({ onBack, selectedScheme, initialData, applicationId, mode = 'create' }: GovernmentSchemeLoanApplicationFormProps) {
 
   const defaultValues: GovernmentSchemeLoanApplicationFormData = initialData || {
     personalDetails: {
@@ -118,8 +110,8 @@ export function GovernmentSchemeLoanApplicationForm({ onBack, selectedScheme, ot
       loanPurpose: undefined,
     },
     loanDetails: {
-      selectedScheme: selectedScheme ? (schemeDisplayNames[selectedScheme] || otherSchemeName || selectedScheme) : '',
-      otherSchemeName: selectedScheme === 'other' ? otherSchemeName : '',
+      selectedScheme: selectedScheme || '',
+      otherSchemeName: '',
       loanAmountRequired: undefined,
       loanTenure: undefined,
     },

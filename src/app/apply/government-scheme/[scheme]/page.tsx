@@ -16,6 +16,7 @@ const validSchemes: Record<string, string> = {
     'pm-mudra-yojana': 'PM Mudra Yojana',
     'pmegp-khadi-board': 'PMEGP (Khadi Board)',
     'stand-up-india': 'Stand-Up India',
+    'other': 'Other',
 };
 
 export default async function ApplyGovernmentSchemePage({ params }: ApplyGovernmentSchemePageProps) {
