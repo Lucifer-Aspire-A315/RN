@@ -24,7 +24,7 @@ import {
   Menu, LogOut, Loader2, LayoutDashboard, ShieldCheck, User as UserIcon, UserPlus, LogIn, ChevronDown,
   Home, User, Briefcase, CreditCardIcon, Cog, LandPlot, Building,
   FileSpreadsheet, BookOpenCheck, Building2, ClipboardCheck, PiggyBank,
-  Banknote, Factory, Users
+  Banknote, Factory, Users, FileQuestion
 } from 'lucide-react';
 
 
@@ -57,6 +57,7 @@ const navLinks = [
       { href: '/apply/government-scheme/pm-mudra-yojana', label: 'PM Mudra Yojana', description: 'Loans for micro enterprises', icon: Banknote },
       { href: '/apply/government-scheme/pmegp-khadi-board', label: 'PMEGP', description: 'Credit-linked subsidy', icon: Factory },
       { href: '/apply/government-scheme/stand-up-india', label: 'Stand-Up India', description: 'For SC/ST & women', icon: Users },
+      { href: '/apply/government-scheme/other', label: 'Other Scheme', description: 'Apply for another scheme not listed', icon: FileQuestion },
     ]
   },
   { href: '/about', label: 'About Us' },
