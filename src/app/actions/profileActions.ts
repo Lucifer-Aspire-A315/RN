@@ -12,6 +12,10 @@ export type UserProfileData = (Omit<UserSignUpFormData, 'password'|'confirmPassw
     type: 'partner' | 'normal';
     isAdmin?: boolean;
     createdAt: string;
+    // Add optional top-level fields that the action will populate
+    fullName?: string;
+    email?: string;
+    mobileNumber?: string;
 };
 
 export async function getUserProfileDetails(): Promise<UserProfileData | null> {
@@ -46,9 +50,12 @@ export async function getUserProfileDetails(): Promise<UserProfileData | null> {
             createdAt: createdAtTimestamp?.toDate().toISOString() || new Date().toISOString(),
         } as UserProfileData;
         
-        // Standardize fullName for display consistency
-        if (type === 'partner' && (result as PartnerSignUpFormData).personalDetails?.fullName) {
-             result.fullName = (result as PartnerSignUpFormData).personalDetails.fullName;
+        // Standardize top-level fields for display consistency
+        if (type === 'partner') {
+             const partnerData = result as PartnerSignUpFormData;
+             result.fullName = partnerData.fullName || partnerData.personalDetails?.fullName;
+             result.mobileNumber = partnerData.mobileNumber || partnerData.personalDetails?.mobileNumber;
+             result.email = partnerData.email || partnerData.personalDetails?.email;
         }
 
         return result;

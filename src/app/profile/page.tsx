@@ -70,7 +70,7 @@ export default async function ProfilePage() {
     redirect('/login');
   }
 
-  const getInitials = (name: string) => {
+  const getInitials = (name: string = '') => {
     const names = name.split(' ');
     if (names.length > 1 && names[0] && names[names.length - 1]) {
       return `${names[0][0]}${names[names.length - 1][0]}`.toUpperCase();
@@ -80,8 +80,11 @@ export default async function ProfilePage() {
 
   let userTypeDisplay: string;
   let UserTypeIcon = User;
+  
+  // Use standardized properties populated by the server action
   const fullName = userProfile.fullName || 'User';
-  const email = (userProfile as any).personalDetails?.email || userProfile.email;
+  const email = userProfile.email;
+  const mobileNumber = userProfile.mobileNumber;
 
   if (userProfile.type === 'partner') {
     switch (userProfile.businessModel) {
@@ -132,7 +135,7 @@ export default async function ProfilePage() {
                     <CardContent className="space-y-2">
                         <InfoRow icon={<User className="w-6 h-6"/>} label="Full Name" value={fullName} />
                         <InfoRow icon={<Mail className="w-6 h-6"/>} label="Email Address" value={email} />
-                        <InfoRow icon={<Phone className="w-6 h-6"/>} label="Mobile Number" value={userProfile.type === 'partner' ? partnerProfile.personalDetails?.mobileNumber : userProfile.mobileNumber} />
+                        <InfoRow icon={<Phone className="w-6 h-6"/>} label="Mobile Number" value={mobileNumber} />
                         <InfoRow icon={<BadgeCheck className="w-6 h-6"/>} label="Account Type" value={userProfile.isAdmin ? 'Administrator' : userTypeDisplay} />
                         {userProfile.isAdmin && (
                             <InfoRow 

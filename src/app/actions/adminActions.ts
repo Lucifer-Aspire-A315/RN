@@ -24,11 +24,14 @@ async function verifyAdmin() {
 function formatPartnerData(doc: DocumentData): PartnerData {
     const data = doc.data();
     const createdAtTimestamp = data.createdAt as Timestamp;
+    // Defensive check for mobile number to support old and new data structures
+    const mobileNumber = data.mobileNumber || data.personalDetails?.mobileNumber || 'N/A';
+    
     return {
         id: doc.id,
         fullName: data.fullName,
         email: data.email,
-        mobileNumber: data.mobileNumber,
+        mobileNumber: mobileNumber,
         businessModel: data.businessModel,
         createdAt: createdAtTimestamp?.toDate().toISOString() || new Date().toISOString(),
         isApproved: data.isApproved,
