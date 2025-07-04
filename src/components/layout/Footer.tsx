@@ -8,7 +8,7 @@ export function Footer() {
       <div className="container mx-auto px-6 py-12">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
           {/* Logo and About Section */}
-          <div className="col-span-1 md:col-span-1 flex flex-col items-center md:items-start">
+          <div className="col-span-1 md:col-span-1 flex flex-col items-center">
             <div className="flex items-center gap-2">
               <div className="bg-white p-1 rounded-md">
                 <Image
@@ -19,9 +19,8 @@ export function Footer() {
                   priority
                 />
               </div>
-              <span className="font-bold text-lg text-white">FinTech</span>
             </div>
-            <p className="mt-4 text-gray-400 text-sm text-center md:text-left">
+            <p className="mt-4 text-gray-400 text-sm text-center">
               Your trusted partner in achieving your financial goals.
             </p>
           </div>
