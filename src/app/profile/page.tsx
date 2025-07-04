@@ -214,7 +214,9 @@ export default async function ProfilePage() {
                             <>
                                 <DetailItem label="GST Certificate" value={renderFileLink(partnerProfile.merchantDocumentUploads.gstCertificate, "GST Cert.")} />
                                 <DetailItem label="Business Registration" value={renderFileLink(partnerProfile.merchantDocumentUploads.businessRegistration, "Registration")} />
-                                <DetailItem label="Owner's PAN Card" value={renderFileLink(partnerProfile.merchantDocumentUploads.ownerPanCard, "PAN Card")} />
+                                <DetailItem label="Proprietor's PAN Card" value={renderFileLink(partnerProfile.merchantDocumentUploads.panCard, "PAN Card")} />
+                                <DetailItem label="Proprietor's Aadhaar Card" value={renderFileLink(partnerProfile.merchantDocumentUploads.aadhaarCard, "Aadhaar")} />
+                                <DetailItem label="Proprietor's Photograph" value={renderFileLink(partnerProfile.merchantDocumentUploads.photograph, "Photo")} />
                             </>
                         )}
                      </DetailSection>
