@@ -4,46 +4,47 @@ import Image from 'next/image';
 
 export function Footer() {
   return (
-    <footer className="bg-foreground text-background border-t border-primary/50 shadow-[0_-4px_24px_0_rgba(76,175,80,0.07)] rounded-t-2xl">
+    <footer className="bg-secondary text-secondary-foreground border-t">
       <div className="container mx-auto px-6 py-12">
-        <div className="grid grid-cols-2 md:grid-cols-4 divide-y-2 md:divide-y-0 md:divide-x-2 divide-primary/20">
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
           {/* Logo and About Section */}
-          <div className="p-4 md:p-8 flex flex-col items-center text-center">
-            <div className="bg-background rounded-lg p-2 inline-block">
-              <Image
+          <div className="col-span-1 md:col-span-1">
+            <div className="flex items-center gap-2">
+               <Image
                 src="/rnfintech.png"
                 alt="RN FinTech Logo"
-                width={45}
-                height={30}
+                width={40}
+                height={28}
                 priority
               />
+              <span className="font-bold text-xl text-foreground">RN FinTech</span>
             </div>
-            <p className="mt-4 text-secondary text-sm">
+            <p className="mt-4 text-muted-foreground text-sm">
               Your trusted partner in achieving your financial goals.
             </p>
           </div>
 
           {/* Quick Links Section */}
-          <div className="p-4 md:p-8">
-            <h4 className="font-semibold text-accent">Quick Links</h4>
+          <div className="col-span-1 md:col-span-1">
+            <h4 className="font-semibold text-foreground">Quick Links</h4>
             <ul className="mt-4 space-y-2 text-sm">
               <li>
-                <Link href="/about" className="text-background hover:text-primary transition-colors">
+                <Link href="/about" className="text-muted-foreground hover:text-primary transition-colors">
                   About Us
                 </Link>
               </li>
               <li>
-                <Link href="/contact" className="text-background hover:text-primary transition-colors">
+                <Link href="/contact" className="text-muted-foreground hover:text-primary transition-colors">
                   Contact Us
                 </Link>
               </li>
               <li>
-                <Link href="/privacy-policy" className="text-background hover:text-primary transition-colors">
+                <Link href="/privacy-policy" className="text-muted-foreground hover:text-primary transition-colors">
                   Privacy Policy
                 </Link>
               </li>
               <li>
-                <Link href="/terms-of-service" className="text-background hover:text-primary transition-colors">
+                <Link href="/terms-of-service" className="text-muted-foreground hover:text-primary transition-colors">
                   Terms of Service
                 </Link>
               </li>
@@ -51,54 +52,44 @@ export function Footer() {
           </div>
 
           {/* Our Services Section */}
-          <div className="p-4 md:p-8">
-            <h4 className="font-semibold text-accent">Our Services</h4>
+          <div className="col-span-1 md:col-span-1">
+            <h4 className="font-semibold text-foreground">Our Services</h4>
             <ul className="mt-4 space-y-2 text-sm">
               <li>
-                <Link href="/#services" className="text-background hover:text-primary transition-colors">
-                  Home Loan
+                <Link href="/services/loans" className="text-muted-foreground hover:text-primary transition-colors">
+                  Loan Services
                 </Link>
               </li>
               <li>
-                <Link href="/#services" className="text-background hover:text-primary transition-colors">
-                  Personal Loan
+                <Link href="/services/ca-services" className="text-muted-foreground hover:text-primary transition-colors">
+                  CA Services
                 </Link>
               </li>
-              <li>
-                <Link href="/#services" className="text-background hover:text-primary transition-colors">
-                  Business Loan
-                </Link>
-              </li>
-              <li>
-                <Link href="/#services" className="text-background hover:text-primary transition-colors">
-                  Credit Card
-                </Link>
-              </li>
-              <li>
-                <Link href="/#services" className="text-background hover:text-primary transition-colors">
-                  Machinery Loan
+               <li>
+                <Link href="/services/government-schemes" className="text-muted-foreground hover:text-primary transition-colors">
+                  Government Schemes
                 </Link>
               </li>
             </ul>
           </div>
 
           {/* Connect With Us Section */}
-          <div className="p-4 md:p-8">
-            <h4 className="font-semibold text-accent">Connect With Us</h4>
-            <address className="mt-4 space-y-1 text-sm not-italic">
-              <p className="text-secondary">
-                Sunrise Apartment, A-101, Santoshi Mata Rd, near Yashoda Apartment, near KDMC Commissioners Bunglow, Syndicate, Kalyan, Maharashtra 421301
+          <div className="col-span-1 md:col-span-1">
+            <h4 className="font-semibold text-foreground">Connect With Us</h4>
+            <address className="mt-4 space-y-2 text-sm not-italic">
+              <p className="text-muted-foreground">
+                Sunrise Apartment, A-101, Kalyan, Maharashtra 421301
               </p>
               <p>
-                <a href="mailto:contact@rnfintech.com" className="text-background hover:text-primary transition-colors">
+                <a href="mailto:contact@rnfintech.com" className="text-muted-foreground hover:text-primary transition-colors">
                   contact@rnfintech.com
                 </a>
               </p>
             </address>
           </div>
         </div>
-        <div className="mt-12 border-t border-primary/50 pt-8 text-center">
-          <p className="text-sm text-secondary">
+        <div className="mt-12 border-t pt-8 text-center">
+          <p className="text-sm text-muted-foreground">
             &copy; {new Date().getFullYear()} RN FinTech. All Rights Reserved.
           </p>
         </div>
