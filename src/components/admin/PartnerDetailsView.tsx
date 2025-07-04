@@ -186,7 +186,7 @@ export function PartnerDetailsView({ partnerId }: PartnerDetailsViewProps) {
                 </div>
                 
                 <div className="lg:col-span-2">
-                    <Card className="h-[600px] flex flex-col shadow-lg">
+                    <Card className="h-[450px] flex flex-col shadow-lg">
                         <CardHeader>
                             <CardTitle>Applications Submitted by {partner.fullName}</CardTitle>
                             <CardDescription>A list of all applications submitted by this partner.</CardDescription>
