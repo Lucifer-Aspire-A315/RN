@@ -2,39 +2,34 @@
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Award, Scale, Sparkles, HeartHandshake, Glasses, Target, Users as UsersIcon } from 'lucide-react';
+import { ArrowLeft, Award, Scale, Sparkles, HeartHandshake, Target } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-
 
 const ValueCard = ({ icon, title, description, delay }: { icon: React.ReactNode, title: string, description: string, delay: string }) => (
   <div 
-    className="opacity-0 animate-fade-in-up group flex flex-col items-center text-center p-6 bg-card rounded-2xl border border-border/10 transition-all duration-300 hover:border-primary/50 hover:shadow-2xl hover:shadow-primary/10 hover:-translate-y-2"
+    className="opacity-0 animate-fade-in-up group relative overflow-hidden flex flex-col items-center text-center p-8 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-sm transition-all duration-300 hover:border-white/30 hover:-translate-y-2"
     style={{ animationDelay: delay }}
   >
-    <div className="bg-primary/10 text-primary p-4 rounded-full mb-6 transition-all duration-300 group-hover:scale-110 group-hover:bg-primary group-hover:text-primary-foreground group-hover:shadow-lg group-hover:shadow-primary/30">
-      {icon}
+    <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+    <div className="relative z-10">
+      <div className="bg-primary/10 text-primary p-4 rounded-full mb-6 transition-all duration-300 group-hover:scale-110 group-hover:bg-primary group-hover:text-primary-foreground group-hover:shadow-lg group-hover:shadow-primary/30">
+        {icon}
+      </div>
+      <h3 className="text-xl font-bold text-primary-foreground mb-2">{title}</h3>
+      <p className="text-muted-foreground leading-relaxed text-sm flex-grow text-white/60">{description}</p>
     </div>
-    <h3 className="text-xl font-bold text-foreground mb-2">{title}</h3>
-    <p className="text-muted-foreground leading-relaxed text-sm flex-grow">{description}</p>
   </div>
 );
 
-const TeamMemberCard = ({ name, title, imageUrl, delay }: { name: string, title: string, imageUrl: string, delay: string }) => (
+const StatItem = ({ value, label, delay }: { value: string, label: string, delay: string }) => (
     <div 
-        className="opacity-0 animate-fade-in-up group flex flex-col items-center text-center"
+        className="text-center opacity-0 animate-fade-in-up"
         style={{ animationDelay: delay }}
     >
-        <div className="relative">
-            <Avatar className="w-28 h-28 md:w-32 md:h-32 border-4 border-secondary transition-all duration-300 group-hover:border-primary">
-                <AvatarImage src={imageUrl} alt={name} />
-                <AvatarFallback>{name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-            </Avatar>
-        </div>
-        <h3 className="text-lg font-bold text-foreground mt-4">{name}</h3>
-        <p className="text-primary font-medium">{title}</p>
+        <p className="text-6xl font-extrabold text-primary">{value}</p>
+        <p className="text-lg font-semibold text-muted-foreground mt-2">{label}</p>
     </div>
 );
 
@@ -71,7 +66,7 @@ export default function AboutUsPage() {
         <section className="py-16 md:py-24 overflow-hidden">
           <div className="container mx-auto px-4 sm:px-6">
             <div className="grid md:grid-cols-2 gap-12 lg:gap-24 items-center">
-                <div className="relative opacity-0 animate-fade-in-up order-1 md:order-1" style={{ animationDelay: '100ms' }}>
+                <div className="relative opacity-0 animate-fade-in-up" style={{ animationDelay: '100ms' }}>
                      <div className="group rounded-2xl shadow-2xl overflow-hidden p-2 bg-gradient-to-br from-primary/20 to-accent/20 transition-all duration-500 hover:shadow-primary/30 hover:shadow-2xl">
                         <Image 
                             src="https://placehold.co/600x450.png"
@@ -101,11 +96,11 @@ export default function AboutUsPage() {
         </section>
 
         {/* Our Core Values Section */}
-        <section className="py-16 md:py-24 bg-secondary/20">
+        <section className="py-16 md:py-24 bg-foreground">
           <div className="container mx-auto px-4 sm:px-6">
             <div className="text-center mb-16 opacity-0 animate-fade-in-up">
-              <h2 className="text-3xl font-bold text-foreground">Our Core Values</h2>
-              <p className="mt-2 text-muted-foreground max-w-2xl mx-auto">
+              <h2 className="text-3xl font-bold text-primary-foreground">Our Core Values</h2>
+              <p className="mt-2 text-white/70 max-w-2xl mx-auto">
                 The principles that guide every decision we make.
               </p>
             </div>
@@ -129,7 +124,7 @@ export default function AboutUsPage() {
                 delay="600ms"
               />
               <ValueCard 
-                icon={<Glasses size={32} />}
+                icon={<HeartHandshake size={32} />}
                 title="Transparency"
                 description="No hidden fees, no confusing jargon. We believe in clear and upfront communication."
                 delay="800ms"
@@ -148,34 +143,9 @@ export default function AboutUsPage() {
                     </p>
                 </div>
                  <div className="max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-8 text-center">
-                    <div className="opacity-0 animate-fade-in-up p-8 bg-card border-l-4 border-primary rounded-xl shadow-lg" style={{ animationDelay: '200ms' }}>
-                        <p className="text-5xl font-extrabold text-primary">10,000+</p>
-                        <p className="text-sm font-semibold text-muted-foreground mt-2">Happy Clients</p>
-                    </div>
-                    <div className="opacity-0 animate-fade-in-up p-8 bg-card border-l-4 border-accent rounded-xl shadow-lg" style={{ animationDelay: '400ms' }}>
-                        <p className="text-5xl font-extrabold text-accent">₹500 Cr+</p>
-                        <p className="text-sm font-semibold text-muted-foreground mt-2">Loans Disbursed</p>
-                    </div>
-                    <div className="opacity-0 animate-fade-in-up p-8 bg-card border-l-4 border-secondary-foreground rounded-xl shadow-lg" style={{ animationDelay: '600ms' }}>
-                        <p className="text-5xl font-extrabold text-secondary-foreground">150+</p>
-                        <p className="text-sm font-semibold text-muted-foreground mt-2">Bank & NBFC Partners</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-        
-        {/* Meet Our Team Section */}
-        <section className="py-16 md:py-24 bg-primary/5">
-            <div className="container mx-auto px-4 sm:px-6">
-                <div className="text-center mb-16 opacity-0 animate-fade-in-up">
-                    <h2 className="text-3xl font-bold text-foreground">Meet Our Team</h2>
-                    <p className="mt-2 text-muted-foreground max-w-2xl mx-auto">The passionate minds dedicated to your financial success.</p>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-y-12 gap-x-8 max-w-6xl mx-auto">
-                    <TeamMemberCard name="R. N. Singh" title="Founder & CEO" imageUrl="https://placehold.co/200x200.png" delay="200ms" data-ai-hint="man portrait"/>
-                    <TeamMemberCard name="Priya Sharma" title="Head of Operations" imageUrl="https://placehold.co/200x200.png" delay="400ms" data-ai-hint="woman portrait"/>
-                    <TeamMemberCard name="Amit Kumar" title="Lead Financial Advisor" imageUrl="https://placehold.co/200x200.png" delay="600ms" data-ai-hint="man portrait"/>
-                    <TeamMemberCard name="Sunita Patel" title="Partner Relations" imageUrl="https://placehold.co/200x200.png" delay="800ms" data-ai-hint="woman portrait"/>
+                    <StatItem value="10,000+" label="Happy Clients" delay="200ms" />
+                    <StatItem value="₹500 Cr+" label="Loans Disbursed" delay="400ms" />
+                    <StatItem value="150+" label="Bank & NBFC Partners" delay="600ms" />
                 </div>
             </div>
         </section>
