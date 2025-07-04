@@ -5,8 +5,9 @@ import React from 'react';
 import { GovernmentSchemeLoanApplicationSchema, type GovernmentSchemeLoanApplicationFormData } from '@/lib/schemas';
 import { FileText } from 'lucide-react';
 import { GenericLoanForm } from './GenericLoanForm';
-import { submitApplicationAction } from '@/app/actions/applicationActions';
-import { updateGovernmentSchemeLoanApplicationAction } from '@/app/actions/governmentSchemeActions';
+import { submitApplicationAction, updateApplicationAction } from '@/app/actions/applicationActions';
+import type { UserApplication } from '@/lib/types';
+
 
 interface GovernmentSchemeLoanApplicationFormProps {
   onBack?: () => void;
@@ -147,7 +148,7 @@ export function GovernmentSchemeLoanApplicationForm({ onBack, selectedScheme, in
       defaultValues={defaultValues}
       sections={governmentSchemeSections}
       submitAction={(data) => submitApplicationAction(data, 'governmentScheme', applicationTypeForSubmission, schemeNameForDisplay)}
-      updateAction={(id, data) => updateGovernmentSchemeLoanApplicationAction(id, data)}
+      updateAction={(id, data) => updateApplicationAction(id, 'governmentScheme' as UserApplication['serviceCategory'], data)}
       applicationId={applicationId}
       mode={mode}
       submitButtonText="Submit Government Scheme Application"

@@ -4,8 +4,8 @@
 import React from 'react';
 import { AccountingBookkeepingFormSchema, type AccountingBookkeepingFormData } from '@/lib/schemas';
 import { BookOpenCheck } from 'lucide-react';
-import { submitApplicationAction } from '@/app/actions/applicationActions';
-import { updateCAServiceApplicationAction } from '@/app/actions/caServiceActions';
+import { submitApplicationAction, updateApplicationAction } from '@/app/actions/applicationActions';
+import type { UserApplication } from '@/lib/types';
 import { GenericCAServiceForm } from './GenericCAServiceForm';
 
 interface AccountingBookkeepingFormProps {
@@ -132,7 +132,7 @@ export function AccountingBookkeepingForm({ onBack, initialData, applicationId, 
         defaultValues={initialData || defaultValues}
         sections={accountingSections}
         submitAction={(data) => submitApplicationAction(data, 'caService', 'Accounting & Bookkeeping Service')}
-        updateAction={updateCAServiceApplicationAction}
+        updateAction={(id, data) => updateApplicationAction(id, 'caService' as UserApplication['serviceCategory'], data)}
         applicationId={applicationId}
         mode={mode}
     />

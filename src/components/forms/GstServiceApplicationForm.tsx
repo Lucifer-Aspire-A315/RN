@@ -4,8 +4,8 @@
 import React from 'react';
 import { GstServiceApplicationSchema, type GstServiceApplicationFormData } from '@/lib/schemas';
 import { ReceiptText } from 'lucide-react';
-import { submitApplicationAction } from '@/app/actions/applicationActions';
-import { updateCAServiceApplicationAction } from '@/app/actions/caServiceActions';
+import { submitApplicationAction, updateApplicationAction } from '@/app/actions/applicationActions';
+import type { UserApplication } from '@/lib/types';
 import { GenericCAServiceForm } from './GenericCAServiceForm';
 
 interface GstServiceApplicationFormProps {
@@ -122,7 +122,7 @@ export function GstServiceApplicationForm({ onBack, initialData, applicationId, 
       defaultValues={initialData || defaultValues}
       sections={gstServiceSections}
       submitAction={(data) => submitApplicationAction(data, 'caService', 'GST Service Application')}
-      updateAction={updateCAServiceApplicationAction}
+      updateAction={(id, data) => updateApplicationAction(id, 'caService' as UserApplication['serviceCategory'], data)}
       applicationId={applicationId}
       mode={mode}
     />

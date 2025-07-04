@@ -4,8 +4,8 @@
 import React from 'react';
 import { ItrFilingConsultationFormSchema, type ItrFilingConsultationFormData } from '@/lib/schemas';
 import { FileSpreadsheet } from 'lucide-react';
-import { submitApplicationAction } from '@/app/actions/applicationActions';
-import { updateCAServiceApplicationAction } from '@/app/actions/caServiceActions';
+import { submitApplicationAction, updateApplicationAction } from '@/app/actions/applicationActions';
+import type { UserApplication } from '@/lib/types';
 import { GenericCAServiceForm } from './GenericCAServiceForm';
 
 interface ItrFilingConsultationFormProps {
@@ -111,7 +111,7 @@ export function ItrFilingConsultationForm({ onBack, initialData, applicationId, 
       defaultValues={initialData || defaultValues}
       sections={itrFilingSections}
       submitAction={(data) => submitApplicationAction(data, 'caService', 'ITR Filing & Consultation')}
-      updateAction={updateCAServiceApplicationAction}
+      updateAction={(id, data) => updateApplicationAction(id, 'caService' as UserApplication['serviceCategory'], data)}
       applicationId={applicationId}
       mode={mode}
     />
