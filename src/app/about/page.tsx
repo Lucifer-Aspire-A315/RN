@@ -13,7 +13,7 @@ const ValueCard = ({ icon, title, description, delay }: { icon: React.ReactNode,
     style={{ animationDelay: delay }}
   >
     <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-    <div className="relative z-10">
+    <div className="relative z-10 flex flex-col items-center">
       <div className="bg-primary/10 text-primary p-4 rounded-full mb-6 transition-all duration-300 group-hover:scale-110 group-hover:bg-primary group-hover:text-primary-foreground group-hover:shadow-lg group-hover:shadow-primary/30">
         {icon}
       </div>
@@ -44,14 +44,14 @@ export default function AboutUsPage() {
           <div className="absolute inset-0 z-0">
              <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,hsl(var(--primary)/0.1),rgba(255,255,255,0))]"></div>
           </div>
-          <div className="container mx-auto px-4 sm:px-6 text-center relative z-10">
-            <div className="opacity-0 animate-fade-in-up">
-              <Button asChild variant="ghost" className="mb-8">
+          <div className="container mx-auto px-4 sm:px-6 relative z-10">
+            <Button asChild variant="ghost" className="mb-8 -ml-4">
                 <Link href="/">
                   <ArrowLeft className="mr-2 h-4 w-4" />
                   Back to Home
                 </Link>
-              </Button>
+            </Button>
+            <div className="text-center opacity-0 animate-fade-in-up">
               <h1 className="text-4xl md:text-6xl font-extrabold text-foreground tracking-tight leading-tight">
                 Your Financial Goals, <br /> Our <span className="text-primary">Commitment.</span>
               </h1>
