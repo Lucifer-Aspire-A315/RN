@@ -2,7 +2,7 @@ import type { MetadataRoute } from 'next';
 
 const loanServices = ['home-loan', 'personal-loan', 'business-loan', 'credit-card', 'machinery-loan'];
 const caServices = ['gst-service', 'itr-filing', 'accounting-bookkeeping', 'company-incorporation', 'financial-advisory', 'audit-assurance'];
-const govSchemes = ['pm-mudra-yojana', 'pmegp-khadi-board', 'stand-up-india'];
+const govSchemes = ['pm-mudra-yojana', 'pmegp-khadi-board', 'stand-up-india', 'other'];
 
 
 export default function sitemap(): MetadataRoute.Sitemap {
