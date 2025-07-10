@@ -60,9 +60,7 @@ const navLinks = [
       { href: '/apply/government-scheme/stand-up-india', label: 'Stand-Up India', description: 'For SC/ST & women', icon: Users },
       { href: '/apply/government-scheme/other', label: 'Other Scheme', description: 'Apply for another scheme not listed', icon: FileQuestion },
     ]
-  },
-  { href: '/about', label: 'About Us' },
-  { href: '/contact', label: 'Contact Us' },
+  }
 ];
 
 const ListItem = React.forwardRef<
@@ -116,7 +114,12 @@ const DynamicLogo = () => {
     setLogoSrc(resolvedTheme === 'dark' ? '/darkmode-logo.png' : '/lightmode-logo.png');
   }, [resolvedTheme]);
 
-  return <Image src={logoSrc} alt="RN FinTech Logo" width={150} height={40} priority className="h-10 w-auto" />;
+  return (
+     <div className="flex items-center gap-2">
+        <Image src={logoSrc} alt="RN FinTech Logo" width={40} height={40} priority className="h-10 w-auto" />
+        <span className="text-xl font-bold text-foreground">RN FinTech</span>
+    </div>
+  );
 };
 
 

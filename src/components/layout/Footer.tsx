@@ -29,7 +29,7 @@ export function Footer() {
                   width={150}
                   height={40}
                   priority
-                  className="h-10"
+                  className="h-auto"
                 />
             </Link>
             <p className="mt-4 text-muted-foreground text-sm text-center md:text-left">
