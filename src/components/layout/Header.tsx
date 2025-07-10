@@ -4,6 +4,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useTheme } from "next-themes";
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/components/ui/sheet';
 import {
@@ -22,9 +23,9 @@ import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import {
   Menu, LogOut, Loader2, LayoutDashboard, ShieldCheck, User as UserIcon, UserPlus, LogIn, ChevronDown,
-  Home, User, Briefcase, CreditCardIcon, Cog, LandPlot, Building,
+  Home, User, Briefcase, CreditCardIcon, Cog,
   FileSpreadsheet, BookOpenCheck, Building2, ClipboardCheck, PiggyBank,
-  Banknote, Factory, Users, FileQuestion
+  Banknote, Factory, Users, FileQuestion, Sun, Moon
 } from 'lucide-react';
 
 
@@ -91,11 +92,26 @@ const ListItem = React.forwardRef<
 })
 ListItem.displayName = "ListItem"
 
+const ThemeSwitcher = () => {
+    const { setTheme, theme } = useTheme();
+    return (
+        <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
+            aria-label="Toggle theme"
+        >
+            <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+            <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+            <span className="sr-only">Toggle theme</span>
+        </Button>
+    )
+}
+
 
 export function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const router = useRouter();
   const { toast } = useToast();
   const { currentUser, logout, isLoading, openAuthModal } = useAuth();
 
@@ -119,15 +135,15 @@ export function Header() {
     return name.substring(0, 2).toUpperCase();
   };
   
-  const commonLinkClasses = "text-primary hover:text-primary/80 transition-colors font-semibold no-underline";
-  const mobileLinkClasses = "flex items-center py-3 px-6 text-lg hover:bg-secondary/40";
+  const commonLinkClasses = "text-foreground hover:text-primary transition-colors font-semibold no-underline";
+  const mobileLinkClasses = "flex items-center py-3 px-6 text-lg hover:bg-secondary";
 
   return (
     <header className={`bg-background/80 backdrop-blur-sm border-b border-border sticky top-0 z-50 transition-shadow duration-300 ${isScrolled ? 'shadow-md' : ''}`}>
       <nav className="w-full max-w-screen-2xl mx-auto px-6 sm:px-8 py-2 flex justify-between items-center">
         <Link href="/" className="flex-shrink-0 flex items-center gap-2 no-underline">
           <Image src="/rnfintech.png" alt="FinTech Logo" width={30} height={20} priority />
-          <span className="font-bold text-lg text-foreground">FinTech</span>
+          <span className="font-bold text-lg text-foreground">RN FinTech</span>
         </Link>
         
         <div className="hidden md:flex items-center justify-center flex-grow space-x-1">
@@ -160,6 +176,7 @@ export function Header() {
         <div className="flex items-center flex-shrink-0 space-x-2">
           {/* Desktop-only auth state */}
           <div className="hidden md:flex items-center space-x-2">
+            <ThemeSwitcher />
             {isLoading ? (
               <Button variant="ghost" size="icon" disabled><Loader2 className="w-5 h-5 animate-spin" /></Button>
             ) : currentUser ? (
@@ -207,11 +224,12 @@ export function Header() {
               <Button variant="ghost" size="icon" aria-label="Open menu" disabled={isLoading}>{isLoading ? <Loader2 className="w-6 h-6 animate-spin" /> : <Menu className="w-6 h-6" />}</Button>
             </SheetTrigger>
             <SheetContent side="right" className="w-[300px] bg-background p-0 flex flex-col">
-              <div className="p-6 border-b">
+              <div className="p-6 border-b flex justify-between items-center">
                 <Link href="/" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2 no-underline">
                   <Image src="/rnfintech.png" alt="FinTech Logo" width={30} height={20} priority />
-                   <span className="font-bold text-lg text-foreground">FinTech</span>
+                   <span className="font-bold text-lg text-foreground">RN FinTech</span>
                 </Link>
+                <ThemeSwitcher />
               </div>
               <nav className="flex-grow overflow-y-auto">
                  <Accordion type="multiple" className="w-full">
@@ -233,7 +251,7 @@ export function Header() {
                       </AccordionItem>
                     ) : (
                       <SheetClose asChild key={link.label}>
-                        <Link href={link.href!} className={`${commonLinkClasses} flex items-center py-3 px-6 text-lg hover:bg-secondary/40 text-left w-full border-b`}>{link.label}</Link>
+                        <Link href={link.href!} className={`${commonLinkClasses} ${mobileLinkClasses} text-left w-full border-b`}>{link.label}</Link>
                       </SheetClose>
                     )
                   )}
