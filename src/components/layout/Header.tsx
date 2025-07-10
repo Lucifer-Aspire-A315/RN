@@ -108,6 +108,17 @@ const ThemeSwitcher = () => {
     )
 }
 
+const DynamicLogo = () => {
+  const { resolvedTheme } = useTheme();
+  const [logoSrc, setLogoSrc] = useState('/lightmode-logo.png');
+
+  useEffect(() => {
+    setLogoSrc(resolvedTheme === 'dark' ? '/darkmode-logo.png' : '/lightmode-logo.png');
+  }, [resolvedTheme]);
+
+  return <Image src={logoSrc} alt="RN FinTech Logo" width={150} height={40} priority className="h-10 w-auto" />;
+};
+
 
 export function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -142,8 +153,7 @@ export function Header() {
     <header className={`bg-background/80 backdrop-blur-sm border-b border-border sticky top-0 z-50 transition-shadow duration-300 ${isScrolled ? 'shadow-md' : ''}`}>
       <nav className="w-full max-w-screen-2xl mx-auto px-6 sm:px-8 py-2 flex justify-between items-center">
         <Link href="/" className="flex-shrink-0 flex items-center gap-2 no-underline">
-          <Image src="/rnfintech.png" alt="FinTech Logo" width={30} height={20} priority />
-          <span className="font-bold text-lg text-foreground">RN FinTech</span>
+           <DynamicLogo />
         </Link>
         
         <div className="hidden md:flex items-center justify-center flex-grow space-x-1">
@@ -226,8 +236,7 @@ export function Header() {
             <SheetContent side="right" className="w-[300px] bg-background p-0 flex flex-col">
               <div className="p-6 border-b flex justify-between items-center">
                 <Link href="/" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2 no-underline">
-                  <Image src="/rnfintech.png" alt="FinTech Logo" width={30} height={20} priority />
-                   <span className="font-bold text-lg text-foreground">RN FinTech</span>
+                  <DynamicLogo />
                 </Link>
                 <ThemeSwitcher />
               </div>

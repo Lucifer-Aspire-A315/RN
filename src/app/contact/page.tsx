@@ -93,7 +93,7 @@ export default function ContactUsPage() {
                 icon={Mail}
                 title="Email Us"
                 description="For inquiries, support, & feedback."
-                href="mailto:contact@rnfintech.com"
+                href="mailto:admin@rnfintech.com"
                 linkText="contact@rnfintech.com"
                 color="bg-chart-1"
               />
