@@ -37,10 +37,12 @@ export default async function AdminEditApplicationPage({ params, searchParams }:
     return <div>Error: Service category not specified.</div>;
   }
   
+  // The getApplicationDetails action includes security checks.
+  // It will throw an error if the user is not an admin, preventing unauthorized access.
   const applicationData = await getApplicationDetails(id, category);
 
   if (!applicationData) {
-     return <div>Error: Application not found.</div>;
+     return <div>Error: Application not found or you do not have permission to edit it.</div>;
   }
   
   const initialData = applicationData.formData;

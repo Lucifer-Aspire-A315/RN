@@ -42,22 +42,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = useCallback((userData: UserData) => {
     setCurrentUser(userData);
-    setIsAuthModalOpen(false); // Close modal on successful login/signup
+    setIsAuthModalOpen(false);
     
-    // Perform redirection
+    // Perform redirection logic
     if (redirectUrl) {
       router.push(redirectUrl);
+    } else if (userData.type === 'partner') {
+        router.push('/dashboard?tab=dashboard');
     } else {
       router.push('/dashboard');
     }
-    setRedirectUrl(null); // Reset after use
+    setRedirectUrl(null);
   }, [redirectUrl, router]);
 
   const logout = useCallback(async () => {
     const result = await performLogoutAction();
     if (result.success) {
       setCurrentUser(null);
-      router.push('/'); // Redirect to home after logout
+      router.push('/');
     } else {
       console.error("Logout failed:", result.message);
     }

@@ -61,8 +61,8 @@ export function PartnerClientsView() {
                                 <TableBody>
                                     {clients.map(client => (
                                         <TableRow key={client.id}>
-                                            <TableCell className="font-medium">{client.userName || client.fullName}</TableCell>
-                                            <TableCell className="hidden sm:table-cell">{client.userEmail || client.email}</TableCell>
+                                            <TableCell className="font-medium">{client.fullName}</TableCell>
+                                            <TableCell className="hidden sm:table-cell">{client.email}</TableCell>
                                             <TableCell className="text-right">{format(new Date(client.createdAt), 'PP')}</TableCell>
                                         </TableRow>
                                     ))}

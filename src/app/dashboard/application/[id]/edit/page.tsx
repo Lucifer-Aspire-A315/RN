@@ -37,7 +37,9 @@ export default async function EditApplicationPage({ params, searchParams }: Edit
     return <div>Error: Service category not specified.</div>;
   }
   
-  // getApplicationDetails action has its own security to ensure only the submitter or an admin can access it.
+  // The getApplicationDetails action includes security checks.
+  // It will throw an error if the user does not have permission to view the application,
+  // preventing unauthorized access.
   const applicationData = await getApplicationDetails(id, category);
 
   if (!applicationData) {

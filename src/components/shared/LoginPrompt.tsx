@@ -16,12 +16,12 @@ export function LoginPrompt() {
   const searchParams = useSearchParams();
 
   const handleLogin = () => {
-    const redirectUrl = `${pathname}?${searchParams.toString()}`;
+    const redirectUrl = `${pathname}${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
     openAuthModal('login', redirectUrl);
   };
   
   const handleSignUp = () => {
-    const redirectUrl = `${pathname}?${searchParams.toString()}`;
+    const redirectUrl = `${pathname}${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
     openAuthModal('signup', redirectUrl);
   };
 
