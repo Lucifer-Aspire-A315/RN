@@ -166,7 +166,7 @@ async function _signUpUser(data: UserSignUpFormData | PartnerSignUpFormData, col
         
         // If a user selected a partner during signup, notify the partner
         if (collectionName === 'users' && partnerId) {
-            console.log(`[AuthActions] User ${docRef.id} linked to partner ${partnerId}.`);
+            console.log(`[AuthActions] User ${docRef.id} linked to partner ${partnerId}. Notifying partner.`);
             
             const partnerRef = doc(db, 'partners', partnerId);
             const partnerSnap = await getDoc(partnerRef);
@@ -181,6 +181,8 @@ async function _signUpUser(data: UserSignUpFormData | PartnerSignUpFormData, col
                         clientEmail: newUser.email,
                     }),
                 });
+            } else {
+                 console.warn(`[AuthActions] Could not find partner ${partnerId} to send new client notification.`);
             }
         }
         
@@ -221,6 +223,7 @@ async function _signUpUser(data: UserSignUpFormData | PartnerSignUpFormData, col
         return { success: false, message: 'An unexpected error occurred during sign-up.' };
     }
 }
+
 
 async function _loginUser(data: UserLoginFormData, collectionName: 'partners' | 'users'): Promise<AuthServerActionResponse> {
     try {

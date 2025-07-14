@@ -139,38 +139,38 @@ export function UserSignUpForm({ partners }: UserSignUpFormProps) {
             />
 
             {partners.length > 0 && (
-                 <FormField
-                    control={form.control}
-                    name="partnerId"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel className="flex items-center gap-2">
-                                <Handshake className="w-4 h-4 text-muted-foreground" />
-                                Select Your Partner
-                            </FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                <FormControl>
-                                <SelectTrigger className={cn(!field.value && "text-muted-foreground")}>
-                                    <SelectValue placeholder="Select the partner who referred you..." />
-                                </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                {partners.map((partner) => (
-                                    <SelectItem key={partner.id} value={partner.id}>
-                                        <div className="flex justify-between items-center w-full">
-                                            <span>{partner.fullName}</span>
-                                            <span className="text-xs text-muted-foreground bg-secondary px-2 py-0.5 rounded-full">
-                                                {getBusinessModelDisplay(partner.businessModel)}
-                                            </span>
-                                        </div>
-                                    </SelectItem>
-                                ))}
-                                </SelectContent>
-                            </Select>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
+              <FormField
+                control={form.control}
+                name="partnerId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center gap-2">
+                        <Handshake className="w-4 h-4 text-muted-foreground" />
+                        Select Your Partner
+                    </FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger className={cn(!field.value && "text-muted-foreground")}>
+                            <SelectValue placeholder="Select the partner who referred you..." />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                      {partners.map((partner) => (
+                          <SelectItem key={partner.id} value={partner.id}>
+                              <div className="flex justify-between items-center w-full">
+                                  <span>{partner.fullName}</span>
+                                  <span className="text-xs text-muted-foreground bg-secondary px-2 py-0.5 rounded-full">
+                                      {getBusinessModelDisplay(partner.businessModel)}
+                                  </span>
+                              </div>
+                          </SelectItem>
+                      ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             )}
             
             <FormField
