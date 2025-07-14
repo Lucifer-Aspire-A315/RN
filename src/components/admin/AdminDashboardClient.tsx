@@ -14,6 +14,8 @@ import { Skeleton } from '../ui/skeleton';
 import { AnalyticsCharts } from './AnalyticsCharts';
 import { ScrollArea, ScrollBar } from '../ui/scroll-area';
 import { useSearchParams, useRouter } from 'next/navigation';
+import { Input } from '../ui/input';
+import { Search } from 'lucide-react';
 
 interface AdminDashboardClientProps {
     // No initial props needed, will fetch data itself
@@ -37,6 +39,7 @@ export function AdminDashboardClient({}: AdminDashboardClientProps) {
   const [isPending, startTransition] = useTransition();
   const [processingState, setProcessingState] = useState<{ id: string; type: 'delete' | 'status' | 'approve' } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
   const { toast } = useToast();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -69,12 +72,22 @@ export function AdminDashboardClient({}: AdminDashboardClientProps) {
     fetchData();
   }, [toast]);
   
-  const pendingApplications = useMemo(() => {
+  const filteredApplications = useMemo(() => {
+    if (!searchTerm) return applications;
     return applications.filter(app => 
+        app.applicantDetails?.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        app.applicantDetails?.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        app.id.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [applications, searchTerm]);
+
+  const pendingApplications = useMemo(() => {
+    const appsToFilter = searchTerm ? filteredApplications : applications;
+    return appsToFilter.filter(app => 
       app.status.toLowerCase() === 'submitted' || 
       app.status.toLowerCase() === 'in review'
     );
-  }, [applications]);
+  }, [applications, filteredApplications, searchTerm]);
 
   const handleApprovePartner = async (partnerId: string) => {
     setProcessingState({ id: partnerId, type: 'approve' });
@@ -170,13 +183,22 @@ export function AdminDashboardClient({}: AdminDashboardClientProps) {
               <CardHeader>
                 <CardTitle>All Submitted Applications</CardTitle>
                 <CardDescription>A list of all applications submitted across the platform.</CardDescription>
+                <div className="relative pt-2">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input 
+                        placeholder="Search by name, email, or ID..." 
+                        className="pl-10"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                </div>
               </CardHeader>
               <CardContent>
                   {isLoading ? (
                       <TableSkeleton />
                   ) : (
                       <AdminApplicationsTable 
-                          applications={applications} 
+                          applications={filteredApplications} 
                           onUpdateStatus={handleUpdateStatus}
                           onArchive={handleArchiveApplication}
                           processingState={processingState}
@@ -190,6 +212,15 @@ export function AdminDashboardClient({}: AdminDashboardClientProps) {
               <CardHeader>
                 <CardTitle>Pending Applications</CardTitle>
                 <CardDescription>Review and process applications that require action.</CardDescription>
+                 <div className="relative pt-2">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input 
+                        placeholder="Search by name, email, or ID..." 
+                        className="pl-10"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                </div>
               </CardHeader>
               <CardContent>
                   {isLoading ? (

@@ -6,9 +6,11 @@ import { Badge } from '@/components/ui/badge';
 import type { PartnerData } from '@/lib/types';
 import { format } from 'date-fns';
 import { useRouter } from 'next/navigation';
-import { Handshake } from 'lucide-react';
+import { Handshake, Search } from 'lucide-react';
 import { Button } from '../ui/button';
 import Link from 'next/link';
+import React from 'react';
+import { Input } from '../ui/input';
 
 interface AllPartnersTableProps {
   partners: PartnerData[];
@@ -25,10 +27,19 @@ const getBusinessModelDisplay = (model?: 'referral' | 'dsa' | 'merchant'): strin
 
 export function AllPartnersTable({ partners }: AllPartnersTableProps) {
   const router = useRouter();
+  const [searchTerm, setSearchTerm] = React.useState('');
 
   const handlePartnerClick = (partnerId: string) => {
     router.push(`/admin/partner/${partnerId}`);
   };
+
+  const filteredPartners = React.useMemo(() => {
+    if (!searchTerm) return partners;
+    return partners.filter(p => 
+        p.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        p.email.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [partners, searchTerm]);
 
   if (partners.length === 0) {
     return (
@@ -48,35 +59,46 @@ export function AllPartnersTable({ partners }: AllPartnersTableProps) {
   }
 
   return (
-    <div className="border rounded-lg overflow-hidden">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Full Name</TableHead>
-            <TableHead>Email</TableHead>
-            <TableHead className="hidden sm:table-cell">Mobile</TableHead>
-            <TableHead>Business Model</TableHead>
-            <TableHead className="hidden lg:table-cell">Registered On</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {partners.map((partner) => (
-            <TableRow 
-              key={partner.id} 
-              onClick={() => handlePartnerClick(partner.id)}
-              className="cursor-pointer"
-            >
-              <TableCell className="font-medium">{partner.fullName}</TableCell>
-              <TableCell>{partner.email}</TableCell>
-              <TableCell className="hidden sm:table-cell">{partner.mobileNumber}</TableCell>
-              <TableCell>
-                  <Badge variant="secondary">{getBusinessModelDisplay(partner.businessModel)}</Badge>
-              </TableCell>
-              <TableCell className="hidden lg:table-cell">{format(new Date(partner.createdAt), 'PPp')}</TableCell>
+    <div className="space-y-4">
+        <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input 
+                placeholder="Search by partner name or email..." 
+                className="pl-10"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+            />
+        </div>
+        <div className="border rounded-lg overflow-hidden">
+        <Table>
+            <TableHeader>
+            <TableRow>
+                <TableHead>Full Name</TableHead>
+                <TableHead>Email</TableHead>
+                <TableHead className="hidden sm:table-cell">Mobile</TableHead>
+                <TableHead>Business Model</TableHead>
+                <TableHead className="hidden lg:table-cell">Registered On</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+            </TableHeader>
+            <TableBody>
+            {filteredPartners.map((partner) => (
+                <TableRow 
+                key={partner.id} 
+                onClick={() => handlePartnerClick(partner.id)}
+                className="cursor-pointer"
+                >
+                <TableCell className="font-medium">{partner.fullName}</TableCell>
+                <TableCell>{partner.email}</TableCell>
+                <TableCell className="hidden sm:table-cell">{partner.mobileNumber}</TableCell>
+                <TableCell>
+                    <Badge variant="secondary">{getBusinessModelDisplay(partner.businessModel)}</Badge>
+                </TableCell>
+                <TableCell className="hidden lg:table-cell">{format(new Date(partner.createdAt), 'PPp')}</TableCell>
+                </TableRow>
+            ))}
+            </TableBody>
+        </Table>
+        </div>
     </div>
   );
 }

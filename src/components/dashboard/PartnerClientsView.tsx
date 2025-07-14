@@ -1,14 +1,15 @@
 
 'use client';
 
-import React, { useState, useEffect, useTransition } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { getPartnerClients, type PartnerClient } from '@/app/actions/partnerActions';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { format } from 'date-fns';
-import { UserX } from 'lucide-react';
+import { UserX, Search } from 'lucide-react';
+import { Input } from '../ui/input';
 
 
 const TableSkeleton = () => (
@@ -23,6 +24,7 @@ export function PartnerClientsView() {
     const { toast } = useToast();
     const [isLoading, setIsLoading] = useState(true);
     const [clients, setClients] = useState<PartnerClient[]>([]);
+    const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
         const fetchClients = async () => {
@@ -40,15 +42,32 @@ export function PartnerClientsView() {
         fetchClients();
     }, [toast]);
 
+    const filteredClients = useMemo(() => {
+        if (!searchTerm) return clients;
+        return clients.filter(c =>
+            c.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            c.email.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+    }, [clients, searchTerm]);
+
     return (
         <Card>
             <CardHeader>
                 <CardTitle>My Clients</CardTitle>
                 <CardDescription>A list of all users who have registered under you.</CardDescription>
+                <div className="relative pt-2">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input 
+                        placeholder="Search by client name or email..." 
+                        className="pl-10"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                </div>
             </CardHeader>
             <CardContent>
                 {isLoading ? <TableSkeleton /> : (
-                    clients.length > 0 ? (
+                    filteredClients.length > 0 ? (
                         <div className="border rounded-lg overflow-hidden">
                             <Table>
                                 <TableHeader>
@@ -59,7 +78,7 @@ export function PartnerClientsView() {
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {clients.map(client => (
+                                    {filteredClients.map(client => (
                                         <TableRow key={client.id}>
                                             <TableCell className="font-medium">{client.fullName}</TableCell>
                                             <TableCell className="hidden sm:table-cell">{client.email}</TableCell>

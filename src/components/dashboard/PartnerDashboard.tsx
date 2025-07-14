@@ -4,12 +4,14 @@
 import type { UserData, UserApplication } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { PlusCircle } from 'lucide-react';
+import { PlusCircle, Search } from 'lucide-react';
 import { ApplicationsTable } from './ApplicationsTable';
 import { Skeleton } from '../ui/skeleton';
 import Link from 'next/link';
 import { DashboardStats, type Stat } from './DashboardStats';
 import { AnalyticsCharts } from '@/components/admin/AnalyticsCharts';
+import React from 'react';
+import { Input } from '../ui/input';
 
 interface PartnerDashboardViewProps {
     user: UserData;
@@ -30,6 +32,17 @@ function ApplicationsTableSkeleton() {
 }
 
 export function PartnerDashboard({ user, applications, isLoading, stats }: PartnerDashboardViewProps) {
+    const [searchTerm, setSearchTerm] = React.useState('');
+
+    const filteredApplications = React.useMemo(() => {
+        if (!searchTerm) return applications;
+        return applications.filter(app => 
+            app.applicantDetails?.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            app.applicantDetails?.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            app.id.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+    }, [applications, searchTerm]);
+
     if (!user.businessModel) {
         return (
             <Card>
@@ -80,9 +93,18 @@ export function PartnerDashboard({ user, applications, isLoading, stats }: Partn
                 <CardHeader>
                     <CardTitle>Submitted Applications</CardTitle>
                     <CardDescription>A list of all applications you have submitted for clients.</CardDescription>
+                    <div className="relative pt-2">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input 
+                            placeholder="Search by client name, email, or ID..." 
+                            className="pl-10"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                    </div>
                 </CardHeader>
                 <CardContent>
-                    {isLoading ? <ApplicationsTableSkeleton /> : <ApplicationsTable applications={applications} isPartner={true} />}
+                    {isLoading ? <ApplicationsTableSkeleton /> : <ApplicationsTable applications={filteredApplications} isPartner={true} />}
                 </CardContent>
             </Card>
         </div>
