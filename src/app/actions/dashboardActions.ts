@@ -1,69 +1,91 @@
+
 'use server';
 
-import { cookies } from 'next/headers';
 import { db } from '@/lib/firebase';
-import { collection, query, where, getDocs, Timestamp, type QueryConstraint } from 'firebase/firestore';
-import type { UserApplication } from '@/lib/types';
+import { collection, query, where, getDocs, Timestamp, type QueryConstraint, type DocumentData } from 'firebase/firestore';
+import type { UserApplication, UserData } from '@/lib/types';
 import { formatApplication } from '@/lib/utils';
+import { checkSessionAction } from './authActions';
+import { getPartnerClientIds } from './partnerActions';
 
 
 export async function getUserApplications(): Promise<UserApplication[]> {
-  console.log('[DashboardActions] Fetching user applications...');
-  const userId = cookies().get('user_id')?.value;
-  const userType = cookies().get('user_type')?.value;
-
-  if (!userId) {
-    console.warn('[DashboardActions] No user ID found in cookies. Returning empty array.');
+  const user = await checkSessionAction();
+  if (!user) {
+    console.warn('[DashboardActions] No user session found. Returning empty array.');
     return [];
   }
-  
-  console.log(`[DashboardActions] User ID: ${userId}, Type: ${userType}. Querying collections...`);
+
+  console.log(`[DashboardActions] User ID: ${user.id}, Type: ${user.type}. Querying collections...`);
 
   try {
-    const loanApplicationsRef = collection(db, 'loanApplications');
-    const caServiceApplicationsRef = collection(db, 'caServiceApplications');
-    const governmentSchemeApplicationsRef = collection(db, 'governmentSchemeApplications');
+    const allCollections = ['loanApplications', 'caServiceApplications', 'governmentSchemeApplications'];
+    let allApplications: UserApplication[] = [];
 
-    // This single query works for both normal users and partners.
-    // We will fetch all applications for the user and filter out 'Archived' ones in the code
-    // to avoid potential Firestore indexing issues with inequality filters.
-    const userSpecificConstraints: QueryConstraint[] = [
-        where('submittedBy.userId', '==', userId),
-    ];
+    if (user.type === 'partner') {
+        const clientIds = await getPartnerClientIds(user.id);
+        
+        const appPromises: Promise<DocumentData[]>[] = [];
 
-    const qLoan = query(loanApplicationsRef, ...userSpecificConstraints);
-    const qCa = query(caServiceApplicationsRef, ...userSpecificConstraints);
-    const qGov = query(governmentSchemeApplicationsRef, ...userSpecificConstraints);
+        // Query for apps submitted BY the partner
+        for (const coll of allCollections) {
+            const q = query(collection(db, coll), where('submittedBy.userId', '==', user.id));
+            appPromises.push(getDocs(q).then(snap => snap.docs));
+        }
 
+        // Query for apps submitted BY the partner's clients, if any exist
+        if (clientIds.length > 0) {
+            for (const coll of allCollections) {
+                const q = query(collection(db, coll), where('applicantDetails.userId', 'in', clientIds));
+                appPromises.push(getDocs(q).then(snap => snap.docs));
+            }
+        }
+        
+        const snapshots = await Promise.all(appPromises);
+        const allDocs = snapshots.flat();
 
-    const [loanSnapshot, caSnapshot, govSnapshot] = await Promise.all([
-      getDocs(qLoan),
-      getDocs(qCa),
-      getDocs(qGov),
-    ]);
+        const uniqueAppMap = new Map<string, UserApplication>();
+        allDocs.forEach(doc => {
+            let category: UserApplication['serviceCategory'] = 'Unknown';
+            if (doc.ref.parent.id.startsWith('loan')) category = 'loan';
+            else if (doc.ref.parent.id.startsWith('caService')) category = 'caService';
+            else if (doc.ref.parent.id.startsWith('governmentScheme')) category = 'governmentScheme';
+            
+            const formattedApp = formatApplication(doc, category);
+            uniqueAppMap.set(formattedApp.id, formattedApp);
+        });
+        
+        allApplications = Array.from(uniqueAppMap.values());
+
+    } else {
+        // --- Normal User Logic ---
+        const userSpecificConstraints: QueryConstraint[] = [
+            where('applicantDetails.userId', '==', user.id),
+        ];
+
+        const qLoan = query(collection(db, 'loanApplications'), ...userSpecificConstraints);
+        const qCa = query(collection(db, 'caServiceApplications'), ...userSpecificConstraints);
+        const qGov = query(collection(db, 'governmentSchemeApplications'), ...userSpecificConstraints);
+
+        const [loanSnapshot, caSnapshot, govSnapshot] = await Promise.all([
+            getDocs(qLoan),
+            getDocs(qCa),
+            getDocs(qGov),
+        ]);
+
+        allApplications = [
+            ...loanSnapshot.docs.map(doc => formatApplication(doc, 'loan')),
+            ...caSnapshot.docs.map(doc => formatApplication(doc, 'caService')),
+            ...govSnapshot.docs.map(doc => formatApplication(doc, 'governmentScheme')),
+        ];
+    }
     
-    console.log(`[DashboardActions] Found ${loanSnapshot.size} loan, ${caSnapshot.size} CA, and ${govSnapshot.size} gov scheme applications before filtering.`);
+    // Filter out archived applications and sort for all user types
+    const nonArchivedApplications = allApplications.filter(app => app.status !== 'Archived');
+    nonArchivedApplications.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
-    // Map and filter applications in code
-    const loanApplications = loanSnapshot.docs
-      .map(doc => formatApplication(doc, 'loan'))
-      .filter(app => app.status !== 'Archived');
-      
-    const caApplications = caSnapshot.docs
-      .map(doc => formatApplication(doc, 'caService'))
-      .filter(app => app.status !== 'Archived');
-
-    const govApplications = govSnapshot.docs
-      .map(doc => formatApplication(doc, 'governmentScheme'))
-      .filter(app => app.status !== 'Archived');
-
-    const allApplications = [...loanApplications, ...caApplications, ...govApplications];
-    
-    // Sort all applications by date, descending
-    allApplications.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-
-    console.log(`[DashboardActions] Successfully fetched and merged ${allApplications.length} non-archived applications.`);
-    return allApplications;
+    console.log(`[DashboardActions] Successfully fetched and merged ${nonArchivedApplications.length} non-archived applications for user ${user.id}.`);
+    return nonArchivedApplications;
 
   } catch (error: any) {
     console.error('[DashboardActions] Error fetching user applications from Firestore:', error.message, error.stack);

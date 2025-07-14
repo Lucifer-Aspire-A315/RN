@@ -16,8 +16,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { ArrowLeft, Loader2, UploadCloud } from 'lucide-react';
 import { FormSection, FormFieldWrapper } from './FormSection';
 import { useRouter } from 'next/navigation';
-import { FormProgress } from '../shared/FormProgress';
 import { processNestedFileUploads } from '@/lib/form-helpers';
+import { FormStepper } from '../shared/FormStepper';
 
 // Field and Section Configuration Types
 interface FieldConfig {
@@ -79,6 +79,7 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
   const { currentUser } = useAuth();
   const [currentStep, setCurrentStep] = useState(0);
   const [isDeclared, setIsDeclared] = useState(!declarationConfig);
+  const [highestValidatedStep, setHighestValidatedStep] = useState(0);
 
 
   const form = useForm<TData>({
@@ -101,6 +102,8 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
       })
     );
   }, [sections, watchedValues]);
+
+  const stepLabels = useMemo(() => visibleSections.map(s => s.title), [visibleSections]);
 
   useEffect(() => {
     if (currentStep >= visibleSections.length) {
@@ -177,6 +180,7 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
     const isValid = await trigger(fieldsInSection as any, { shouldFocus: true });
     
     if (isValid) {
+      setHighestValidatedStep(Math.max(highestValidatedStep, currentStep + 1));
       if (currentStep < visibleSections.length - 1) {
         setCurrentStep(prev => prev + 1);
       }
@@ -193,6 +197,12 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
     setCurrentStep(prev => Math.max(0, prev - 1));
   };
   
+  const handleStepClick = (stepIndex: number) => {
+    if (stepIndex <= highestValidatedStep && stepIndex !== currentStep) {
+      setCurrentStep(stepIndex);
+    }
+  };
+
   const renderField = (fieldConfig: FieldConfig) => {
     return (
       <FormField key={fieldConfig.name} control={control} name={fieldConfig.name as any}
@@ -298,7 +308,12 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
             <p className="text-muted-foreground mt-1">{formSubtitle}</p>
           </div>
 
-          <FormProgress currentStep={currentStep} totalSteps={visibleSections.length} />
+          <FormStepper 
+            steps={stepLabels} 
+            currentStep={currentStep} 
+            highestValidatedStep={highestValidatedStep}
+            onStepClick={handleStepClick}
+          />
 
           <Form {...form}>
             <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-10">

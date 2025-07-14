@@ -7,6 +7,7 @@ import { FileText } from 'lucide-react';
 import { GenericLoanForm } from './GenericLoanForm';
 import { submitApplicationAction, updateApplicationAction } from '@/app/actions/applicationActions';
 import type { UserApplication } from '@/lib/types';
+import type { UserProfileData } from '@/app/actions/profileActions';
 
 
 interface GovernmentSchemeLoanApplicationFormProps {
@@ -15,6 +16,7 @@ interface GovernmentSchemeLoanApplicationFormProps {
   initialData?: GovernmentSchemeLoanApplicationFormData | null;
   applicationId?: string;
   mode?: 'create' | 'edit';
+  userProfile?: UserProfileData | null;
 }
 
 const governmentSchemeSections = [
@@ -80,18 +82,26 @@ const governmentSchemeSections = [
   }
 ];
 
-export function GovernmentSchemeLoanApplicationForm({ onBack, selectedScheme, initialData, applicationId, mode = 'create' }: GovernmentSchemeLoanApplicationFormProps) {
+export function GovernmentSchemeLoanApplicationForm({ onBack, selectedScheme, initialData, applicationId, mode = 'create', userProfile }: GovernmentSchemeLoanApplicationFormProps) {
+
+  const prefilledData = {
+    personalDetails: {
+      fullName: userProfile?.fullName || '',
+      email: userProfile?.email || '',
+      mobileNumber: userProfile?.mobileNumber || '',
+    }
+  };
 
   const defaultValues: GovernmentSchemeLoanApplicationFormData = initialData || {
     personalDetails: {
-      fullName: '',
+      fullName: prefilledData.personalDetails.fullName,
       fatherOrHusbandName: '',
       dob: '',
       gender: undefined,
       category: undefined,
       maritalStatus: undefined,
-      mobileNumber: '',
-      email: '',
+      mobileNumber: prefilledData.personalDetails.mobileNumber,
+      email: prefilledData.personalDetails.email,
       panNumber: '',
       aadhaarNumber: '',
     },

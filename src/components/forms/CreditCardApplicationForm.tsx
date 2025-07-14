@@ -6,6 +6,7 @@ import { CreditCardIcon } from 'lucide-react';
 import { GenericLoanForm } from './GenericLoanForm';
 import { CreditCardApplicationSchema, type CreditCardApplicationFormData } from '@/lib/schemas';
 import { submitApplicationAction, updateApplicationAction } from '@/app/actions/applicationActions';
+import type { UserProfileData } from '@/app/actions/profileActions';
 
 interface CreditCardApplicationFormProps {
   onBack?: () => void;
@@ -13,6 +14,7 @@ interface CreditCardApplicationFormProps {
   initialData?: CreditCardApplicationFormData | null;
   applicationId?: string;
   mode?: 'create' | 'edit';
+  userProfile?: UserProfileData | null;
 }
 
 const creditCardSections = [
@@ -79,24 +81,42 @@ const creditCardSections = [
   }
 ];
 
-export function CreditCardApplicationForm({ onBack, backButtonText, initialData, applicationId, mode = 'create' }: CreditCardApplicationFormProps) {
+export function CreditCardApplicationForm({ onBack, backButtonText, initialData, applicationId, mode = 'create', userProfile }: CreditCardApplicationFormProps) {
+  
+  const prefilledData = {
+    personalDetails: {
+      fullName: userProfile?.fullName || '',
+      email: userProfile?.email || '',
+      mobileNumber: userProfile?.mobileNumber || '',
+    }
+  };
+
   const defaultValues: CreditCardApplicationFormData = {
-    personalDetails: { fullName: '', fatherOrHusbandName: '', dob: '', gender: undefined, mobileNumber: '', email: '', panNumber: '', aadhaarNumber: '' },
-    addressDetails: { currentAddress: '' },
-    employmentIncome: { 
+    personalDetails: { 
+      fullName: initialData?.personalDetails?.fullName || prefilledData.personalDetails.fullName,
+      fatherOrHusbandName: initialData?.personalDetails?.fatherOrHusbandName || '',
+      dob: initialData?.personalDetails?.dob || '', 
+      gender: initialData?.personalDetails?.gender || undefined, 
+      mobileNumber: initialData?.personalDetails?.mobileNumber || prefilledData.personalDetails.mobileNumber, 
+      email: initialData?.personalDetails?.email || prefilledData.personalDetails.email, 
+      panNumber: initialData?.personalDetails?.panNumber || '', 
+      aadhaarNumber: initialData?.personalDetails?.aadhaarNumber || ''
+    },
+    addressDetails: initialData?.addressDetails || { currentAddress: '' },
+    employmentIncome: initialData?.employmentIncome || { 
       employmentType: undefined, 
       companyName: '', 
       monthlyIncome: undefined, 
       yearsInCurrentJobOrBusiness: undefined 
     },
-    creditCardPreferences: {
+    creditCardPreferences: initialData?.creditCardPreferences || {
       preferredCardType: undefined,
       otherPreferredCardType: '',
       hasExistingCreditCard: "no",
       existingCreditCardIssuer: '',
       existingCreditCardLimit: undefined,
     },
-    documentUploads: {
+    documentUploads: initialData?.documentUploads || {
       panCard: undefined,
       aadhaarCard: undefined,
       photograph: undefined,
@@ -115,7 +135,7 @@ export function CreditCardApplicationForm({ onBack, backButtonText, initialData,
       formSubtitle="Apply for Your Credit Card Easily • Quick Approval • Minimal Documents • 100% Digital & Secure Process"
       formIcon={<CreditCardIcon className="w-12 h-12 mx-auto text-primary mb-2" />}
       schema={CreditCardApplicationSchema}
-      defaultValues={initialData || defaultValues}
+      defaultValues={defaultValues}
       sections={creditCardSections}
       submitAction={(data) => submitApplicationAction(data, 'loan', 'Credit Card')}
       updateAction={(id, data) => updateApplicationAction(id, 'loan', data)}

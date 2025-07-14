@@ -2,11 +2,19 @@
 'use server';
 
 import { cookies } from 'next/headers';
-import type { PartnerSignUpFormData, PartnerLoginFormData, UserSignUpFormData, UserLoginFormData } from '@/lib/schemas';
 import { db } from '@/lib/firebase';
-import { collection, addDoc, query, where, getDocs, Timestamp, type DocumentData } from 'firebase/firestore';
+import { collection, addDoc, query, where, getDocs, Timestamp, type DocumentData, doc, updateDoc, getDoc } from 'firebase/firestore';
 import bcrypt from 'bcryptjs';
 import type { UserData } from '@/lib/types';
+import type { PartnerSignUpFormData, PartnerLoginFormData, UserSignUpFormData, UserLoginFormData } from '@/lib/schemas';
+import { randomUUID } from 'crypto';
+import { sendEmail } from '@/lib/email';
+import { ResetPasswordEmail } from '@/components/emails/ResetPasswordEmail';
+import { WelcomeEmail } from '@/components/emails/WelcomeEmail';
+import { PartnerWelcomeEmail } from '@/components/emails/PartnerWelcomeEmail';
+import { AdminNewPartnerNotificationEmail } from '@/components/emails/AdminNewPartnerNotificationEmail';
+import { PartnerNewClientNotificationEmail } from '@/components/emails/PartnerNewClientNotificationEmail';
+
 
 // #region --- TYPES AND CONSTANTS ---
 
@@ -30,6 +38,7 @@ interface CustomCookieSetOptions {
 
 const SESSION_DURATION = 60 * 60 * 24 * 7; // 7 days in seconds
 const SALT_ROUNDS = 10;
+const PASSWORD_RESET_EXPIRATION = 60 * 60 * 1000; // 1 hour in milliseconds
 
 // #endregion
 
@@ -92,6 +101,7 @@ async function _signUpUser(data: UserSignUpFormData | PartnerSignUpFormData, col
         let emailToSearch: string;
         let fullName: string;
         let mobileNumber: string;
+        let partnerId: string | undefined;
 
         if (collectionName === 'partners') {
             const partnerData = data as PartnerSignUpFormData;
@@ -109,6 +119,7 @@ async function _signUpUser(data: UserSignUpFormData | PartnerSignUpFormData, col
             emailToSearch = userData.email;
             fullName = userData.fullName;
             mobileNumber = userData.mobileNumber;
+            partnerId = userData.partnerId;
         }
 
         const existingUser = await _findUserByEmail(emailToSearch, collectionName);
@@ -136,6 +147,9 @@ async function _signUpUser(data: UserSignUpFormData | PartnerSignUpFormData, col
             userToSave.mobileNumber = mobileNumber;
         } else {
             userToSave.isAdmin = false; // Normal users are never admins by default
+            if (partnerId) {
+                userToSave.partnerId = partnerId; // Store partner ID directly on user document
+            }
         }
         
         const docRef = await addDoc(collection(db, collectionName), userToSave);
@@ -147,12 +161,59 @@ async function _signUpUser(data: UserSignUpFormData | PartnerSignUpFormData, col
             type: userToSave.type,
             isAdmin: userToSave.isAdmin,
             businessModel: (data as PartnerSignUpFormData).businessModel,
+            partnerId: userToSave.partnerId,
         };
+        
+        // If a user selected a partner during signup, notify the partner
+        if (collectionName === 'users' && partnerId) {
+            console.log(`[AuthActions] User ${docRef.id} linked to partner ${partnerId}.`);
+            
+            const partnerRef = doc(db, 'partners', partnerId);
+            const partnerSnap = await getDoc(partnerRef);
+            if(partnerSnap.exists()) {
+                const partnerData = partnerSnap.data();
+                await sendEmail({
+                    to: partnerData.email,
+                    subject: 'A New Client Has Joined You on RN FinTech!',
+                    react: PartnerNewClientNotificationEmail({
+                        partnerName: partnerData.fullName,
+                        clientName: newUser.fullName,
+                        clientEmail: newUser.email,
+                    }),
+                });
+            }
+        }
         
         if (collectionName === 'users') {
              await setSessionCookies(newUser);
+             await sendEmail({
+                to: newUser.email,
+                subject: 'Welcome to RN FinTech!',
+                react: WelcomeEmail({ name: newUser.fullName }),
+             });
              return { success: true, message: 'Sign-up successful! Welcome to RN FinTech.', user: newUser };
         } else {
+            // Send welcome email to partner
+            await sendEmail({
+                to: newUser.email,
+                subject: 'RN FinTech Partner Application Received',
+                react: PartnerWelcomeEmail({ name: newUser.fullName }),
+            });
+            
+            // Send notification email to admin
+            const adminEmail = process.env.ADMIN_EMAIL_ADDRESS;
+            if(adminEmail) {
+                 await sendEmail({
+                    to: adminEmail,
+                    subject: '[Action Required] New Partner Registration',
+                    react: AdminNewPartnerNotificationEmail({
+                        partnerName: newUser.fullName,
+                        partnerEmail: newUser.email,
+                        businessModel: newUser.businessModel || 'N/A',
+                    }),
+                });
+            }
+            
             return { success: true, message: 'Partner application submitted! Your application is pending approval.', user: newUser };
         }
     } catch (error: any) {
@@ -186,6 +247,7 @@ async function _loginUser(data: UserLoginFormData, collectionName: 'partners' | 
             type: collectionName === 'partners' ? 'partner' : 'normal',
             isAdmin: !!userData.isAdmin,
             businessModel: userData.businessModel,
+            partnerId: userData.partnerId,
         };
         
         await setSessionCookies(loggedInUser);
@@ -244,16 +306,23 @@ export async function checkSessionAction(): Promise<UserData | null> {
     const sessionToken = cookieStore.get('session_token')?.value;
     const isAdmin = cookieStore.get('is_admin')?.value === 'true';
     const businessModel = cookieStore.get('business_model')?.value as UserData['businessModel'] | undefined;
-
+    
     if (userId && userName && userEmail && userType && sessionToken) {
-      return {
-        id: userId,
-        fullName: userName,
-        email: userEmail,
-        type: userType,
-        isAdmin: isAdmin,
-        businessModel: businessModel,
-      };
+      const userRef = doc(db, userType === 'partner' ? 'partners' : 'users', userId);
+      const userSnap = await getDoc(userRef);
+
+      if (userSnap.exists()) {
+        const userData = userSnap.data();
+        return {
+            id: userId,
+            fullName: userName,
+            email: userEmail,
+            type: userType as 'partner' | 'normal',
+            isAdmin: isAdmin,
+            businessModel: businessModel,
+            partnerId: userData.partnerId || undefined,
+        };
+      }
     }
     return null;
   } catch (error: any) {
@@ -261,5 +330,114 @@ export async function checkSessionAction(): Promise<UserData | null> {
     return null;
   }
 }
+
+export async function sendPasswordResetLinkAction(email: string): Promise<{ success: boolean, message: string }> {
+  console.log(`[AuthActions] Password reset requested for: ${email}`);
+  try {
+    // Determine if the user is a 'user' or a 'partner'
+    let userDoc: DocumentData | null = null;
+    let collectionName: 'users' | 'partners' | null = null;
+
+    userDoc = await _findUserByEmail(email, 'users');
+    if (userDoc) {
+      collectionName = 'users';
+    } else {
+      userDoc = await _findUserByEmail(email, 'partners');
+      if (userDoc) {
+        collectionName = 'partners';
+      }
+    }
+
+    if (!userDoc || !collectionName) {
+      // Security: Do not reveal if an email exists or not.
+      return { success: true, message: "If an account with this email exists, a password reset link has been sent." };
+    }
+    
+    const userData = userDoc.data();
+    const token = randomUUID();
+    const expires = new Date(Date.now() + PASSWORD_RESET_EXPIRATION);
+
+    await updateDoc(doc(db, collectionName, userDoc.id), {
+        passwordResetToken: token,
+        passwordResetTokenExpires: Timestamp.fromDate(expires),
+    });
+
+    const resetLink = `${process.env.NEXT_PUBLIC_BASE_URL}/reset-password?token=${token}`;
+
+    const emailResult = await sendEmail({
+        to: userData.email,
+        subject: 'Reset Your RN FinTech Password',
+        react: ResetPasswordEmail({ name: userData.fullName, resetLink }),
+    });
+
+    if (emailResult.success) {
+        return { success: true, message: "If an account with this email exists, a password reset link has been sent." };
+    } else {
+        console.error(`[AuthActions] Failed to send password reset email for ${email}:`, emailResult.message);
+        return { success: false, message: "Could not send the password reset email. Please try again later." };
+    }
+
+  } catch (error: any) {
+    console.error("[AuthActions] Error in sendPasswordResetLinkAction: ", error);
+    // Security: Do not reveal internal errors.
+    return { success: false, message: "An unexpected server error occurred." };
+  }
+}
+
+
+export async function resetPasswordAction(token: string, newPassword: string):Promise<{ success: boolean; message: string }> {
+    console.log(`[AuthActions] Attempting to reset password with token: ${token.substring(0, 10)}...`);
+
+    if (!token) {
+        return { success: false, message: "Invalid or missing token." };
+    }
+    
+    try {
+        let userDoc: DocumentData | null = null;
+        let collectionName: 'users' | 'partners' | null = null;
+        
+        const userQuery = query(collection(db, 'users'), where('passwordResetToken', '==', token));
+        const userSnapshot = await getDocs(userQuery);
+        
+        if (!userSnapshot.empty) {
+            userDoc = userSnapshot.docs[0];
+            collectionName = 'users';
+        } else {
+            const partnerQuery = query(collection(db, 'partners'), where('passwordResetToken', '==', token));
+            const partnerSnapshot = await getDocs(partnerQuery);
+            if(!partnerSnapshot.empty) {
+                userDoc = partnerSnapshot.docs[0];
+                collectionName = 'partners';
+            }
+        }
+
+        if (!userDoc || !collectionName) {
+            return { success: false, message: "Invalid or expired password reset token." };
+        }
+
+        const userData = userDoc.data();
+        const expires = userData.passwordResetTokenExpires?.toDate();
+
+        if (!expires || expires < new Date()) {
+            return { success: false, message: "Password reset token has expired. Please request a new one." };
+        }
+
+        const hashedPassword = await bcrypt.hash(newPassword, SALT_ROUNDS);
+
+        await updateDoc(doc(db, collectionName, userDoc.id), {
+            password: hashedPassword,
+            passwordResetToken: null, // Invalidate the token after use
+            passwordResetTokenExpires: null,
+        });
+
+        console.log(`[AuthActions] Successfully reset password for user ID: ${userDoc.id}`);
+        return { success: true, message: "Your password has been reset successfully. You can now log in." };
+
+    } catch (error: any) {
+        console.error("[AuthActions] Error in resetPasswordAction: ", error);
+        return { success: false, message: "An unexpected server error occurred." };
+    }
+}
+
 
 // #endregion

@@ -9,16 +9,16 @@ import { cn } from '@/lib/utils';
 
 const ValueCard = ({ icon, title, description, delay }: { icon: React.ReactNode, title: string, description: string, delay: string }) => (
   <div 
-    className="opacity-0 animate-fade-in-up group relative overflow-hidden flex flex-col items-center text-center p-8 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-sm transition-all duration-300 hover:border-white/30 hover:-translate-y-2"
+    className="opacity-0 animate-fade-in-up group relative overflow-hidden flex flex-col items-center text-center p-8 bg-card rounded-2xl border transition-all duration-300 hover:border-primary hover:-translate-y-2"
     style={{ animationDelay: delay }}
   >
-    <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+    <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
     <div className="relative z-10 flex flex-col items-center">
       <div className="bg-primary/10 text-primary p-4 rounded-full mb-6 transition-all duration-300 group-hover:scale-110 group-hover:bg-primary group-hover:text-primary-foreground group-hover:shadow-lg group-hover:shadow-primary/30">
         {icon}
       </div>
-      <h3 className="text-xl font-bold text-primary-foreground mb-2">{title}</h3>
-      <p className="text-muted-foreground leading-relaxed text-sm flex-grow text-white/60">{description}</p>
+      <h3 className="text-xl font-bold text-card-foreground mb-2">{title}</h3>
+      <p className="text-muted-foreground leading-relaxed text-sm flex-grow">{description}</p>
     </div>
   </div>
 );
@@ -69,7 +69,8 @@ export default function AboutUsPage() {
                 <div className="relative opacity-0 animate-fade-in-up" style={{ animationDelay: '100ms' }}>
                      <div className="group rounded-2xl shadow-2xl overflow-hidden p-2 bg-gradient-to-br from-primary/20 to-accent/20 transition-all duration-500 hover:shadow-primary/30 hover:shadow-2xl">
                         <Image 
-                            src="/aboutus-logo.png"
+                            data-ai-hint="finance meeting"
+                            src="https://placehold.co/600x450.png"
                             alt="Illustration of a financial consultant helping clients"
                             width={600}
                             height={450}
@@ -95,11 +96,11 @@ export default function AboutUsPage() {
         </section>
 
         {/* Our Core Values Section */}
-        <section className="py-16 md:py-24 bg-foreground">
+        <section className="py-16 md:py-24 bg-secondary/50">
           <div className="container mx-auto px-4 sm:px-6">
             <div className="text-center mb-16 opacity-0 animate-fade-in-up">
-              <h2 className="text-3xl font-bold text-primary-foreground">Our Core Values</h2>
-              <p className="mt-2 text-white/70 max-w-2xl mx-auto">
+              <h2 className="text-3xl font-bold text-foreground">Our Core Values</h2>
+              <p className="mt-2 text-muted-foreground max-w-2xl mx-auto">
                 The principles that guide every decision we make.
               </p>
             </div>

@@ -386,7 +386,7 @@ export type GovernmentSchemeLoanApplicationFormData = z.infer<typeof GovernmentS
 
 // #region --- CA SERVICE SCHEMAS ---
 
-// GST Service
+// -- Schemas for GST Service
 export const GstBusinessDetailsSchema = z.object({
     businessName: z.string().optional(),
     businessType: z.enum(["proprietorship", "partnership", "pvt_ltd", "other"], { required_error: "Business type is required" }),
@@ -398,7 +398,6 @@ export const GstBusinessDetailsSchema = z.object({
         ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Please specify other business type", path: ["otherBusinessTypeDetail"] });
     }
 });
-
 
 export const GstServiceRequiredSchema = z.object({
   newGstRegistration: z.boolean().optional().default(false),
@@ -434,7 +433,8 @@ export const GstServiceApplicationSchema = z.object({
 });
 export type GstServiceApplicationFormData = z.infer<typeof GstServiceApplicationSchema>;
 
-// ITR Filing
+
+// -- Schemas for ITR Filing
 const ItrPersonalDetailsSchema = PersonalDetailsSchema.extend({
   address: z.string().min(1, "Address is required"),
   cityAndState: z.string().min(1, "City & State are required"),
@@ -476,7 +476,8 @@ export const ItrFilingConsultationFormSchema = z.object({
 });
 export type ItrFilingConsultationFormData = z.infer<typeof ItrFilingConsultationFormSchema>;
 
-// Accounting & Bookkeeping
+
+// -- Schemas for Accounting & Bookkeeping
 const AccountingBusinessDetailsSchema = z.object({
   businessName: z.string().min(1, "Business Name is required"),
   businessType: z.enum(["proprietorship", "partnership", "pvt_ltd", "llp", "other"], { required_error: "Business type is required" }),
@@ -488,7 +489,6 @@ const AccountingBusinessDetailsSchema = z.object({
     ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Please specify other business type", path: ["otherBusinessTypeDetail"] });
   }
 });
-
 
 export const AccountingServicesRequiredSchema = z.object({
   bookkeeping: z.boolean().optional().default(false),
@@ -509,7 +509,7 @@ export const AccountingServicesRequiredSchema = z.object({
   }
 });
 
-export const AccountingDocumentUploadSchema = z.object({
+export const AccountingDocumentUploadsSchema = z.object({
   gstCertificate: stringOrFileSchema(ACCEPTED_DOCUMENT_TYPES).optional(),
   previousYearFinancials: stringOrFileSchema(ACCOUNTING_ACCEPTED_TYPES).optional(),
   bankStatement: stringOrFileSchema(ACCEPTED_BANK_STATEMENT_TYPES),
@@ -524,11 +524,12 @@ export const AccountingBookkeepingFormSchema = z.object({
   businessDetails: AccountingBusinessDetailsSchema,
   servicesRequired: AccountingServicesRequiredSchema,
   kycDocuments: KycDocumentsSchema,
-  documentUploads: AccountingDocumentUploadSchema.optional(),
+  documentUploads: AccountingDocumentUploadsSchema.optional(),
 });
 export type AccountingBookkeepingFormData = z.infer<typeof AccountingBookkeepingFormSchema>;
 
-// Company Incorporation
+
+// -- Schemas for Company Incorporation
 const CompanyIncorporationPersonalDetailsSchema = PersonalDetailsSchema.extend({
   occupation: z.enum(["business", "job", "student", "other"], { required_error: "Occupation is required" }),
   otherOccupationDetail: z.string().optional(),
@@ -582,7 +583,8 @@ export const CompanyIncorporationFormSchema = z.object({
 });
 export type CompanyIncorporationFormData = z.infer<typeof CompanyIncorporationFormSchema>;
 
-// Financial Advisory
+
+// -- Schemas for Financial Advisory
 const FinancialAdvisoryPersonalDetailsSchema = PersonalDetailsSchema.extend({
   occupation: z.enum(["salaried", "business", "professional", "retired", "other"], { required_error: "Occupation is required" }),
   otherOccupationDetail: z.string().optional(),
@@ -647,7 +649,8 @@ export const FinancialAdvisoryFormSchema = z.object({
 });
 export type FinancialAdvisoryFormData = z.infer<typeof FinancialAdvisoryFormSchema>;
 
-// Audit and Assurance
+
+// -- Schemas for Audit and Assurance
 const AuditAndAssuranceBusinessDetailsSchema = z.object({
   businessName: z.string().min(1, "Business Name is required"),
   businessType: z.enum(["proprietorship", "partnership", "pvt_ltd", "llp", "other"], { required_error: "Business type is required" }),
@@ -794,6 +797,7 @@ export const UserSignUpSchema = z.object({
   mobileNumber: z.string().regex(/^\d{10}$/, "Invalid mobile number (must be 10 digits)"),
   password: z.string().min(8, "Password must be at least 8 characters long"),
   confirmPassword: z.string().min(8, "Confirm Password must be at least 8 characters long"),
+  partnerId: z.string().min(1, "Selecting a partner is required."),
 }).refine(data => data.password === data.confirmPassword, {
   message: "Passwords do not match",
   path: ["confirmPassword"],

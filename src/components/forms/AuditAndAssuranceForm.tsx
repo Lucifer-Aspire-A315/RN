@@ -7,12 +7,14 @@ import { ClipboardCheck } from 'lucide-react';
 import { submitApplicationAction, updateApplicationAction } from '@/app/actions/applicationActions';
 import type { UserApplication } from '@/lib/types';
 import { GenericCAServiceForm } from './GenericCAServiceForm';
+import type { UserProfileData } from '@/app/actions/profileActions';
 
 interface AuditAndAssuranceFormProps {
   onBack?: () => void;
   initialData?: AuditAndAssuranceFormData | null;
   applicationId?: string;
   mode?: 'create' | 'edit';
+  userProfile?: UserProfileData | null;
 }
 
 const auditAndAssuranceSections = [
@@ -74,25 +76,34 @@ const auditAndAssuranceSections = [
     }
 ];
 
-export function AuditAndAssuranceForm({ onBack, initialData, applicationId, mode = 'create' }: AuditAndAssuranceFormProps) {
+export function AuditAndAssuranceForm({ onBack, initialData, applicationId, mode = 'create', userProfile }: AuditAndAssuranceFormProps) {
+  
+  const prefilledData = {
+    personalDetails: {
+      fullName: userProfile?.fullName || '',
+      email: userProfile?.email || '',
+      mobileNumber: userProfile?.mobileNumber || '',
+    }
+  };
+
   const defaultValues: AuditAndAssuranceFormData = {
     personalDetails: {
-      fullName: '',
-      fatherOrHusbandName: '',
-      dob: '',
-      gender: undefined,
-      mobileNumber: '',
-      email: '',
-      panNumber: '',
-      aadhaarNumber: '',
+      fullName: initialData?.personalDetails?.fullName || prefilledData.personalDetails.fullName,
+      fatherOrHusbandName: initialData?.personalDetails?.fatherOrHusbandName || '',
+      dob: initialData?.personalDetails?.dob || '',
+      gender: initialData?.personalDetails?.gender || undefined,
+      mobileNumber: initialData?.personalDetails?.mobileNumber || prefilledData.personalDetails.mobileNumber,
+      email: initialData?.personalDetails?.email || prefilledData.personalDetails.email,
+      panNumber: initialData?.personalDetails?.panNumber || '',
+      aadhaarNumber: initialData?.personalDetails?.aadhaarNumber || '',
     },
-    businessDetails: {
+    businessDetails: initialData?.businessDetails || {
       businessName: '',
       businessType: undefined,
       otherBusinessTypeDetail: '',
       annualTurnover: undefined,
     },
-    servicesRequired: {
+    servicesRequired: initialData?.servicesRequired || {
         statutoryAudit: false,
         taxAudit: false,
         internalAudit: false,
@@ -102,12 +113,12 @@ export function AuditAndAssuranceForm({ onBack, initialData, applicationId, mode
         otherAuditService: false,
         otherAuditServiceDetail: '',
     },
-    kycDocuments: {
+    kycDocuments: initialData?.kycDocuments || {
         panCard: undefined,
         aadhaarCard: undefined,
         photograph: undefined,
     },
-    documentUploads: {
+    documentUploads: initialData?.documentUploads || {
         gstCertificate: undefined,
         lastFinancials: undefined,
         bankStatement: undefined,
@@ -123,7 +134,7 @@ export function AuditAndAssuranceForm({ onBack, initialData, applicationId, mode
       formSubtitle="Please provide the details below to avail our services."
       formIcon={<ClipboardCheck className="w-12 h-12 mx-auto text-primary mb-2" />}
       schema={AuditAndAssuranceFormSchema}
-      defaultValues={initialData || defaultValues}
+      defaultValues={defaultValues}
       sections={auditAndAssuranceSections}
       submitAction={(data) => submitApplicationAction(data, 'caService', 'Audit and Assurance Service')}
       updateAction={(id, data) => updateApplicationAction(id, 'caService' as UserApplication['serviceCategory'], data)}

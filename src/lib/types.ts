@@ -6,6 +6,7 @@ export interface UserData {
   type: 'partner' | 'normal';
   isAdmin?: boolean;
   businessModel?: 'referral' | 'dsa' | 'merchant';
+  partnerId?: string; // ID of the partner this user is linked to
 }
 
 export interface UserApplication {

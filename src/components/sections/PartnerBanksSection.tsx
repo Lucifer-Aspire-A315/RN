@@ -31,9 +31,10 @@ export function PartnerBanksSection() {
         </p>
         <div 
           className="group relative mt-8 w-full overflow-hidden"
+          style={{
+            maskImage: 'linear-gradient(to right, transparent, black 10%, black 90%, transparent)'
+          }}
         >
-          <div className="absolute inset-y-0 left-0 w-16 z-10 bg-gradient-to-r from-background to-transparent pointer-events-none" />
-          <div className="absolute inset-y-0 right-0 w-16 z-10 bg-gradient-to-l from-background to-transparent pointer-events-none" />
           <div className="flex w-max animate-marquee group-hover:[animation-play-state:paused]">
             {[...partnerLogos, ...partnerLogos].map((logo, index) => (
               <div

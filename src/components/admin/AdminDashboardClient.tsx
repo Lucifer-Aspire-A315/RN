@@ -13,6 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '../ui/skeleton';
 import { AnalyticsCharts } from './AnalyticsCharts';
 import { ScrollArea, ScrollBar } from '../ui/scroll-area';
+import { useSearchParams, useRouter } from 'next/navigation';
 
 interface AdminDashboardClientProps {
     // No initial props needed, will fetch data itself
@@ -37,6 +38,10 @@ export function AdminDashboardClient({}: AdminDashboardClientProps) {
   const [processingState, setProcessingState] = useState<{ id: string; type: 'delete' | 'status' | 'approve' } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  const defaultTab = searchParams.get('tab') || 'applications';
 
   useEffect(() => {
     async function fetchData() {
@@ -148,7 +153,7 @@ export function AdminDashboardClient({}: AdminDashboardClientProps) {
 
   return (
     <>
-      <Tabs defaultValue="applications" className="space-y-4">
+      <Tabs defaultValue={defaultTab} className="space-y-4" onValueChange={(value) => router.push(`/admin/dashboard?tab=${value}`)}>
         <div className="relative">
           <ScrollArea className="w-full whitespace-nowrap">
               <TabsList>

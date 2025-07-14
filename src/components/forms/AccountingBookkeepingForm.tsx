@@ -7,12 +7,14 @@ import { BookOpenCheck } from 'lucide-react';
 import { submitApplicationAction, updateApplicationAction } from '@/app/actions/applicationActions';
 import type { UserApplication } from '@/lib/types';
 import { GenericCAServiceForm } from './GenericCAServiceForm';
+import type { UserProfileData } from '@/app/actions/profileActions';
 
 interface AccountingBookkeepingFormProps {
   onBack?: () => void;
   initialData?: AccountingBookkeepingFormData | null;
   applicationId?: string;
   mode?: 'create' | 'edit';
+  userProfile?: UserProfileData | null;
 }
 
 const accountingSections = [
@@ -77,26 +79,35 @@ const accountingSections = [
     }
 ];
 
-export function AccountingBookkeepingForm({ onBack, initialData, applicationId, mode = 'create' }: AccountingBookkeepingFormProps) {
+export function AccountingBookkeepingForm({ onBack, initialData, applicationId, mode = 'create', userProfile }: AccountingBookkeepingFormProps) {
+  
+  const prefilledData = {
+    personalDetails: {
+      fullName: userProfile?.fullName || '',
+      email: userProfile?.email || '',
+      mobileNumber: userProfile?.mobileNumber || '',
+    }
+  };
+
   const defaultValues: AccountingBookkeepingFormData = {
     personalDetails: {
-      fullName: '',
-      fatherOrHusbandName: '',
-      dob: '',
-      gender: undefined,
-      mobileNumber: '',
-      email: '',
-      panNumber: '',
-      aadhaarNumber: '',
+      fullName: initialData?.personalDetails?.fullName || prefilledData.personalDetails.fullName,
+      fatherOrHusbandName: initialData?.personalDetails?.fatherOrHusbandName || '',
+      dob: initialData?.personalDetails?.dob || '',
+      gender: initialData?.personalDetails?.gender || undefined,
+      mobileNumber: initialData?.personalDetails?.mobileNumber || prefilledData.personalDetails.mobileNumber,
+      email: initialData?.personalDetails?.email || prefilledData.personalDetails.email,
+      panNumber: initialData?.personalDetails?.panNumber || '',
+      aadhaarNumber: initialData?.personalDetails?.aadhaarNumber || '',
     },
-    businessDetails: {
+    businessDetails: initialData?.businessDetails || {
       businessName: '',
       businessType: undefined,
       otherBusinessTypeDetail: '',
       natureOfBusiness: '',
       cityAndState: '',
     },
-    servicesRequired: {
+    servicesRequired: initialData?.servicesRequired || {
       bookkeeping: false,
       ledgerMaintenance: false,
       financialStatementPreparation: false,
@@ -106,12 +117,12 @@ export function AccountingBookkeepingForm({ onBack, initialData, applicationId, 
       otherAccountingService: false,
       otherAccountingServiceDetail: '',
     },
-    kycDocuments: {
+    kycDocuments: initialData?.kycDocuments || {
         panCard: undefined,
         aadhaarCard: undefined,
         photograph: undefined,
     },
-    documentUploads: {
+    documentUploads: initialData?.documentUploads || {
         gstCertificate: undefined,
         previousYearFinancials: undefined,
         bankStatement: undefined,
@@ -129,7 +140,7 @@ export function AccountingBookkeepingForm({ onBack, initialData, applicationId, 
         formSubtitle="Please provide the details below to avail our services."
         formIcon={<BookOpenCheck className="w-12 h-12 mx-auto text-primary mb-2" />}
         schema={AccountingBookkeepingFormSchema}
-        defaultValues={initialData || defaultValues}
+        defaultValues={defaultValues}
         sections={accountingSections}
         submitAction={(data) => submitApplicationAction(data, 'caService', 'Accounting & Bookkeeping Service')}
         updateAction={(id, data) => updateApplicationAction(id, 'caService' as UserApplication['serviceCategory'], data)}

@@ -7,12 +7,14 @@ import { FileSpreadsheet } from 'lucide-react';
 import { submitApplicationAction, updateApplicationAction } from '@/app/actions/applicationActions';
 import type { UserApplication } from '@/lib/types';
 import { GenericCAServiceForm } from './GenericCAServiceForm';
+import type { UserProfileData } from '@/app/actions/profileActions';
 
 interface ItrFilingConsultationFormProps {
   onBack?: () => void;
   initialData?: ItrFilingConsultationFormData | null;
   applicationId?: string;
   mode?: 'create' | 'edit';
+  userProfile?: UserProfileData | null;
 }
 
 const itrFilingSections = [
@@ -62,21 +64,30 @@ const itrFilingSections = [
     }
 ];
 
-export function ItrFilingConsultationForm({ onBack, initialData, applicationId, mode = 'create' }: ItrFilingConsultationFormProps) {
+export function ItrFilingConsultationForm({ onBack, initialData, applicationId, mode = 'create', userProfile }: ItrFilingConsultationFormProps) {
+  
+  const prefilledData = {
+    personalDetails: {
+      fullName: userProfile?.fullName || '',
+      email: userProfile?.email || '',
+      mobileNumber: userProfile?.mobileNumber || '',
+    }
+  };
+  
   const defaultValues: ItrFilingConsultationFormData = {
     personalDetails: {
-      fullName: '',
-      fatherOrHusbandName: '',
-      dob: '',
-      gender: undefined,
-      mobileNumber: '',
-      email: '',
-      panNumber: '',
-      aadhaarNumber: '',
-      address: '',
-      cityAndState: '',
+      fullName: initialData?.personalDetails?.fullName || prefilledData.personalDetails.fullName,
+      fatherOrHusbandName: initialData?.personalDetails?.fatherOrHusbandName || '',
+      dob: initialData?.personalDetails?.dob || '',
+      gender: initialData?.personalDetails?.gender || undefined,
+      mobileNumber: initialData?.personalDetails?.mobileNumber || prefilledData.personalDetails.mobileNumber,
+      email: initialData?.personalDetails?.email || prefilledData.personalDetails.email,
+      panNumber: initialData?.personalDetails?.panNumber || '',
+      aadhaarNumber: initialData?.personalDetails?.aadhaarNumber || '',
+      address: initialData?.personalDetails?.address || '',
+      cityAndState: initialData?.personalDetails?.cityAndState || '',
     },
-    incomeSourceType: {
+    incomeSourceType: initialData?.incomeSourceType || {
       salariedEmployee: false,
       businessIncome: false,
       freelanceProfessional: false,
@@ -85,12 +96,12 @@ export function ItrFilingConsultationForm({ onBack, initialData, applicationId, 
       otherIncomeSource: false,
       otherIncomeSourceDetail: '',
     },
-    kycDocuments: {
+    kycDocuments: initialData?.kycDocuments || {
         panCard: undefined,
         aadhaarCard: undefined,
         photograph: undefined,
     },
-    documentUploads: {
+    documentUploads: initialData?.documentUploads || {
         form16: undefined,
         salarySlips: undefined,
         bankStatement: undefined,
@@ -108,7 +119,7 @@ export function ItrFilingConsultationForm({ onBack, initialData, applicationId, 
       formSubtitle="Please provide the following details for ITR filing and consultation services."
       formIcon={<FileSpreadsheet className="w-12 h-12 mx-auto text-primary mb-2" />}
       schema={ItrFilingConsultationFormSchema}
-      defaultValues={initialData || defaultValues}
+      defaultValues={defaultValues}
       sections={itrFilingSections}
       submitAction={(data) => submitApplicationAction(data, 'caService', 'ITR Filing & Consultation')}
       updateAction={(id, data) => updateApplicationAction(id, 'caService' as UserApplication['serviceCategory'], data)}

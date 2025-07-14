@@ -21,18 +21,17 @@ export function Footer() {
       <div className="container mx-auto px-6 py-12">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
           {/* Logo and About Section */}
-          <div className="col-span-1 md:col-span-1 flex flex-col items-center md:items-start">
+          <div className="col-span-1 md:col-span-1 flex flex-col items-center">
              <Link href="/" className="flex-shrink-0 flex items-center gap-2 no-underline">
                 <Image
                   src={logoSrc}
                   alt="RN FinTech Logo"
-                  width={150}
-                  height={40}
+                  width={50}
+                  height={36}
                   priority
-                  className="h-auto"
                 />
             </Link>
-            <p className="mt-4 text-muted-foreground text-sm text-center md:text-left">
+            <p className="mt-4 text-muted-foreground text-sm text-center">
               Your trusted partner in achieving your financial goals.
             </p>
           </div>

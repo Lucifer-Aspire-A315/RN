@@ -7,12 +7,14 @@ import { PiggyBank } from 'lucide-react';
 import { submitApplicationAction, updateApplicationAction } from '@/app/actions/applicationActions';
 import type { UserApplication } from '@/lib/types';
 import { GenericCAServiceForm } from './GenericCAServiceForm';
+import type { UserProfileData } from '@/app/actions/profileActions';
 
 interface FinancialAdvisoryFormProps {
   onBack?: () => void;
   initialData?: FinancialAdvisoryFormData | null;
   applicationId?: string;
   mode?: 'create' | 'edit';
+  userProfile?: UserProfileData | null;
 }
 
 const financialAdvisorySections = [
@@ -86,25 +88,34 @@ const financialAdvisorySections = [
     }
 ];
 
-export function FinancialAdvisoryForm({ onBack, initialData, applicationId, mode = 'create' }: FinancialAdvisoryFormProps) {
+export function FinancialAdvisoryForm({ onBack, initialData, applicationId, mode = 'create', userProfile }: FinancialAdvisoryFormProps) {
+  
+  const prefilledData = {
+    personalDetails: {
+      fullName: userProfile?.fullName || '',
+      email: userProfile?.email || '',
+      mobileNumber: userProfile?.mobileNumber || '',
+    }
+  };
+
   const defaultValues: FinancialAdvisoryFormData = {
     personalDetails: {
-      fullName: '',
-      fatherOrHusbandName: '',
-      dob: '',
-      gender: undefined,
-      mobileNumber: '',
-      email: '',
-      panNumber: '',
-      aadhaarNumber: '',
-      occupation: undefined,
-      otherOccupationDetail: '',
-      cityAndState: '',
-      maritalStatus: undefined,
-      dependentMembersAdults: undefined,
-      dependentMembersChildren: undefined,
+      fullName: initialData?.personalDetails?.fullName || prefilledData.personalDetails.fullName,
+      fatherOrHusbandName: initialData?.personalDetails?.fatherOrHusbandName || '',
+      dob: initialData?.personalDetails?.dob || '',
+      gender: initialData?.personalDetails?.gender || undefined,
+      mobileNumber: initialData?.personalDetails?.mobileNumber || prefilledData.personalDetails.mobileNumber,
+      email: initialData?.personalDetails?.email || prefilledData.personalDetails.email,
+      panNumber: initialData?.personalDetails?.panNumber || '',
+      aadhaarNumber: initialData?.personalDetails?.aadhaarNumber || '',
+      occupation: initialData?.personalDetails?.occupation || undefined,
+      otherOccupationDetail: initialData?.personalDetails?.otherOccupationDetail || '',
+      cityAndState: initialData?.personalDetails?.cityAndState || '',
+      maritalStatus: initialData?.personalDetails?.maritalStatus || undefined,
+      dependentMembersAdults: initialData?.personalDetails?.dependentMembersAdults || undefined,
+      dependentMembersChildren: initialData?.personalDetails?.dependentMembersChildren || undefined,
     },
-    advisoryServicesRequired: {
+    advisoryServicesRequired: initialData?.advisoryServicesRequired || {
       taxSavingPlan: false,
       investmentPlanning: false,
       retirementPlanning: false,
@@ -115,7 +126,7 @@ export function FinancialAdvisoryForm({ onBack, initialData, applicationId, mode
       otherAdvisoryService: false,
       otherAdvisoryServiceDetail: '',
     },
-    currentFinancialOverview: {
+    currentFinancialOverview: initialData?.currentFinancialOverview || {
       annualIncome: undefined,
       monthlySavings: undefined,
       currentInvestmentsAmount: undefined,
@@ -128,12 +139,12 @@ export function FinancialAdvisoryForm({ onBack, initialData, applicationId, mode
         none: false,
       },
     },
-    kycDocuments: {
+    kycDocuments: initialData?.kycDocuments || {
       panCard: undefined,
       aadhaarCard: undefined,
       photograph: undefined,
     },
-    documentUploads: {
+    documentUploads: initialData?.documentUploads || {
         salarySlipsIncomeProof: undefined,
         lastYearItrForm16: undefined,
         bankStatement: undefined,
@@ -149,7 +160,7 @@ export function FinancialAdvisoryForm({ onBack, initialData, applicationId, mode
         formSubtitle="Please provide the details below to help us understand your financial needs."
         formIcon={<PiggyBank className="w-12 h-12 mx-auto text-primary mb-2" />}
         schema={FinancialAdvisoryFormSchema}
-        defaultValues={initialData || defaultValues}
+        defaultValues={defaultValues}
         sections={financialAdvisorySections}
         submitAction={(data) => submitApplicationAction(data, 'caService', 'Financial Advisory Service')}
         updateAction={(id, data) => updateApplicationAction(id, 'caService' as UserApplication['serviceCategory'], data)}

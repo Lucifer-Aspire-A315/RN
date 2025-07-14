@@ -6,6 +6,7 @@ import { Cog } from 'lucide-react';
 import { GenericLoanForm } from './GenericLoanForm';
 import { MachineryLoanApplicationSchema, type MachineryLoanApplicationFormData } from '@/lib/schemas';
 import { submitApplicationAction, updateApplicationAction } from '@/app/actions/applicationActions';
+import type { UserProfileData } from '@/app/actions/profileActions';
 
 interface MachineryLoanApplicationFormProps {
   onBack?: () => void;
@@ -13,6 +14,7 @@ interface MachineryLoanApplicationFormProps {
   initialData?: MachineryLoanApplicationFormData | null;
   applicationId?: string;
   mode?: 'create' | 'edit';
+  userProfile?: UserProfileData | null;
 }
 
 const machineryLoanSections = [
@@ -86,10 +88,28 @@ const machineryLoanSections = [
   }
 ];
 
-export function MachineryLoanApplicationForm({ onBack, backButtonText, initialData, applicationId, mode = 'create' }: MachineryLoanApplicationFormProps) {
+export function MachineryLoanApplicationForm({ onBack, backButtonText, initialData, applicationId, mode = 'create', userProfile }: MachineryLoanApplicationFormProps) {
+  
+  const prefilledData = {
+    personalDetails: {
+      fullName: userProfile?.fullName || '',
+      email: userProfile?.email || '',
+      mobileNumber: userProfile?.mobileNumber || '',
+    }
+  };
+  
   const defaultValues: MachineryLoanApplicationFormData = {
-    personalDetails: { fullName: '', fatherOrHusbandName: '', dob: '', gender: undefined, mobileNumber: '', email: '', panNumber: '', aadhaarNumber: '' },
-    businessDetails: {
+    personalDetails: { 
+      fullName: initialData?.personalDetails?.fullName || prefilledData.personalDetails.fullName,
+      fatherOrHusbandName: initialData?.personalDetails?.fatherOrHusbandName || '',
+      dob: initialData?.personalDetails?.dob || '', 
+      gender: initialData?.personalDetails?.gender || undefined, 
+      mobileNumber: initialData?.personalDetails?.mobileNumber || prefilledData.personalDetails.mobileNumber, 
+      email: initialData?.personalDetails?.email || prefilledData.personalDetails.email, 
+      panNumber: initialData?.personalDetails?.panNumber || '', 
+      aadhaarNumber: initialData?.personalDetails?.aadhaarNumber || ''
+    },
+    businessDetails: initialData?.businessDetails || {
       businessName: '',
       businessType: undefined, 
       otherBusinessType: '',
@@ -99,7 +119,7 @@ export function MachineryLoanApplicationForm({ onBack, backButtonText, initialDa
       annualTurnover: undefined,
       profitAfterTax: undefined,
     },
-    machineryLoanDetails: {
+    machineryLoanDetails: initialData?.machineryLoanDetails || {
       descriptionOfMachinery: '',
       supplierName: '',
       totalCostOfMachinery: undefined,
@@ -107,12 +127,12 @@ export function MachineryLoanApplicationForm({ onBack, backButtonText, initialDa
       loanTenureRequired: undefined,
       hasExistingLoans: "no",
     },
-    existingLoans: {
+    existingLoans: initialData?.existingLoans || {
         emiAmount: undefined,
         bankName: '',
         outstandingAmount: undefined,
     },
-    documentUploads: { 
+    documentUploads: initialData?.documentUploads || { 
         panCard: undefined,
         aadhaarCard: undefined,
         photograph: undefined,
@@ -132,7 +152,7 @@ export function MachineryLoanApplicationForm({ onBack, backButtonText, initialDa
       formSubtitle="Get funds to purchase new or upgrade existing machinery for your business."
       formIcon={<Cog className="w-12 h-12 mx-auto text-primary mb-2" />}
       schema={MachineryLoanApplicationSchema}
-      defaultValues={initialData || defaultValues}
+      defaultValues={defaultValues}
       sections={machineryLoanSections}
       submitAction={(data) => submitApplicationAction(data, 'loan', 'Machinery Loan')}
       updateAction={(id, data) => updateApplicationAction(id, 'loan', data)}

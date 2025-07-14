@@ -8,7 +8,7 @@ import type { UserApplication } from '@/lib/types';
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, DropdownMenuLabel } from '@/components/ui/dropdown-menu';
-import { MoreHorizontal, Loader2, Eye, Edit, Trash2 } from 'lucide-react';
+import { MoreHorizontal, Loader2, Eye, Edit, Trash2, Inbox } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 
@@ -69,9 +69,14 @@ export function AdminApplicationsTable({ applications, onUpdateStatus, onArchive
 
   if (applications.length === 0) {
     return (
-      <div className="text-center py-10 border-2 border-dashed rounded-lg">
-        <h3 className="text-lg font-medium text-muted-foreground">No Applications Found</h3>
-        <p className="text-sm text-muted-foreground mt-1">There are no applications submitted on the platform yet.</p>
+      <div className="text-center py-12 px-6 border-2 border-dashed rounded-lg bg-secondary/50">
+        <div className="flex justify-center mb-4">
+            <div className="bg-primary/10 text-primary rounded-full p-4">
+                <Inbox className="w-10 h-10" />
+            </div>
+        </div>
+        <h3 className="text-xl font-semibold text-foreground">No Applications Found</h3>
+        <p className="text-muted-foreground mt-2">There are currently no applications in this view.</p>
       </div>
     );
   }

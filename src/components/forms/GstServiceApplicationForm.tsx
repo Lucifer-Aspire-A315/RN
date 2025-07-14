@@ -7,12 +7,14 @@ import { ReceiptText } from 'lucide-react';
 import { submitApplicationAction, updateApplicationAction } from '@/app/actions/applicationActions';
 import type { UserApplication } from '@/lib/types';
 import { GenericCAServiceForm } from './GenericCAServiceForm';
+import type { UserProfileData } from '@/app/actions/profileActions';
 
 interface GstServiceApplicationFormProps {
   onBack?: () => void;
   initialData?: GstServiceApplicationFormData | null;
   applicationId?: string;
   mode?: 'create' | 'edit';
+  userProfile?: UserProfileData | null;
 }
 
 const gstServiceSections = [
@@ -71,26 +73,35 @@ const gstServiceSections = [
     }
 ];
 
-export function GstServiceApplicationForm({ onBack, initialData, applicationId, mode = 'create' }: GstServiceApplicationFormProps) {
+export function GstServiceApplicationForm({ onBack, initialData, applicationId, mode = 'create', userProfile }: GstServiceApplicationFormProps) {
+  
+  const prefilledData = {
+    personalDetails: {
+      fullName: userProfile?.fullName || '',
+      email: userProfile?.email || '',
+      mobileNumber: userProfile?.mobileNumber || '',
+    }
+  };
+
   const defaultValues: GstServiceApplicationFormData = {
     personalDetails: {
-      fullName: '',
-      fatherOrHusbandName: '',
-      dob: '',
-      gender: undefined,
-      mobileNumber: '',
-      email: '',
-      panNumber: '',
-      aadhaarNumber: '',
+      fullName: initialData?.personalDetails?.fullName || prefilledData.personalDetails.fullName,
+      fatherOrHusbandName: initialData?.personalDetails?.fatherOrHusbandName || '',
+      dob: initialData?.personalDetails?.dob || '',
+      gender: initialData?.personalDetails?.gender || undefined,
+      mobileNumber: initialData?.personalDetails?.mobileNumber || prefilledData.personalDetails.mobileNumber,
+      email: initialData?.personalDetails?.email || prefilledData.personalDetails.email,
+      panNumber: initialData?.personalDetails?.panNumber || '',
+      aadhaarNumber: initialData?.personalDetails?.aadhaarNumber || '',
     },
-    businessDetails: {
+    businessDetails: initialData?.businessDetails || {
       businessName: '',
       businessType: undefined,
       otherBusinessTypeDetail: '',
       natureOfBusiness: '',
       stateAndCity: '',
     },
-    gstServiceRequired: {
+    gstServiceRequired: initialData?.gstServiceRequired || {
       newGstRegistration: false,
       gstReturnFiling: false,
       gstCancellationAmendment: false,
@@ -99,12 +110,12 @@ export function GstServiceApplicationForm({ onBack, initialData, applicationId, 
       otherGstService: false,
       otherGstServiceDetail: '',
     },
-    kycDocuments: {
+    kycDocuments: initialData?.kycDocuments || {
       panCard: undefined,
       aadhaarCard: undefined,
       photograph: undefined
     },
-    documentUploads: {
+    documentUploads: initialData?.documentUploads || {
         businessProof: undefined,
         addressProof: undefined,
         bankDetails: undefined,
@@ -119,7 +130,7 @@ export function GstServiceApplicationForm({ onBack, initialData, applicationId, 
       formSubtitle="Please fill in the details below to apply for GST related services."
       formIcon={<ReceiptText className="w-12 h-12 mx-auto text-primary mb-2" />}
       schema={GstServiceApplicationSchema}
-      defaultValues={initialData || defaultValues}
+      defaultValues={defaultValues}
       sections={gstServiceSections}
       submitAction={(data) => submitApplicationAction(data, 'caService', 'GST Service Application')}
       updateAction={(id, data) => updateApplicationAction(id, 'caService' as UserApplication['serviceCategory'], data)}

@@ -6,6 +6,7 @@ import { Briefcase } from 'lucide-react';
 import { GenericLoanForm } from './GenericLoanForm';
 import { BusinessLoanApplicationSchema, type BusinessLoanApplicationFormData } from '@/lib/schemas';
 import { submitApplicationAction, updateApplicationAction } from '@/app/actions/applicationActions';
+import type { UserProfileData } from '@/app/actions/profileActions';
 
 interface BusinessLoanApplicationFormProps {
   onBack?: () => void;
@@ -13,6 +14,7 @@ interface BusinessLoanApplicationFormProps {
   initialData?: BusinessLoanApplicationFormData | null;
   applicationId?: string;
   mode?: 'create' | 'edit';
+  userProfile?: UserProfileData | null;
 }
 
 const businessLoanSections = [
@@ -92,10 +94,28 @@ const businessLoanSections = [
   }
 ];
 
-export function BusinessLoanApplicationForm({ onBack, backButtonText, initialData, applicationId, mode = 'create' }: BusinessLoanApplicationFormProps) {
+export function BusinessLoanApplicationForm({ onBack, backButtonText, initialData, applicationId, mode = 'create', userProfile }: BusinessLoanApplicationFormProps) {
+  
+  const prefilledData = {
+    personalDetails: {
+      fullName: userProfile?.fullName || '',
+      email: userProfile?.email || '',
+      mobileNumber: userProfile?.mobileNumber || '',
+    }
+  };
+  
   const defaultValues: BusinessLoanApplicationFormData = {
-    personalDetails: { fullName: '', fatherOrHusbandName: '', dob: '', gender: undefined, mobileNumber: '', email: '', panNumber: '', aadhaarNumber: '' },
-    businessDetails: {
+    personalDetails: { 
+      fullName: initialData?.personalDetails?.fullName || prefilledData.personalDetails.fullName,
+      fatherOrHusbandName: initialData?.personalDetails?.fatherOrHusbandName || '',
+      dob: initialData?.personalDetails?.dob || '', 
+      gender: initialData?.personalDetails?.gender || undefined, 
+      mobileNumber: initialData?.personalDetails?.mobileNumber || prefilledData.personalDetails.mobileNumber, 
+      email: initialData?.personalDetails?.email || prefilledData.personalDetails.email, 
+      panNumber: initialData?.personalDetails?.panNumber || '', 
+      aadhaarNumber: initialData?.personalDetails?.aadhaarNumber || ''
+    },
+    businessDetails: initialData?.businessDetails || {
       businessName: '',
       businessType: undefined, 
       otherBusinessType: '',
@@ -105,19 +125,19 @@ export function BusinessLoanApplicationForm({ onBack, backButtonText, initialDat
       annualTurnover: undefined,
       profitAfterTax: undefined,
     },
-    loanDetails: {
+    loanDetails: initialData?.loanDetails || {
       loanAmountRequired: undefined,
       loanTenureRequired: undefined,
       purposeOfLoan: undefined, 
       otherPurposeOfLoan: '',
       hasExistingLoans: "no",
     },
-    existingLoans: {
+    existingLoans: initialData?.existingLoans || {
         emiAmount: undefined,
         bankName: '',
         outstandingAmount: undefined,
     },
-    documentUploads: {
+    documentUploads: initialData?.documentUploads || {
         panCard: undefined,
         aadhaarCard: undefined,
         photograph: undefined,
@@ -139,7 +159,7 @@ export function BusinessLoanApplicationForm({ onBack, backButtonText, initialDat
       formSubtitle="Easy Application Process • Minimum Documentation • 100% Digital & Secure"
       formIcon={<Briefcase className="w-12 h-12 mx-auto text-primary mb-2" />}
       schema={BusinessLoanApplicationSchema}
-      defaultValues={initialData || defaultValues}
+      defaultValues={defaultValues}
       sections={businessLoanSections}
       submitAction={(data) => submitApplicationAction(data, 'loan', 'Business Loan')}
       updateAction={(id, data) => updateApplicationAction(id, 'loan', data)}

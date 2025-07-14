@@ -6,6 +6,9 @@ import { Badge } from '@/components/ui/badge';
 import type { PartnerData } from '@/lib/types';
 import { format } from 'date-fns';
 import { useRouter } from 'next/navigation';
+import { Handshake } from 'lucide-react';
+import { Button } from '../ui/button';
+import Link from 'next/link';
 
 interface AllPartnersTableProps {
   partners: PartnerData[];
@@ -29,9 +32,17 @@ export function AllPartnersTable({ partners }: AllPartnersTableProps) {
 
   if (partners.length === 0) {
     return (
-      <div className="text-center py-10 border-2 border-dashed rounded-lg">
-        <h3 className="text-lg font-medium text-muted-foreground">No Approved Partners Found</h3>
-        <p className="text-sm text-muted-foreground mt-1">There are no approved partners on the platform yet.</p>
+       <div className="text-center py-12 px-6 border-2 border-dashed rounded-lg bg-secondary/50">
+        <div className="flex justify-center mb-4">
+            <div className="bg-primary/10 text-primary rounded-full p-4">
+                <Handshake className="w-10 h-10" />
+            </div>
+        </div>
+        <h3 className="text-xl font-semibold text-foreground">No Approved Partners</h3>
+        <p className="text-muted-foreground mt-2 mb-6">There are no approved partners on the platform yet.</p>
+        <Button asChild variant="outline">
+          <Link href="/admin/dashboard?tab=pending_partners">View Pending Approvals</Link>
+        </Button>
       </div>
     );
   }

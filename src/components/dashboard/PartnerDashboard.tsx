@@ -8,11 +8,14 @@ import { PlusCircle } from 'lucide-react';
 import { ApplicationsTable } from './ApplicationsTable';
 import { Skeleton } from '../ui/skeleton';
 import Link from 'next/link';
+import { DashboardStats, type Stat } from './DashboardStats';
+import { AnalyticsCharts } from '@/components/admin/AnalyticsCharts';
 
 interface PartnerDashboardViewProps {
     user: UserData;
     applications: UserApplication[];
     isLoading: boolean;
+    stats: Stat[];
 }
 
 function ApplicationsTableSkeleton() {
@@ -26,7 +29,7 @@ function ApplicationsTableSkeleton() {
   );
 }
 
-export function PartnerDashboard({ user, applications, isLoading }: PartnerDashboardViewProps) {
+export function PartnerDashboard({ user, applications, isLoading, stats }: PartnerDashboardViewProps) {
     if (!user.businessModel) {
         return (
             <Card>
@@ -60,14 +63,26 @@ export function PartnerDashboard({ user, applications, isLoading }: PartnerDashb
                     </Link>
                 </Button>
             </div>
+
+            <DashboardStats stats={stats} isLoading={isLoading} />
             
+             <div className="mt-8 space-y-6">
+                <div>
+                    <h2 className="text-2xl font-bold tracking-tight text-foreground mb-2">Performance Analytics</h2>
+                    <p className="text-muted-foreground">A visual overview of your application activity.</p>
+                </div>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <AnalyticsCharts applications={applications} isLoading={isLoading} />
+                </div>
+            </div>
+
             <Card>
                 <CardHeader>
                     <CardTitle>Submitted Applications</CardTitle>
                     <CardDescription>A list of all applications you have submitted for clients.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    {isLoading ? <ApplicationsTableSkeleton /> : <ApplicationsTable applications={applications} />}
+                    {isLoading ? <ApplicationsTableSkeleton /> : <ApplicationsTable applications={applications} isPartner={true} />}
                 </CardContent>
             </Card>
         </div>

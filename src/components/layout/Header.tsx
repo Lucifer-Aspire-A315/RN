@@ -116,8 +116,8 @@ const DynamicLogo = () => {
 
   return (
      <div className="flex items-center gap-2">
-        <Image src={logoSrc} alt="RN FinTech Logo" width={40} height={40} priority className="h-10 w-auto" />
-        <span className="text-xl font-bold text-foreground">RN FinTech</span>
+        <Image src={logoSrc} alt="RN FinTech Logo" width={30} height={20} priority  />
+        <span className="text-xl font-bold text-foreground"> FinTech</span>
     </div>
   );
 };

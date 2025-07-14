@@ -4,7 +4,7 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Loader2 } from 'lucide-react';
+import { Loader2, UserCheck } from 'lucide-react';
 import type { PartnerData } from '@/lib/types';
 import { format } from 'date-fns';
 
@@ -26,9 +26,14 @@ const getBusinessModelDisplay = (model?: 'referral' | 'dsa' | 'merchant'): strin
 export function PendingPartnersTable({ partners, onApprove, processingState }: PendingPartnersTableProps) {
   if (partners.length === 0) {
     return (
-      <div className="text-center py-10 border-2 border-dashed rounded-lg">
-        <h3 className="text-lg font-medium text-muted-foreground">No Pending Partners</h3>
-        <p className="text-sm text-muted-foreground mt-1">There are no new partner registrations to approve.</p>
+      <div className="text-center py-12 px-6 border-2 border-dashed rounded-lg bg-secondary/50">
+        <div className="flex justify-center mb-4">
+            <div className="bg-primary/10 text-primary rounded-full p-4">
+                <UserCheck className="w-10 h-10" />
+            </div>
+        </div>
+        <h3 className="text-xl font-semibold text-foreground">No Pending Partners</h3>
+        <p className="text-muted-foreground mt-2">There are no new partner registrations to approve at this time.</p>
       </div>
     );
   }

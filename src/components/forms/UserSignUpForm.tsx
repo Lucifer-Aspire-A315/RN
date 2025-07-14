@@ -10,13 +10,28 @@ import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, UserPlus } from 'lucide-react';
+import { Loader2, UserPlus, Handshake } from 'lucide-react';
 import { userSignUpAction } from '@/app/actions/authActions';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { cn } from '@/lib/utils';
 
-export function UserSignUpForm() {
+interface UserSignUpFormProps {
+  partners: { id: string; fullName: string; businessModel?: 'referral' | 'dsa' | 'merchant' }[];
+}
+
+const getBusinessModelDisplay = (model?: 'referral' | 'dsa' | 'merchant'): string => {
+    switch(model) {
+        case 'dsa': return 'DSA';
+        case 'merchant': return 'Merchant';
+        case 'referral': return 'Referral';
+        default: return 'Partner';
+    }
+}
+
+export function UserSignUpForm({ partners }: UserSignUpFormProps) {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { login } = useAuth();
@@ -30,6 +45,7 @@ export function UserSignUpForm() {
       mobileNumber: '',
       password: '',
       confirmPassword: '',
+      partnerId: '',
     },
   });
 
@@ -121,6 +137,42 @@ export function UserSignUpForm() {
                 </FormItem>
                 )}
             />
+
+            {partners.length > 0 && (
+                 <FormField
+                    control={form.control}
+                    name="partnerId"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel className="flex items-center gap-2">
+                                <Handshake className="w-4 h-4 text-muted-foreground" />
+                                Select Your Partner
+                            </FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                <SelectTrigger className={cn(!field.value && "text-muted-foreground")}>
+                                    <SelectValue placeholder="Select the partner who referred you..." />
+                                </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                {partners.map((partner) => (
+                                    <SelectItem key={partner.id} value={partner.id}>
+                                        <div className="flex justify-between items-center w-full">
+                                            <span>{partner.fullName}</span>
+                                            <span className="text-xs text-muted-foreground bg-secondary px-2 py-0.5 rounded-full">
+                                                {getBusinessModelDisplay(partner.businessModel)}
+                                            </span>
+                                        </div>
+                                    </SelectItem>
+                                ))}
+                                </SelectContent>
+                            </Select>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+            )}
+            
             <FormField
                 control={form.control}
                 name="password"
@@ -147,6 +199,7 @@ export function UserSignUpForm() {
                 </FormItem>
                 )}
             />
+
             <Button type="submit" className="w-full cta-button" disabled={isSubmitting}>
                 {isSubmitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Signing Up...</> : 'Sign Up Now'}
             </Button>

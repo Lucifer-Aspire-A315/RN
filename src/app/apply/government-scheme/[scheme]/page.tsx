@@ -5,6 +5,7 @@ import { Footer } from '@/components/layout/Footer';
 import { checkSessionAction } from '@/app/actions/authActions';
 import { LoginPrompt } from '@/components/shared/LoginPrompt';
 import { notFound } from 'next/navigation';
+import { getUserProfileDetails } from '@/app/actions/profileActions';
 
 export const dynamic = 'force-dynamic';
 
@@ -41,12 +42,14 @@ export default async function ApplyGovernmentSchemePage({ params }: ApplyGovernm
         </div>
     );
   }
+  
+  const userProfile = await getUserProfileDetails();
 
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
       <main className="flex-grow">
-        <GovernmentSchemeLoanApplicationForm selectedScheme={schemeDisplayName} />
+        <GovernmentSchemeLoanApplicationForm selectedScheme={schemeDisplayName} userProfile={userProfile} />
       </main>
       <Footer />
     </div>

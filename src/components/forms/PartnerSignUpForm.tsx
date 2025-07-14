@@ -20,7 +20,7 @@ import { FormSection, FormFieldWrapper } from './FormSection';
 import { partnerSignUpAction } from '@/app/actions/authActions';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { FormProgress } from '../shared/FormProgress';
+import { FormStepper } from '../shared/FormStepper';
 
 
 // Helper function to safely extract field keys from a Zod schema
@@ -44,6 +44,8 @@ export function PartnerSignUpForm() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
+  const [highestValidatedStep, setHighestValidatedStep] = useState(0);
+
 
   const form = useForm<PartnerSignUpFormData>({
     resolver: zodResolver(PartnerSignUpSchema),
@@ -84,44 +86,44 @@ export function PartnerSignUpForm() {
 
     return {
       modelSelection: {
-          title: "1. Select Your Business Model",
+          title: "Select Your Business Model",
           subtitle: "Choose how you'd like to partner with us.",
           fields: ['businessModel']
       },
       referralInfo: {
-          title: "2. Basic Information",
+          title: "Basic Information",
           subtitle: "Provide your details to get started.",
-          fields: [...referralFields.filter(f => f !== 'businessModel' && !passwordFields.includes(f)), ...passwordFields]
+          fields: [...referralFields.filter(f => f !== 'businessModel' && !passwordFields.includes(f)), ...passwordFields, 'declaration']
       },
       dsaPersonal: {
-          title: "DSA: Personal Details",
+          title: "Personal Details",
           subtitle: "Provide your verifiable personal information.",
           fields: [...dsaPersonalFields.map(f => `personalDetails.${f}`), ...passwordFields]
       },
       dsaProfessional: {
-          title: "DSA: Professional & Financial Background",
+          title: "Professional & Financial",
           fields: dsaProfessionalFields.map(f => `professionalFinancial.${f}`)
       },
       dsaScope: {
-          title: "DSA: Business Scope",
+          title: "Business Scope",
           fields: dsaScopeFields.map(f => `businessScope.${f}`)
       },
       dsaDocs: {
-          title: "DSA: Document Uploads",
+          title: "Document Uploads",
           subtitle: "Please upload clear copies of the following documents.",
           fields: [...dsaDocsFields.map(f => `dsaDocumentUploads.${f}`), 'declaration']
       },
       merchantPersonal: {
-          title: "Merchant: Proprietor's Details",
+          title: "Proprietor's Details",
           subtitle: "Provide the personal details of the primary business owner.",
           fields: [...merchantPersonalFields.map(f => `personalDetails.${f}`), ...passwordFields]
       },
       merchantInfo: {
-          title: "Merchant: Business Information",
+          title: "Business Information",
           fields: merchantInfoFields.map(f => `businessInformation.${f}`)
       },
       merchantDocs: {
-          title: "Merchant: Document Uploads",
+          title: "Document Uploads",
           subtitle: "Please upload business verification documents.",
           fields: [...merchantDocsFields.map(f => `merchantDocumentUploads.${f}`), 'declaration']
       }
@@ -140,6 +142,8 @@ export function PartnerSignUpForm() {
     // Referral
     return [modelSelection, referralInfo];
   }, [businessModel, allSections]);
+
+  const stepLabels = useMemo(() => steps.map(s => s.title), [steps]);
   
   const handleNextStep = async () => {
     const currentFields = steps[currentStep].fields;
@@ -147,6 +151,7 @@ export function PartnerSignUpForm() {
     
     if (isValid) {
       if (currentStep < steps.length - 1) {
+        setHighestValidatedStep(Math.max(highestValidatedStep, currentStep + 1));
         setCurrentStep(prev => prev + 1);
       }
     } else {
@@ -162,6 +167,12 @@ export function PartnerSignUpForm() {
      if (currentStep > 0) {
         setCurrentStep(prev => prev - 1);
      }
+  };
+
+  const handleStepClick = (stepIndex: number) => {
+    if (stepIndex <= highestValidatedStep && stepIndex !== currentStep) {
+      setCurrentStep(stepIndex);
+    }
   };
 
 
@@ -212,7 +223,14 @@ export function PartnerSignUpForm() {
         </p>
       </div>
       
-      {steps.length > 0 && <FormProgress currentStep={currentStep} totalSteps={steps.length} />}
+      {steps.length > 0 && 
+        <FormStepper 
+            steps={stepLabels} 
+            currentStep={currentStep} 
+            highestValidatedStep={highestValidatedStep}
+            onStepClick={handleStepClick}
+        />
+      }
 
       <Form {...form}>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-10">
@@ -227,6 +245,7 @@ export function PartnerSignUpForm() {
                     onValueChange={(value) => {
                         field.onChange(value);
                         setCurrentStep(0); // Reset to first step if model changes
+                        setHighestValidatedStep(0);
                     }}
                     defaultValue={field.value}
                     className="grid grid-cols-1 md:grid-cols-3 gap-4 md:col-span-2"
@@ -275,6 +294,9 @@ export function PartnerSignUpForm() {
                     <FormField control={control} name="mobileNumber" render={({ field }) => ( <FormItem><FormLabel>Mobile Number</FormLabel><FormControl><Input type="tel" placeholder="10-digit mobile number" {...field} /></FormControl><FormMessage /></FormItem> )} />
                     <FormField control={control} name="password" render={({ field }) => ( <FormItem><FormLabel>Create Password</FormLabel><FormControl><Input type="password" placeholder="Create a strong password" {...field} /></FormControl><FormMessage /></FormItem> )} />
                     <FormField control={control} name="confirmPassword" render={({ field }) => ( <FormItem><FormLabel>Confirm Password</FormLabel><FormControl><Input type="password" placeholder="Confirm your password" {...field} /></FormControl><FormMessage /></FormItem> )} />
+                     <FormFieldWrapper className="md:col-span-2">
+                        <FormField control={control} name="declaration" render={({ field }) => ( <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 shadow-sm"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><div className="space-y-1 leading-none"><FormLabel>Declaration</FormLabel><FormMessage /><p className="text-xs text-muted-foreground">I hereby declare that the details provided are true and correct.</p></div></FormItem> )} />
+                    </FormFieldWrapper>
                 </FormSection>
             </div>
           )}

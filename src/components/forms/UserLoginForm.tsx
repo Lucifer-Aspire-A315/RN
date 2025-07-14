@@ -8,6 +8,7 @@ import { LogIn } from 'lucide-react';
 import { userLoginAction } from '@/app/actions/authActions';
 import Link from 'next/link';
 import { AuthForm } from './shared/AuthForm';
+import { Button } from '../ui/button';
 
 
 export function UserLoginForm() {
@@ -25,6 +26,11 @@ export function UserLoginForm() {
                 defaultValues={{ email: '', password: '' }}
                 buttonText="Login"
             />
+            <div className="mt-4 text-right">
+                <Button variant="link" asChild className="p-0 h-auto">
+                    <Link href="/forgot-password">Forgot Password?</Link>
+                </Button>
+            </div>
         </CardContent>
         <CardFooter className="flex-col gap-4 pt-6 border-t">
             <p className="text-sm text-muted-foreground text-center">

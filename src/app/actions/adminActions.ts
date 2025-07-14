@@ -1,16 +1,19 @@
 
-
 'use server';
 
 import { revalidatePath } from 'next/cache';
 import { db } from '@/lib/firebase';
 import { collection, query, where, getDocs, Timestamp, doc, updateDoc, writeBatch, documentId, getDoc, deleteDoc } from 'firebase/firestore';
-import type { UserApplication, PartnerData } from '@/lib/types';
+import type { UserApplication, PartnerData, UserData } from '@/lib/types';
 import type { DocumentData } from 'firebase/firestore';
 import { checkSessionAction } from './authActions';
 import { getApplicationDetails } from './applicationActions';
 import { deleteFilesByUrlAction } from './fileUploadActions';
 import { getCollectionName, formatApplication } from '@/lib/utils';
+import { sendEmail } from '@/lib/email';
+import { PartnerApprovedEmail } from '@/components/emails/PartnerApprovedEmail';
+import { ApplicationStatusUpdateEmail } from '@/components/emails/ApplicationStatusUpdateEmail';
+import { getPartnerClientIds } from './partnerActions';
 
 // Helper function to ensure only admins can execute these actions
 async function verifyAdmin() {
@@ -19,6 +22,28 @@ async function verifyAdmin() {
     throw new Error('Unauthorized: You do not have permission to perform this action.');
   }
   return user;
+}
+
+// Security Check: Can the user manage this specific application?
+// This function is central to making actions reusable for admins and partners.
+async function canUserManageApplication(user: UserData, application: DocumentData): Promise<boolean> {
+  if (user.isAdmin) {
+    return true; // Admins can manage anything
+  }
+
+  if (user.type === 'partner') {
+    const applicantId = application.applicantDetails?.userId;
+    if (!applicantId) {
+      return false; // No applicant associated, partner cannot manage
+    }
+    
+    // Check if the applicant is one of the partner's approved clients
+    const clientIds = await getPartnerClientIds(user.id);
+    return clientIds.includes(applicantId);
+  }
+  
+  // Normal users cannot perform these management actions.
+  return false;
 }
 
 function formatPartnerData(doc: DocumentData): PartnerData {
@@ -138,10 +163,23 @@ export async function approvePartner(partnerId: string): Promise<{ success: bool
 
     try {
         const partnerRef = doc(db, 'partners', partnerId);
+        const partnerSnap = await getDoc(partnerRef);
+        if(!partnerSnap.exists()) {
+            return { success: false, message: 'Partner not found.' };
+        }
+        const partnerData = partnerSnap.data() as PartnerData;
+
         await updateDoc(partnerRef, {
             isApproved: true
         });
         
+        // Send approval email
+        await sendEmail({
+            to: partnerData.email,
+            subject: 'Congratulations! Your RN FinTech Partner Account is Approved!',
+            react: PartnerApprovedEmail({ name: partnerData.fullName }),
+        });
+
         console.log(`[AdminActions] Successfully approved partner: ${partnerId}`);
         revalidatePath('/admin/dashboard');
         return { success: true, message: 'Partner approved successfully.' };
@@ -157,28 +195,61 @@ export async function updateApplicationStatus(
   serviceCategory: UserApplication['serviceCategory'],
   newStatus: string
 ): Promise<{ success: boolean; message: string }> {
-  await verifyAdmin();
-  console.log(`[AdminActions] Attempting to update status for app ${applicationId} in category ${serviceCategory} to ${newStatus}`);
+  // REMOVED: verifyAdmin() check. It's now inside the function logic.
+  const user = await checkSessionAction();
+  if (!user) {
+    throw new Error('Unauthorized: You do not have permission to perform this action.');
+  }
+  
+  console.log(`[MultiAccessActions] Attempting to update status for app ${applicationId} by user ${user.id}`);
   
   const collectionName = getCollectionName(serviceCategory);
   if (!collectionName) {
-      console.error(`[AdminActions] Invalid service category provided: ${serviceCategory}`);
+      console.error(`[MultiAccessActions] Invalid service category provided: ${serviceCategory}`);
       return { success: false, message: 'Invalid service category.' };
   }
 
   try {
     const appRef = doc(db, collectionName, applicationId);
+    const appSnap = await getDoc(appRef);
+
+    if (!appSnap.exists()) {
+        return { success: false, message: 'Application not found.' };
+    }
+    const appData = appSnap.data();
+    
+    // Centralized Security Check
+    const isAllowed = await canUserManageApplication(user, appData);
+    if (!isAllowed) {
+       console.warn(`[MultiAccessActions] Forbidden: User ${user.id} tried to update status for app ${applicationId}.`);
+       return { success: false, message: 'You do not have permission to modify this application.' };
+    }
+
     await updateDoc(appRef, {
       status: newStatus,
       updatedAt: Timestamp.now(),
     });
+    
+    // Send status update email
+    if (appData.submittedBy?.userEmail) {
+        await sendEmail({
+            to: appData.submittedBy.userEmail,
+            subject: `Update on your ${appData.applicationType} application`,
+            react: ApplicationStatusUpdateEmail({
+                name: appData.submittedBy.userName,
+                applicationType: appData.schemeNameForDisplay || appData.applicationType,
+                applicationId: applicationId,
+                newStatus: newStatus,
+            }),
+        });
+    }
 
-    console.log(`[AdminActions] Successfully updated status for ${applicationId}`);
+    console.log(`[MultiAccessActions] Successfully updated status for ${applicationId}`);
     revalidatePath('/admin/dashboard');
     revalidatePath('/dashboard');
     return { success: true, message: `Application status updated to ${newStatus}.` };
   } catch (error: any) {
-    console.error(`[AdminActions] Error updating status for ${applicationId}:`, error.message, error.stack);
+    console.error(`[MultiAccessActions] Error updating status for ${applicationId}:`, error.message, error.stack);
     return { success: false, message: 'Failed to update application status.' };
   }
 }
@@ -191,7 +262,7 @@ function findFileUrls(data: any): string[] {
 
     for (const key in data) {
         const value = data[key];
-        if (typeof value === 'string' && value.startsWith('https://firebasestorage.googleapis.com')) {
+        if (typeof value === 'string' && value.startsWith('https://storage.googleapis.com')) {
             urls.push(value);
         } else if (typeof value === 'object') {
             urls.push(...findFileUrls(value));
@@ -204,44 +275,54 @@ export async function archiveApplicationAction(
   applicationId: string,
   serviceCategory: UserApplication['serviceCategory']
 ): Promise<{ success: boolean; message: string }> {
-    await verifyAdmin();
-    console.log(`[AdminActions] Archiving application ${applicationId} in category ${serviceCategory}...`);
+    const user = await checkSessionAction();
+    if (!user) {
+        throw new Error('Unauthorized: You do not have permission to perform this action.');
+    }
+    console.log(`[MultiAccessActions] Archiving application ${applicationId} by user ${user.id}...`);
 
     try {
-        // Step 1: Get full application data to find file URLs
-        const applicationData = await getApplicationDetails(applicationId, serviceCategory);
-        if (!applicationData) {
-            throw new Error('Application not found or you do not have permission.');
+        // Step 1: Get full application data to find file URLs and check permissions
+        const appRef = doc(db, getCollectionName(serviceCategory)!, applicationId);
+        const appSnap = await getDoc(appRef);
+
+        if (!appSnap.exists()) {
+            throw new Error('Application not found.');
+        }
+        const applicationData = appSnap.data();
+
+        const isAllowed = await canUserManageApplication(user, applicationData);
+        if (!isAllowed) {
+            console.warn(`[MultiAccessActions] Forbidden: User ${user.id} tried to archive app ${applicationId}.`);
+            return { success: false, message: 'You do not have permission to archive this application.' };
         }
 
         // Step 2: Find all file URLs within the form data
         const fileUrls = findFileUrls(applicationData.formData);
-        console.log(`[AdminActions] Found ${fileUrls.length} files to delete for application ${applicationId}.`);
+        console.log(`[MultiAccessActions] Found ${fileUrls.length} files to delete for application ${applicationId}.`);
 
         // Step 3: Delete files from Firebase Storage if any are found
         if (fileUrls.length > 0) {
             const deleteResult = await deleteFilesByUrlAction(fileUrls);
             if (!deleteResult.success) {
                 // Log error but continue to archive the application record
-                console.error(`[AdminActions] Failed to delete some files, but proceeding with archival. Error: ${deleteResult.error}`);
+                console.error(`[MultiAccessActions] Failed to delete some files, but proceeding with archival. Error: ${deleteResult.error}`);
             }
         }
 
         // Step 4: Update the application status to 'Archived' in Firestore
-        const collectionName = getCollectionName(serviceCategory);
-        const appRef = doc(db, collectionName, applicationId);
         await updateDoc(appRef, {
             status: 'Archived',
             updatedAt: Timestamp.now(),
         });
         
-        console.log(`[AdminActions] Successfully archived application ${applicationId}.`);
+        console.log(`[MultiAccessActions] Successfully archived application ${applicationId}.`);
         revalidatePath('/admin/dashboard');
         revalidatePath('/dashboard');
         return { success: true, message: 'Application archived successfully. Associated files have been deleted.' };
 
     } catch (error: any) {
-        console.error(`[AdminActions] Error archiving application ${applicationId}:`, error.message, error.stack);
+        console.error(`[MultiAccessActions] Error archiving application ${applicationId}:`, error.message, error.stack);
         return { success: false, message: 'Failed to archive application.' };
     }
 }
@@ -321,5 +402,29 @@ export async function removePartnerAction(partnerId: string): Promise<{ success:
     } catch (error: any) {
         console.error(`[AdminActions] Error deactivating partner ${partnerId}:`, error.message, error.stack);
         return { success: false, message: 'Failed to deactivate partner.' };
+    }
+}
+
+/**
+ * Fetches a lightweight list of approved partners, suitable for populating a dropdown menu.
+ * This function is public and does not require admin authentication.
+ */
+export async function getApprovedPartnerList(): Promise<{ id: string; fullName: string; businessModel: 'referral' | 'dsa' | 'merchant' }[]> {
+    try {
+        const partnersRef = collection(db, 'partners');
+        const q = query(partnersRef, where('isApproved', '==', true));
+        const querySnapshot = await getDocs(q);
+        
+        return querySnapshot.docs
+            .filter(doc => doc.data().isAdmin !== true)
+            .map(doc => ({
+                id: doc.id,
+                fullName: doc.data().fullName,
+                businessModel: doc.data().businessModel,
+            }));
+            
+    } catch (error) {
+        console.error('[AdminActions] Error fetching approved partner list:', error);
+        return [];
     }
 }

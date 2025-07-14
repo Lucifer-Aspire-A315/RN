@@ -1,12 +1,15 @@
 
 'use server';
 
-import { doc, getDoc, updateDoc, Timestamp, addDoc, collection } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, Timestamp, addDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { checkSessionAction } from './authActions';
-import type { UserApplication } from '@/lib/types';
+import type { UserApplication, UserData } from '@/lib/types';
 import { getCollectionName } from '@/lib/utils';
 import { revalidatePath } from 'next/cache';
+import { sendEmail } from '@/lib/email';
+import { ApplicationSubmittedEmail } from '@/components/emails/ApplicationSubmittedEmail';
+import { getPartnerClientIds } from './partnerActions';
 
 interface ServerActionResponse {
   success: boolean;
@@ -14,6 +17,51 @@ interface ServerActionResponse {
   applicationId?: string;
   errors?: Record<string, string[]>;
 }
+
+// Security Check helper. 
+async function canUserViewApplication(user: UserData, applicationData: any): Promise<boolean> {
+  // Admin can view anything.
+  if (user.isAdmin) {
+    return true;
+  }
+  
+  // The user who submitted it can view it.
+  const submitterId = applicationData.submittedBy?.userId;
+  if (user.id === submitterId) {
+    return true;
+  }
+  
+  // A partner can view it if the applicant is one of their approved clients.
+  if (user.type === 'partner') {
+    const applicantId = applicationData.applicantDetails?.userId;
+    if (!applicantId) {
+      return false; // No applicant associated, partner cannot view.
+    }
+    const clientIds = await getPartnerClientIds(user.id);
+    return clientIds.includes(applicantId);
+  }
+  
+  // The applicant themselves can view it.
+  const applicantId = applicationData.applicantDetails?.userId;
+  if(user.id === applicantId) {
+      return true;
+  }
+  
+  return false;
+}
+
+// Helper to find a user by email from the 'users' collection
+async function findUserByEmail(email: string): Promise<{ id: string; data: DocumentData } | null> {
+    const usersRef = collection(db, 'users');
+    const q = query(usersRef, where('email', '==', email));
+    const querySnapshot = await getDocs(q);
+    if (!querySnapshot.empty) {
+        const userDoc = querySnapshot.docs[0];
+        return { id: userDoc.id, data: userDoc.data() };
+    }
+    return null;
+}
+
 
 export async function submitApplicationAction(
   formData: any,
@@ -32,23 +80,32 @@ export async function submitApplicationAction(
 
     const { id: submitterUserId, fullName: submitterUserName, email: submitterUserEmail, type: submitterUserType } = submitter;
     
-    const partnerId = submitterUserType === 'partner' ? submitterUserId : null;
-    const applicantUserId = submitterUserType === 'normal' ? submitterUserId : null;
-
-    // Standardized access to applicant's personal details
+    // Standardized access to applicant's personal details from the form
     const personalDetails = formData.personalDetails;
     if (!personalDetails || !personalDetails.fullName || !personalDetails.email) {
       return { success: false, message: 'Applicant name or email could not be determined from form data.' };
     }
-    
     const { fullName: applicantFullName, email: applicantEmail } = personalDetails;
-    
-    // File processing is now expected to be done on the client before calling this action.
-    // The `formData` received here should already have URLs instead of File objects.
+
+    // --- CRITICAL LOGIC FIX ---
+    // Determine the applicant's user ID.
+    let applicantUserId: string | null = null;
+    if (submitterUserType === 'normal') {
+        // If a normal user submits, they are the applicant.
+        applicantUserId = submitterUserId;
+    } else if (submitterUserType === 'partner') {
+        // If a partner submits, we need to find the client's user ID from their email.
+        const clientUser = await findUserByEmail(applicantEmail);
+        if (clientUser) {
+            applicantUserId = clientUser.id;
+        } else {
+             console.log(`[AppSubmitAction] Partner submitted for a non-registered user: ${applicantEmail}. No applicant user ID will be linked.`);
+        }
+    }
 
     const applicationData = {
       applicantDetails: {
-        userId: applicantUserId,
+        userId: applicantUserId, // This now correctly links the application to the client user.
         fullName: applicantFullName,
         email: applicantEmail,
       },
@@ -58,11 +115,10 @@ export async function submitApplicationAction(
         userEmail: submitterUserEmail,
         userType: submitterUserType,
       },
-      partnerId,
       applicationType,
       serviceCategory,
       ...(schemeNameForDisplay && { schemeNameForDisplay }),
-      formData: formData, // Use the client-processed formData directly
+      formData: formData, 
       status: 'submitted',
       createdAt: Timestamp.now(),
       updatedAt: Timestamp.now(),
@@ -76,6 +132,18 @@ export async function submitApplicationAction(
     console.log(`[AppSubmitAction] Saving to collection "${collectionName}".`);
     const docRef = await addDoc(collection(db, collectionName), applicationData);
     console.log(`[AppSubmitAction] Application stored with ID: ${docRef.id}`);
+    
+    // Send confirmation email to the submitter
+    await sendEmail({
+      to: submitterUserEmail,
+      subject: `Your ${applicationType} Application has been Received!`,
+      react: ApplicationSubmittedEmail({
+        name: submitterUserName,
+        applicationType: schemeNameForDisplay || applicationType,
+        applicationId: docRef.id,
+      }),
+    });
+
 
     return {
       success: true,
@@ -125,10 +193,12 @@ export async function getApplicationDetails(
     }
 
     const applicationData = docSnap.data();
-    const submitterId = applicationData.submittedBy?.userId;
+    
+    // Centralized Security Check
+    const isAllowed = await canUserViewApplication(user, applicationData);
 
-    if (user.id !== submitterId && !user.isAdmin) {
-      console.error(`[AppDetailsAction] Forbidden: User ${user.id} tried to access application ${applicationId} owned by ${submitterId}.`);
+    if (!isAllowed) {
+      console.error(`[AppDetailsAction] Forbidden: User ${user.id} tried to access application ${applicationId}.`);
       throw new Error('Forbidden: You do not have permission to view this application.');
     }
     
@@ -171,26 +241,25 @@ export async function updateApplicationAction(
       throw new Error('Application not found.');
     }
 
+    // Security check to ensure only owner or admin can update
     const existingApplicationData = docSnap.data();
-    const submitterId = existingApplicationData.submittedBy?.userId;
-    const submitterType = existingApplicationData.submittedBy?.userType;
-
-    if (user.id !== submitterId && !user.isAdmin) {
-      throw new Error('Unauthorized: You do not have permission to perform this action.');
+    const isAllowed = await canUserViewApplication(user, existingApplicationData);
+    if (!isAllowed) {
+        throw new Error('Unauthorized: You do not have permission to perform this action.');
     }
     
-    // Intelligent payload shaping: If the incoming data is the raw form data, wrap it.
-    // This makes the action robust to being called from different places.
     const payloadForServer = data.formData ? data : { formData: data };
     
-    const applicantUserId = submitterType === 'normal' ? submitterId : null;
-
-    // Standardized update of applicantDetails at the root of the application
+    // --- CRITICAL LOGIC FIX ---
+    // Ensure applicantDetails are updated with the correct user ID if possible
     if (payloadForServer.formData && payloadForServer.formData.personalDetails) {
+        const applicantEmail = payloadForServer.formData.personalDetails.email;
+        const clientUser = await findUserByEmail(applicantEmail);
+
         payloadForServer.applicantDetails = {
-            userId: applicantUserId,
+            userId: clientUser?.id || existingApplicationData.applicantDetails?.userId || null,
             fullName: payloadForServer.formData.personalDetails.fullName,
-            email: payloadForServer.formData.personalDetails.email,
+            email: applicantEmail,
         };
     }
 
@@ -206,8 +275,7 @@ export async function updateApplicationAction(
     
     return { success: true, message: 'Application updated successfully!' };
 
-  } catch (error: any)
-{
+  } catch (error: any) {
     console.error(`[AppUpdateAction] Error updating application ${applicationId}:`, error.message, error.stack);
     return { success: false, message: error.message || 'Failed to update application.' };
   }

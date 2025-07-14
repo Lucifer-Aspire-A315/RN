@@ -6,6 +6,7 @@ import { Home as HomeIcon } from 'lucide-react';
 import { GenericLoanForm } from './GenericLoanForm';
 import { HomeLoanApplicationSchema, type HomeLoanApplicationFormData } from '@/lib/schemas';
 import { submitApplicationAction, updateApplicationAction } from '@/app/actions/applicationActions';
+import type { UserProfileData } from '@/app/actions/profileActions';
 
 interface HomeLoanApplicationFormProps {
   onBack?: () => void;
@@ -13,6 +14,7 @@ interface HomeLoanApplicationFormProps {
   initialData?: HomeLoanApplicationFormData | null;
   applicationId?: string;
   mode?: 'create' | 'edit';
+  userProfile?: UserProfileData | null;
 }
 
 const homeLoanSections = [
@@ -103,21 +105,39 @@ const homeLoanSections = [
   }
 ];
 
-export function HomeLoanApplicationForm({ onBack, backButtonText, initialData, applicationId, mode = 'create' }: HomeLoanApplicationFormProps) {
+export function HomeLoanApplicationForm({ onBack, backButtonText, initialData, applicationId, mode = 'create', userProfile }: HomeLoanApplicationFormProps) {
+  
+  const prefilledData = {
+    personalDetails: {
+      fullName: userProfile?.fullName || '',
+      email: userProfile?.email || '',
+      mobileNumber: userProfile?.mobileNumber || '',
+    }
+  };
+  
   const defaultValues: HomeLoanApplicationFormData = {
-    personalDetails: { fullName: '', fatherOrHusbandName: '', dob: '', gender: undefined, mobileNumber: '', email: '', panNumber: '', aadhaarNumber: '' },
-    addressDetails: {
+    personalDetails: { 
+      fullName: initialData?.personalDetails?.fullName || prefilledData.personalDetails.fullName,
+      fatherOrHusbandName: initialData?.personalDetails?.fatherOrHusbandName || '',
+      dob: initialData?.personalDetails?.dob || '', 
+      gender: initialData?.personalDetails?.gender || undefined, 
+      mobileNumber: initialData?.personalDetails?.mobileNumber || prefilledData.personalDetails.mobileNumber, 
+      email: initialData?.personalDetails?.email || prefilledData.personalDetails.email, 
+      panNumber: initialData?.personalDetails?.panNumber || '', 
+      aadhaarNumber: initialData?.personalDetails?.aadhaarNumber || ''
+    },
+    addressDetails: initialData?.addressDetails || {
       currentAddress: '',
       isPermanentAddressSame: "yes",
       permanentAddress: '',
     },
-    employmentIncome: {
+    employmentIncome: initialData?.employmentIncome || {
       employmentType: undefined, 
       companyName: '',
       monthlyIncome: undefined,
       yearsInCurrentJobOrBusiness: undefined,
     },
-    loanPropertyDetails: {
+    loanPropertyDetails: initialData?.loanPropertyDetails || {
       loanAmountRequired: undefined,
       loanTenureRequired: undefined,
       purposeOfLoan: undefined,
@@ -126,12 +146,12 @@ export function HomeLoanApplicationForm({ onBack, backButtonText, initialData, a
       propertyType: undefined,
       hasExistingLoans: "no", 
     },
-    existingLoans: { 
+    existingLoans: initialData?.existingLoans || { 
       bankName: '',
       outstandingAmount: undefined, 
       emiAmount: undefined,
     },
-    documentUploads: {
+    documentUploads: initialData?.documentUploads || {
         panCard: undefined,
         aadhaarCard: undefined,
         photograph: undefined,
@@ -152,7 +172,7 @@ export function HomeLoanApplicationForm({ onBack, backButtonText, initialData, a
       formSubtitle="Simple & Fast Home Loan Process. Transparent Terms, Minimum Documentation. 100% Digital & Safe."
       formIcon={<HomeIcon className="w-12 h-12 mx-auto text-primary mb-2" />}
       schema={HomeLoanApplicationSchema}
-      defaultValues={initialData || defaultValues}
+      defaultValues={defaultValues}
       sections={homeLoanSections}
       submitAction={(data) => submitApplicationAction(data, 'loan', 'Home Loan')}
       updateAction={(id, data) => updateApplicationAction(id, 'loan', data)}

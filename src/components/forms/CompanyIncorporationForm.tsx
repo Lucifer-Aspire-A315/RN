@@ -7,12 +7,14 @@ import { Building2 } from 'lucide-react';
 import { submitApplicationAction, updateApplicationAction } from '@/app/actions/applicationActions';
 import type { UserApplication } from '@/lib/types';
 import { GenericCAServiceForm } from './GenericCAServiceForm';
+import type { UserProfileData } from '@/app/actions/profileActions';
 
 interface CompanyIncorporationFormProps {
   onBack?: () => void;
   initialData?: CompanyIncorporationFormData | null;
   applicationId?: string;
   mode?: 'create' | 'edit';
+  userProfile?: UserProfileData | null;
 }
 
 const companyIncorporationSections = [
@@ -92,23 +94,32 @@ const companyIncorporationSections = [
     }
 ];
 
-export function CompanyIncorporationForm({ onBack, initialData, applicationId, mode = 'create' }: CompanyIncorporationFormProps) {
+export function CompanyIncorporationForm({ onBack, initialData, applicationId, mode = 'create', userProfile }: CompanyIncorporationFormProps) {
+  
+  const prefilledData = {
+    personalDetails: {
+      fullName: userProfile?.fullName || '',
+      email: userProfile?.email || '',
+      mobileNumber: userProfile?.mobileNumber || '',
+    }
+  };
+  
   const defaultValues: CompanyIncorporationFormData = {
     personalDetails: {
-      fullName: '',
-      mobileNumber: '',
-      email: '',
-      dob: '',
-      occupation: undefined,
-      otherOccupationDetail: '',
-      residentialAddress: '',
-      cityAndState: '',
-      panNumber: '',
-      aadhaarNumber: '',
-      fatherOrHusbandName: '',
-      gender: undefined,
+      fullName: initialData?.personalDetails?.fullName || prefilledData.personalDetails.fullName,
+      mobileNumber: initialData?.personalDetails?.mobileNumber || prefilledData.personalDetails.mobileNumber,
+      email: initialData?.personalDetails?.email || prefilledData.personalDetails.email,
+      dob: initialData?.personalDetails?.dob || '',
+      occupation: initialData?.personalDetails?.occupation || undefined,
+      otherOccupationDetail: initialData?.personalDetails?.otherOccupationDetail || '',
+      residentialAddress: initialData?.personalDetails?.residentialAddress || '',
+      cityAndState: initialData?.personalDetails?.cityAndState || '',
+      panNumber: initialData?.personalDetails?.panNumber || '',
+      aadhaarNumber: initialData?.personalDetails?.aadhaarNumber || '',
+      fatherOrHusbandName: initialData?.personalDetails?.fatherOrHusbandName || '',
+      gender: initialData?.personalDetails?.gender || undefined,
     },
-    companyDetails: {
+    companyDetails: initialData?.companyDetails || {
       companyType: undefined,
       otherCompanyTypeDetail: '',
       proposedCompanyName1: '',
@@ -117,20 +128,20 @@ export function CompanyIncorporationForm({ onBack, initialData, applicationId, m
       businessActivity: '',
       proposedBusinessAddress: '',
     },
-    directorsPartners: {
+    directorsPartners: initialData?.directorsPartners || {
       numberOfDirectorsPartners: undefined,
     },
-    kycDocuments: {
+    kycDocuments: initialData?.kycDocuments || {
         panCard: undefined,
         aadhaarCard: undefined,
         photograph: undefined,
     },
-    documentUploads: {
+    documentUploads: initialData?.documentUploads || {
         businessAddressProof: undefined,
         directorBankStatement: undefined,
         dsc: undefined,
     },
-    optionalServices: {
+    optionalServices: initialData?.optionalServices || {
         gstRegistration: false,
         msmeRegistration: false,
         trademarkFiling: false,
@@ -151,7 +162,7 @@ export function CompanyIncorporationForm({ onBack, initialData, applicationId, m
         formSubtitle="Please provide the details below to start your company registration process."
         formIcon={<Building2 className="w-12 h-12 mx-auto text-primary mb-2" />}
         schema={CompanyIncorporationFormSchema}
-        defaultValues={initialData || defaultValues}
+        defaultValues={defaultValues}
         sections={companyIncorporationSections}
         submitAction={(data) => submitApplicationAction(data, 'caService', 'Company Incorporation')}
         updateAction={(id, data) => updateApplicationAction(id, 'caService' as UserApplication['serviceCategory'], data)}

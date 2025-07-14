@@ -3,7 +3,7 @@
 "use client";
 
 import React, { useState, useMemo, useEffect } from 'react';
-import { useForm, type UseFormReturn } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { ZodType, ZodTypeDef } from 'zod';
 import { Button } from '@/components/ui/button';
@@ -18,7 +18,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Textarea } from '../ui/textarea';
 import { processNestedFileUploads } from '@/lib/form-helpers';
 import { useRouter } from 'next/navigation';
-import { FormProgress } from '../shared/FormProgress';
+import { FormStepper } from '../shared/FormStepper';
 
 // --- TYPE DEFINITIONS ---
 
@@ -90,6 +90,7 @@ export function GenericLoanForm<TData extends Record<string, any>>({
   const [isVerifyingID, setIsVerifyingID] = useState(false);
   const { currentUser } = useAuth();
   const [currentStep, setCurrentStep] = useState(0);
+  const [highestValidatedStep, setHighestValidatedStep] = useState(0);
 
   const form = useForm<TData>({
     resolver: zodResolver(schema),
@@ -111,6 +112,9 @@ export function GenericLoanForm<TData extends Record<string, any>>({
       })
     );
   }, [sections, watchedValues]);
+
+  const stepLabels = useMemo(() => visibleSections.map(s => s.title), [visibleSections]);
+
 
   useEffect(() => {
     if (currentStep >= visibleSections.length) {
@@ -218,6 +222,7 @@ export function GenericLoanForm<TData extends Record<string, any>>({
     const isValid = await trigger(fieldsInSection as any, { shouldFocus: true });
     
     if (isValid) {
+      setHighestValidatedStep(Math.max(highestValidatedStep, currentStep + 1));
       if(currentStep < visibleSections.length - 1) {
         setCurrentStep(prev => prev + 1);
       }
@@ -232,6 +237,12 @@ export function GenericLoanForm<TData extends Record<string, any>>({
 
   const handlePreviousClick = () => {
     setCurrentStep(prev => Math.max(0, prev - 1));
+  };
+  
+  const handleStepClick = (stepIndex: number) => {
+    if (stepIndex <= highestValidatedStep && stepIndex !== currentStep) {
+      setCurrentStep(stepIndex);
+    }
   };
   
   const renderField = (fieldConfig: FieldConfig) => {
@@ -353,7 +364,12 @@ export function GenericLoanForm<TData extends Record<string, any>>({
             {formSubtitle && <p className="text-muted-foreground mt-1">{formSubtitle}</p>}
           </div>
           
-          <FormProgress currentStep={currentStep} totalSteps={visibleSections.length} />
+          <FormStepper 
+            steps={stepLabels} 
+            currentStep={currentStep}
+            highestValidatedStep={highestValidatedStep} 
+            onStepClick={handleStepClick}
+          />
 
           <Form {...form}>
             <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-10">

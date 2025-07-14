@@ -6,6 +6,7 @@ import { User } from 'lucide-react';
 import { GenericLoanForm } from './GenericLoanForm';
 import { PersonalLoanApplicationSchema, type PersonalLoanApplicationFormData } from '@/lib/schemas';
 import { submitApplicationAction, updateApplicationAction } from '@/app/actions/applicationActions';
+import type { UserProfileData } from '@/app/actions/profileActions';
 
 interface PersonalLoanApplicationFormProps {
   onBack?: () => void;
@@ -13,6 +14,7 @@ interface PersonalLoanApplicationFormProps {
   initialData?: PersonalLoanApplicationFormData | null;
   applicationId?: string;
   mode?: 'create' | 'edit';
+  userProfile?: UserProfileData | null;
 }
 
 const personalLoanSections = [
@@ -98,33 +100,51 @@ const personalLoanSections = [
 ];
 
 
-export function PersonalLoanApplicationForm({ onBack, backButtonText, initialData, applicationId, mode = 'create' }: PersonalLoanApplicationFormProps) {
+export function PersonalLoanApplicationForm({ onBack, backButtonText, initialData, applicationId, mode = 'create', userProfile }: PersonalLoanApplicationFormProps) {
+  
+  const prefilledData = {
+    personalDetails: {
+      fullName: userProfile?.fullName || '',
+      email: userProfile?.email || '',
+      mobileNumber: userProfile?.mobileNumber || '',
+    }
+  };
+  
   const defaultValues: PersonalLoanApplicationFormData = {
-    personalDetails: { fullName: '', fatherOrHusbandName: '', dob: '', gender: undefined, mobileNumber: '', email: '', panNumber: '', aadhaarNumber: '' },
-    addressDetails: {
+    personalDetails: { 
+      fullName: initialData?.personalDetails?.fullName || prefilledData.personalDetails.fullName,
+      fatherOrHusbandName: initialData?.personalDetails?.fatherOrHusbandName || '',
+      dob: initialData?.personalDetails?.dob || '', 
+      gender: initialData?.personalDetails?.gender || undefined, 
+      mobileNumber: initialData?.personalDetails?.mobileNumber || prefilledData.personalDetails.mobileNumber, 
+      email: initialData?.personalDetails?.email || prefilledData.personalDetails.email, 
+      panNumber: initialData?.personalDetails?.panNumber || '', 
+      aadhaarNumber: initialData?.personalDetails?.aadhaarNumber || ''
+    },
+    addressDetails: initialData?.addressDetails || {
       currentAddress: '',
       isPermanentAddressSame: "yes",
       permanentAddress: '',
     },
-    employmentIncome: { 
+    employmentIncome: initialData?.employmentIncome || { 
       employmentType: undefined,
       companyName: '', 
       monthlyIncome: undefined,
       yearsInCurrentJobOrBusiness: undefined 
     },
-    loanDetails: {
+    loanDetails: initialData?.loanDetails || {
       loanAmountRequired: undefined,
       purposeOfLoan: undefined,
       otherPurposeOfLoan: '',
       loanTenureRequired: undefined,
       hasExistingLoans: "no",
     },
-    existingLoans: {
+    existingLoans: initialData?.existingLoans || {
       emiAmount: undefined,
       bankName: '',
       outstandingAmount: undefined,
     },
-    documentUploads: {
+    documentUploads: initialData?.documentUploads || {
       panCard: undefined,
       aadhaarCard: undefined,
       photograph: undefined,
@@ -144,7 +164,7 @@ export function PersonalLoanApplicationForm({ onBack, backButtonText, initialDat
       formSubtitle="Instant Loan for Your Personal Needs • Easy Process • Fast Disbursal • Minimum Documents • 100% Secure & Confidential"
       formIcon={<User className="w-12 h-12 mx-auto text-primary mb-2" />}
       schema={PersonalLoanApplicationSchema}
-      defaultValues={initialData || defaultValues}
+      defaultValues={defaultValues}
       sections={personalLoanSections}
       submitAction={(data) => submitApplicationAction(data, 'loan', 'Personal Loan')}
       updateAction={(id, data) => updateApplicationAction(id, 'loan', data)}

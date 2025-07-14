@@ -86,6 +86,11 @@ export function PartnerLoginForm() {
                 defaultValues={{ email: '', password: '' }}
                 buttonText="Login"
              />
+              <div className="mt-4 text-right">
+                <Button variant="link" asChild className="p-0 h-auto">
+                    <Link href="/forgot-password">Forgot Password?</Link>
+                </Button>
+            </div>
         </CardContent>
     </Card>
   );
