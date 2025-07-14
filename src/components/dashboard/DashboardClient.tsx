@@ -118,7 +118,7 @@ export function DashboardClient({ user }: DashboardClientProps) {
             <p className="text-muted-foreground">Here's a summary of your recent activity and applications.</p>
         </div>
          <Button asChild>
-            <Link href="/#services">
+            <Link href="/dashboard/new-application">
                 <PlusCircle className="mr-2 h-4 w-4" />
                 New Application
             </Link>

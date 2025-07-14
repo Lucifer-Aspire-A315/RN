@@ -94,7 +94,7 @@ export function Footer() {
               </p>
               <p>
                 <a href="mailto:admin@rnfintech.com" className="text-muted-foreground hover:text-primary transition-colors">
-                  contact@rnfintech.com
+                  admin@rnfintech.com
                 </a>
               </p>
             </address>

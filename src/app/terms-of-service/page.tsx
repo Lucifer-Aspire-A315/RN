@@ -69,7 +69,7 @@ export default function TermsOfServicePage() {
               <section>
                 <h2 className="text-xl font-semibold mb-2">7. Contact Us</h2>
                 <p>
-                  If you have any questions about these Terms of Service, please contact us at: <a href="mailto:contact@rnfintech.com" className="text-primary hover:underline">contact@rnfintech.com</a>.
+                  If you have any questions about these Terms of Service, please contact us at: <a href="mailto:admin@rnfintech.com" className="text-primary hover:underline">admin@rnfintech.com</a>.
                 </p>
               </section>
             </CardContent>

@@ -9,7 +9,7 @@ import { ArrowLeft } from 'lucide-react';
 
 export default function NewApplicationPage() {
     return (
-        <div className="flex flex-col min-h-screen bg-secondary">
+        <div className="flex flex-col min-h-screen bg-secondary/30">
             <Header />
             <main className="flex-grow container mx-auto px-4 sm:px-6 py-8">
                 <Button asChild variant="ghost" className="mb-4 -ml-4">
@@ -22,7 +22,7 @@ export default function NewApplicationPage() {
                     <CardHeader>
                         <CardTitle>New Application Portal</CardTitle>
                         <CardDescription>
-                            Select a service below to start a new application for your client.
+                            Select a service below to start a new application.
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
