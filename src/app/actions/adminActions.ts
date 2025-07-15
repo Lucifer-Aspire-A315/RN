@@ -15,6 +15,7 @@ import { PartnerApprovedEmail } from '@/components/emails/PartnerApprovedEmail';
 import { ApplicationStatusUpdateEmail } from '@/components/emails/ApplicationStatusUpdateEmail';
 import { getPartnerClientIds } from './partnerActions';
 import { PartnerClient } from './partnerActions';
+import type { UserProfileData } from './profileActions';
 
 // Helper function to ensure only admins can execute these actions
 async function verifyAdmin() {
@@ -334,15 +335,32 @@ export async function removePartnerAction(partnerId: string): Promise<{ success:
     await verifyAdmin();
     console.log(`[AdminActions] Attempting to deactivate partner with ID: ${partnerId}`);
 
+    const batch = writeBatch(db);
+
     try {
         const partnerRef = doc(db, 'partners', partnerId);
-        await updateDoc(partnerRef, {
+        batch.update(partnerRef, {
             isApproved: false
         });
 
-        console.log(`[AdminActions] Successfully deactivated partner: ${partnerId}`);
+        // NEW: Disassociate all clients linked to this partner
+        const clientsRef = collection(db, 'users');
+        const q = query(clientsRef, where('partnerId', '==', partnerId));
+        const clientsSnapshot = await getDocs(q);
+
+        if (!clientsSnapshot.empty) {
+             console.log(`[AdminActions] Found ${clientsSnapshot.size} clients to disassociate from partner ${partnerId}.`);
+             clientsSnapshot.forEach(clientDoc => {
+                batch.update(clientDoc.ref, { partnerId: null });
+            });
+        }
+        
+        await batch.commit();
+
+        console.log(`[AdminActions] Successfully deactivated partner ${partnerId} and disassociated their clients.`);
         revalidatePath('/admin/dashboard');
-        return { success: true, message: 'Partner has been deactivated and moved to the pending list.' };
+        revalidatePath('/admin/partner/' + partnerId);
+        return { success: true, message: 'Partner has been deactivated and their clients have been disassociated.' };
     } catch (error: any) {
         console.error(`[AdminActions] Error deactivating partner ${partnerId}:`, error.message, error.stack);
         return { success: false, message: 'Failed to deactivate partner.' };
@@ -413,5 +431,98 @@ export async function getAllClientsForAdmin(): Promise<AdminClientData[]> {
     } catch (error: any) {
         console.error('[AdminActions] Error fetching clients for admin:', error);
         return [];
+    }
+}
+
+/**
+ * Admin action to fetch the full details of any client, their applications, and their partner.
+ */
+export async function adminGetClientDetails(clientId: string): Promise<{ client: UserProfileData; applications: UserApplication[] } | null> {
+    await verifyAdmin();
+    console.log(`[AdminActions] Fetching details for client ID: ${clientId}`);
+
+    try {
+        const clientRef = doc(db, 'users', clientId);
+        const clientSnap = await getDoc(clientRef);
+        if (!clientSnap.exists()) {
+            console.warn(`[AdminActions] Client not found: ${clientId}`);
+            return null;
+        }
+
+        const clientData = clientSnap.data();
+        const profileData = {
+            id: clientSnap.id,
+            ...clientData,
+            createdAt: clientData.createdAt.toDate().toISOString(),
+        } as UserProfileData;
+
+        // Fetch applications for this client
+        const userSpecificConstraints = [where('applicantDetails.userId', '==', clientId)];
+        const allCollections = ['loanApplications', 'caServiceApplications', 'governmentSchemeApplications'];
+        const appPromises = allCollections.map(coll => getDocs(query(collection(db, coll), ...userSpecificConstraints)));
+
+        const appSnapshots = await Promise.all(appPromises);
+        const applications = appSnapshots.flatMap((snapshot, index) => {
+            const category = allCollections[index].includes('loan') ? 'loan' : allCollections[index].includes('caService') ? 'caService' : 'governmentScheme';
+            return snapshot.docs.map(doc => formatApplication(doc, category));
+        });
+        applications.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+        return { client: profileData, applications };
+
+    } catch (error: any) {
+        console.error(`[AdminActions] Error fetching details for client ${clientId}:`, error);
+        return null;
+    }
+}
+
+
+/**
+ * Admin action to permanently delete a client and all their applications.
+ * This is a destructive action.
+ */
+export async function adminRemoveClientAction(clientId: string): Promise<{ success: boolean; message: string }> {
+    await verifyAdmin();
+    console.warn(`[AdminActions] DESTRUCTIVE ACTION: Initiating deletion for client ID: ${clientId}`);
+
+    const batch = writeBatch(db);
+
+    try {
+        // 1. Delete all applications associated with the client
+        const userSpecificConstraints = [where('applicantDetails.userId', '==', clientId)];
+        const allCollections = ['loanApplications', 'caServiceApplications', 'governmentSchemeApplications'];
+        
+        const appSnapshots = await Promise.all(
+            allCollections.map(coll => getDocs(query(collection(db, coll), ...userSpecificConstraints)))
+        );
+
+        let filesToDelete: string[] = [];
+        appSnapshots.forEach(snapshot => {
+            snapshot.docs.forEach(doc => {
+                filesToDelete.push(...findFileUrls(doc.data().formData));
+                batch.delete(doc.ref);
+            });
+        });
+
+        // 2. Delete the user document itself
+        const clientRef = doc(db, 'users', clientId);
+        batch.delete(clientRef);
+        
+        // 3. Commit all Firestore deletions
+        await batch.commit();
+        console.log(`[AdminActions] Successfully deleted client ${clientId} and their application records from Firestore.`);
+
+        // 4. Delete all associated files from Storage
+        if (filesToDelete.length > 0) {
+            console.log(`[AdminActions] Deleting ${filesToDelete.length} associated files from Storage.`);
+            await deleteFilesByUrlAction(filesToDelete);
+        }
+
+        revalidatePath('/admin/dashboard');
+        return { success: true, message: "Client and all associated data have been permanently deleted." };
+
+    } catch (error: any) {
+        console.error(`[AdminActions] Error during permanent deletion of client ${clientId}:`, error);
+        return { success: false, message: "Failed to delete client. Check server logs." };
     }
 }

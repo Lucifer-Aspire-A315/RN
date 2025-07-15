@@ -17,7 +17,7 @@ import {
 } from 'firebase/firestore';
 import { checkSessionAction } from './authActions';
 import type { UserProfileData } from './profileActions';
-import type { UserApplication } from '@/lib/types';
+import type { UserApplication, UserData } from '@/lib/types';
 import { formatApplication } from '@/lib/utils';
 
 // This is the new, simplified client data structure for the UI
@@ -152,5 +152,79 @@ export async function getPartnerAnalytics(): Promise<{ applications: UserApplica
     } catch (error: any) {
         console.error(`[PartnerActions] Error fetching analytics for partner ${partnerId}:`, error);
         return { applications: [] };
+    }
+}
+
+
+/**
+ * Allows a partner to disassociate a client from their account.
+ * This does not delete the client, but makes them an independent user.
+ */
+export async function disassociateClientAction(clientId: string): Promise<{ success: boolean; message: string }> {
+    const partner = await verifyPartner();
+    console.log(`[PartnerActions] Partner ${partner.id} attempting to disassociate client ${clientId}.`);
+
+    try {
+        const clientIds = await getPartnerClientIds(partner.id);
+        if (!clientIds.includes(clientId)) {
+            return { success: false, message: "Forbidden: This client is not managed by you." };
+        }
+
+        const clientRef = doc(db, 'users', clientId);
+        await updateDoc(clientRef, {
+            partnerId: null
+        });
+        
+        revalidatePath('/dashboard?tab=my_clients');
+        return { success: true, message: "Client has been successfully disassociated." };
+
+    } catch (error: any) {
+        console.error(`[PartnerActions] Error disassociating client ${clientId}:`, error);
+        return { success: false, message: "Failed to disassociate client due to a server error." };
+    }
+}
+
+/**
+ * Fetches full details for a specific client, but only if they belong to the current partner.
+ */
+export async function getPartnerClientDetails(clientId: string): Promise<{ client: UserProfileData; applications: UserApplication[] } | null> {
+    const partner = await verifyPartner();
+    console.log(`[PartnerActions] Partner ${partner.id} fetching details for client ${clientId}.`);
+    
+    try {
+        const clientIds = await getPartnerClientIds(partner.id);
+        if (!clientIds.includes(clientId)) {
+            throw new Error("Forbidden: You do not have permission to view this client.");
+        }
+
+        const clientRef = doc(db, 'users', clientId);
+        const clientSnap = await getDoc(clientRef);
+        if (!clientSnap.exists()) {
+            return null;
+        }
+
+        const clientData = clientSnap.data();
+        const profileData = {
+            id: clientSnap.id,
+            ...clientData,
+            createdAt: clientData.createdAt.toDate().toISOString(),
+        } as UserProfileData;
+
+
+        const userSpecificConstraints = [where('applicantDetails.userId', '==', clientId)];
+        const allCollections = ['loanApplications', 'caServiceApplications', 'governmentSchemeApplications'];
+        const appPromises = allCollections.map(coll => getDocs(query(collection(db, coll), ...userSpecificConstraints)));
+
+        const appSnapshots = await Promise.all(appPromises);
+        const applications = appSnapshots.flatMap((snapshot, index) => {
+            const category = allCollections[index].includes('loan') ? 'loan' : allCollections[index].includes('caService') ? 'caService' : 'governmentScheme';
+            return snapshot.docs.map(doc => formatApplication(doc, category));
+        });
+        applications.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+        return { client: profileData, applications };
+    } catch (error: any) {
+        console.error(`[PartnerActions] Error fetching client details for partner ${partner.id}:`, error);
+        return null;
     }
 }
