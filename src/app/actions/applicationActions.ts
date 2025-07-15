@@ -1,7 +1,7 @@
 
 'use server';
 
-import { doc, getDoc, updateDoc, Timestamp, addDoc, collection, query, where, getDocs } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, Timestamp, addDoc, collection, query, where, getDocs, type DocumentData } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { checkSessionAction } from './authActions';
 import type { UserApplication, UserData } from '@/lib/types';
@@ -18,37 +18,59 @@ interface ServerActionResponse {
   errors?: Record<string, string[]>;
 }
 
-// Security Check helper. 
-async function canUserViewApplication(user: UserData, applicationData: any): Promise<boolean> {
-  // Admin can view anything.
-  if (user.isAdmin) {
-    return true;
+// =================================================================
+// NEW CENTRALIZED SECURITY VERIFICATION FUNCTION
+// =================================================================
+/**
+ * Verifies if the current user has permission to access a specific application.
+ * Throws an error if permission is denied.
+ * @returns The session user and the application data if permission is granted.
+ */
+export async function verifyApplicationPermission(
+  applicationId: string,
+  serviceCategory: UserApplication['serviceCategory']
+): Promise<{ user: UserData; applicationData: DocumentData }> {
+  const user = await checkSessionAction();
+  if (!user) {
+    throw new Error('Unauthorized: You must be logged in to perform this action.');
   }
-  
-  // The user who submitted it can view it.
-  const submitterId = applicationData.submittedBy?.userId;
-  if (user.id === submitterId) {
-    return true;
+
+  const collectionName = getCollectionName(serviceCategory);
+  if (!collectionName) {
+    throw new Error(`Invalid service category provided: ${serviceCategory}`);
   }
+
+  const appRef = doc(db, collectionName, applicationId);
+  const docSnap = await getDoc(appRef);
+
+  if (!docSnap.exists()) {
+    throw new Error('Application not found.');
+  }
+
+  const applicationData = docSnap.data();
+
+  // The single source of truth for authorization logic
+  const isOwner = applicationData.submittedBy?.userId === user.id;
+  const isApplicant = applicationData.applicantDetails?.userId === user.id;
   
-  // A partner can view it if the applicant is one of their approved clients.
+  let isManagingPartner = false;
   if (user.type === 'partner') {
     const applicantId = applicationData.applicantDetails?.userId;
-    if (!applicantId) {
-      return false; // No applicant associated, partner cannot view.
+    if (applicantId) {
+      const clientIds = await getPartnerClientIds(user.id);
+      isManagingPartner = clientIds.includes(applicantId);
     }
-    const clientIds = await getPartnerClientIds(user.id);
-    return clientIds.includes(applicantId);
   }
-  
-  // The applicant themselves can view it.
-  const applicantId = applicationData.applicantDetails?.userId;
-  if(user.id === applicantId) {
-      return true;
+
+  if (user.isAdmin || isOwner || isApplicant || isManagingPartner) {
+    return { user, applicationData };
   }
-  
-  return false;
+
+  // If none of the conditions are met, deny access.
+  console.error(`[Security] Forbidden: User ${user.id} tried to access application ${applicationId}.`);
+  throw new Error('Forbidden: You do not have permission to access this application.');
 }
+
 
 // Helper to find a user by email from the 'users' collection
 async function findUserByEmail(email: string): Promise<{ id: string; data: DocumentData } | null> {
@@ -172,37 +194,13 @@ export async function getApplicationDetails(
   serviceCategory: UserApplication['serviceCategory']
 ): Promise<any | null> {
   console.log(`[AppDetailsAction] Fetching details for app ${applicationId} in category ${serviceCategory}`);
-  const user = await checkSessionAction();
-  if (!user) {
-    console.error('[AppDetailsAction] Unauthorized: No user session found.');
-    throw new Error('Unauthorized: You must be logged in to view application details.');
-  }
 
   try {
-    const collectionName = getCollectionName(serviceCategory);
-    if (!collectionName) {
-        throw new Error(`Invalid service category provided: ${serviceCategory}`);
-    }
-
-    const appRef = doc(db, collectionName, applicationId);
-    const docSnap = await getDoc(appRef);
-
-    if (!docSnap.exists()) {
-      console.warn(`[AppDetailsAction] Application not found: ${applicationId} in ${collectionName}`);
-      return null;
-    }
-
-    const applicationData = docSnap.data();
-    
-    // Centralized Security Check
-    const isAllowed = await canUserViewApplication(user, applicationData);
-
-    if (!isAllowed) {
-      console.error(`[AppDetailsAction] Forbidden: User ${user.id} tried to access application ${applicationId}.`);
-      throw new Error('Forbidden: You do not have permission to view this application.');
-    }
+    // REFACTORED: Use the centralized security function
+    const { applicationData } = await verifyApplicationPermission(applicationId, serviceCategory);
     
     console.log(`[AppDetailsAction] Successfully fetched and authorized access for ${applicationId}.`);
+    // Return a serializable version of the data
     return JSON.parse(JSON.stringify(applicationData, (key, value) => {
         if (value && value.toDate) {
             return value.toDate().toISOString();
@@ -212,7 +210,8 @@ export async function getApplicationDetails(
 
   } catch (error: any) {
     console.error(`[AppDetailsAction] Error fetching application details for ${applicationId}:`, error.message, error.stack);
-    throw new Error('Failed to fetch application details.');
+    // Let the error propagate to be handled by the calling component (e.g., show a not found page)
+    throw error;
   }
 }
 
@@ -223,30 +222,12 @@ export async function updateApplicationAction(
 ): Promise<{ success: boolean; message: string; errors?: Record<string, string[]> }> {
   console.log(`[AppUpdateAction] Updating app ${applicationId} in category ${serviceCategory}`);
 
-  const user = await checkSessionAction();
-  if (!user) {
-    throw new Error('Unauthorized: You must be logged in to update an application.');
-  }
-
-  const collectionName = getCollectionName(serviceCategory);
-  if (!collectionName) {
-    return { success: false, message: 'Invalid service category.' };
-  }
-
   try {
+    // REFACTORED: Use the centralized security function
+    const { applicationData: existingApplicationData } = await verifyApplicationPermission(applicationId, serviceCategory);
+
+    const collectionName = getCollectionName(serviceCategory)!;
     const appRef = doc(db, collectionName, applicationId);
-    const docSnap = await getDoc(appRef);
-
-    if (!docSnap.exists()) {
-      throw new Error('Application not found.');
-    }
-
-    // Security check to ensure only owner or admin can update
-    const existingApplicationData = docSnap.data();
-    const isAllowed = await canUserViewApplication(user, existingApplicationData);
-    if (!isAllowed) {
-        throw new Error('Unauthorized: You do not have permission to perform this action.');
-    }
     
     const payloadForServer = data.formData ? data : { formData: data };
     

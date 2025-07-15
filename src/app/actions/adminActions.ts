@@ -7,7 +7,7 @@ import { collection, query, where, getDocs, Timestamp, doc, updateDoc, writeBatc
 import type { UserApplication, PartnerData, UserData } from '@/lib/types';
 import type { DocumentData } from 'firebase/firestore';
 import { checkSessionAction } from './authActions';
-import { getApplicationDetails } from './applicationActions';
+import { verifyApplicationPermission } from './applicationActions';
 import { deleteFilesByUrlAction } from './fileUploadActions';
 import { getCollectionName, formatApplication } from '@/lib/utils';
 import { sendEmail } from '@/lib/email';
@@ -24,27 +24,6 @@ async function verifyAdmin() {
   return user;
 }
 
-// Security Check: Can the user manage this specific application?
-// This function is central to making actions reusable for admins and partners.
-async function canUserManageApplication(user: UserData, application: DocumentData): Promise<boolean> {
-  if (user.isAdmin) {
-    return true; // Admins can manage anything
-  }
-
-  if (user.type === 'partner') {
-    const applicantId = application.applicantDetails?.userId;
-    if (!applicantId) {
-      return false; // No applicant associated, partner cannot manage
-    }
-    
-    // Check if the applicant is one of the partner's approved clients
-    const clientIds = await getPartnerClientIds(user.id);
-    return clientIds.includes(applicantId);
-  }
-  
-  // Normal users cannot perform these management actions.
-  return false;
-}
 
 function formatPartnerData(doc: DocumentData): PartnerData {
     const data = doc.data();
@@ -195,35 +174,14 @@ export async function updateApplicationStatus(
   serviceCategory: UserApplication['serviceCategory'],
   newStatus: string
 ): Promise<{ success: boolean; message: string }> {
-  // REMOVED: verifyAdmin() check. It's now inside the function logic.
-  const user = await checkSessionAction();
-  if (!user) {
-    throw new Error('Unauthorized: You do not have permission to perform this action.');
-  }
+  console.log(`[MultiAccessActions] Attempting to update status for app ${applicationId}`);
   
-  console.log(`[MultiAccessActions] Attempting to update status for app ${applicationId} by user ${user.id}`);
-  
-  const collectionName = getCollectionName(serviceCategory);
-  if (!collectionName) {
-      console.error(`[MultiAccessActions] Invalid service category provided: ${serviceCategory}`);
-      return { success: false, message: 'Invalid service category.' };
-  }
-
   try {
-    const appRef = doc(db, collectionName, applicationId);
-    const appSnap = await getDoc(appRef);
+    // REFACTORED: Use the centralized security function
+    const { applicationData: appData } = await verifyApplicationPermission(applicationId, serviceCategory);
 
-    if (!appSnap.exists()) {
-        return { success: false, message: 'Application not found.' };
-    }
-    const appData = appSnap.data();
-    
-    // Centralized Security Check
-    const isAllowed = await canUserManageApplication(user, appData);
-    if (!isAllowed) {
-       console.warn(`[MultiAccessActions] Forbidden: User ${user.id} tried to update status for app ${applicationId}.`);
-       return { success: false, message: 'You do not have permission to modify this application.' };
-    }
+    const collectionName = getCollectionName(serviceCategory)!;
+    const appRef = doc(db, collectionName, applicationId);
 
     await updateDoc(appRef, {
       status: newStatus,
@@ -250,7 +208,7 @@ export async function updateApplicationStatus(
     return { success: true, message: `Application status updated to ${newStatus}.` };
   } catch (error: any) {
     console.error(`[MultiAccessActions] Error updating status for ${applicationId}:`, error.message, error.stack);
-    return { success: false, message: 'Failed to update application status.' };
+    return { success: false, message: error.message || 'Failed to update application status.' };
   }
 }
 
@@ -275,33 +233,17 @@ export async function archiveApplicationAction(
   applicationId: string,
   serviceCategory: UserApplication['serviceCategory']
 ): Promise<{ success: boolean; message: string }> {
-    const user = await checkSessionAction();
-    if (!user) {
-        throw new Error('Unauthorized: You do not have permission to perform this action.');
-    }
-    console.log(`[MultiAccessActions] Archiving application ${applicationId} by user ${user.id}...`);
+    console.log(`[MultiAccessActions] Archiving application ${applicationId}...`);
 
     try {
-        // Step 1: Get full application data to find file URLs and check permissions
-        const appRef = doc(db, getCollectionName(serviceCategory)!, applicationId);
-        const appSnap = await getDoc(appRef);
-
-        if (!appSnap.exists()) {
-            throw new Error('Application not found.');
-        }
-        const applicationData = appSnap.data();
-
-        const isAllowed = await canUserManageApplication(user, applicationData);
-        if (!isAllowed) {
-            console.warn(`[MultiAccessActions] Forbidden: User ${user.id} tried to archive app ${applicationId}.`);
-            return { success: false, message: 'You do not have permission to archive this application.' };
-        }
-
-        // Step 2: Find all file URLs within the form data
+        // REFACTORED: Use the centralized security function
+        const { applicationData } = await verifyApplicationPermission(applicationId, serviceCategory);
+        
+        // Find all file URLs within the form data
         const fileUrls = findFileUrls(applicationData.formData);
         console.log(`[MultiAccessActions] Found ${fileUrls.length} files to delete for application ${applicationId}.`);
 
-        // Step 3: Delete files from Firebase Storage if any are found
+        // Delete files from Firebase Storage if any are found
         if (fileUrls.length > 0) {
             const deleteResult = await deleteFilesByUrlAction(fileUrls);
             if (!deleteResult.success) {
@@ -310,7 +252,8 @@ export async function archiveApplicationAction(
             }
         }
 
-        // Step 4: Update the application status to 'Archived' in Firestore
+        // Update the application status to 'Archived' in Firestore
+        const appRef = doc(db, getCollectionName(serviceCategory)!, applicationId);
         await updateDoc(appRef, {
             status: 'Archived',
             updatedAt: Timestamp.now(),
@@ -323,7 +266,7 @@ export async function archiveApplicationAction(
 
     } catch (error: any) {
         console.error(`[MultiAccessActions] Error archiving application ${applicationId}:`, error.message, error.stack);
-        return { success: false, message: 'Failed to archive application.' };
+        return { success: false, message: error.message || 'Failed to archive application.' };
     }
 }
 

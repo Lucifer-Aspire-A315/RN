@@ -3,7 +3,6 @@ import { getApplicationDetails } from '@/app/actions/applicationActions';
 import { Header } from '@/components/layout/Header';
 import type { UserApplication } from '@/lib/types';
 import { redirect } from 'next/navigation';
-import { checkSessionAction } from '@/app/actions/authActions';
 
 import { HomeLoanApplicationForm } from '@/components/forms/HomeLoanApplicationForm';
 import { PersonalLoanApplicationForm } from '@/components/forms/PersonalLoanApplicationForm';
@@ -25,11 +24,6 @@ interface EditApplicationPageProps {
 }
 
 export default async function EditApplicationPage({ params, searchParams }: EditApplicationPageProps) {
-  const user = await checkSessionAction();
-  if (!user) {
-    redirect('/login');
-  }
-
   const { id } = params;
   const { category } = searchParams;
 
@@ -37,63 +31,77 @@ export default async function EditApplicationPage({ params, searchParams }: Edit
     return <div>Error: Service category not specified.</div>;
   }
   
-  // The getApplicationDetails action includes security checks.
-  // It will throw an error if the user does not have permission to view the application,
-  // preventing unauthorized access.
-  const applicationData = await getApplicationDetails(id, category);
+  try {
+    // The getApplicationDetails action now includes all security checks.
+    // It will throw an error if the user does not have permission to view the application.
+    // This simplifies the logic here significantly.
+    const applicationData = await getApplicationDetails(id, category);
 
-  if (!applicationData) {
-     return <div>Error: Application not found or you do not have permission to edit it.</div>;
-  }
-  
-  const initialData = applicationData.formData;
-  
-  const renderForm = () => {
-    switch (applicationData.applicationType) {
-        // Loan Forms
-        case 'Home Loan':
-            return <HomeLoanApplicationForm initialData={initialData} applicationId={id} mode="edit" />;
-        case 'Personal Loan':
-            return <PersonalLoanApplicationForm initialData={initialData} applicationId={id} mode="edit" />;
-        case 'Business Loan':
-            return <BusinessLoanApplicationForm initialData={initialData} applicationId={id} mode="edit" />;
-        case 'Credit Card':
-            return <CreditCardApplicationForm initialData={initialData} applicationId={id} mode="edit" />;
-        case 'Machinery Loan':
-            return <MachineryLoanApplicationForm initialData={initialData} applicationId={id} mode="edit" />;
-        
-        // CA Service Forms
-        case 'GST Service Application':
-            return <GstServiceApplicationForm initialData={initialData} applicationId={id} mode="edit" />;
-        case 'ITR Filing & Consultation':
-            return <ItrFilingConsultationForm initialData={initialData} applicationId={id} mode="edit" />;
-        case 'Accounting & Bookkeeping Service':
-            return <AccountingBookkeepingForm initialData={initialData} applicationId={id} mode="edit" />;
-        case 'Company Incorporation':
-            return <CompanyIncorporationForm initialData={initialData} applicationId={id} mode="edit" />;
-        case 'Financial Advisory Service':
-            return <FinancialAdvisoryForm initialData={initialData} applicationId={id} mode="edit" />;
-        case 'Audit and Assurance Service':
-            return <AuditAndAssuranceForm initialData={initialData} applicationId={id} mode="edit" />;
-
-        // Government Scheme Forms
-        case 'PM Mudra Yojana':
-        case 'PMEGP (Khadi Board)':
-        case 'Stand-Up India':
-        case 'Other':
-             return <GovernmentSchemeLoanApplicationForm initialData={initialData} applicationId={id} mode="edit" />;
-
-        default:
-            return <div>Unsupported application type for editing: {applicationData.applicationType}</div>;
+    if (!applicationData) {
+       // This case would typically be caught by the error handler below, but it's good practice.
+       return <div>Error: Application not found.</div>;
     }
-  }
+    
+    const initialData = applicationData.formData;
+    
+    const renderForm = () => {
+      switch (applicationData.applicationType) {
+          // Loan Forms
+          case 'Home Loan':
+              return <HomeLoanApplicationForm initialData={initialData} applicationId={id} mode="edit" />;
+          case 'Personal Loan':
+              return <PersonalLoanApplicationForm initialData={initialData} applicationId={id} mode="edit" />;
+          case 'Business Loan':
+              return <BusinessLoanApplicationForm initialData={initialData} applicationId={id} mode="edit" />;
+          case 'Credit Card':
+              return <CreditCardApplicationForm initialData={initialData} applicationId={id} mode="edit" />;
+          case 'Machinery Loan':
+              return <MachineryLoanApplicationForm initialData={initialData} applicationId={id} mode="edit" />;
+          
+          // CA Service Forms
+          case 'GST Service Application':
+              return <GstServiceApplicationForm initialData={initialData} applicationId={id} mode="edit" />;
+          case 'ITR Filing & Consultation':
+              return <ItrFilingConsultationForm initialData={initialData} applicationId={id} mode="edit" />;
+          case 'Accounting & Bookkeeping Service':
+              return <AccountingBookkeepingForm initialData={initialData} applicationId={id} mode="edit" />;
+          case 'Company Incorporation':
+              return <CompanyIncorporationForm initialData={initialData} applicationId={id} mode="edit" />;
+          case 'Financial Advisory Service':
+              return <FinancialAdvisoryForm initialData={initialData} applicationId={id} mode="edit" />;
+          case 'Audit and Assurance Service':
+              return <AuditAndAssuranceForm initialData={initialData} applicationId={id} mode="edit" />;
 
-  return (
-    <div className="flex flex-col min-h-screen">
-      <Header />
-      <main className="flex-grow">
-        {renderForm()}
-      </main>
-    </div>
-  );
+          // Government Scheme Forms
+          case 'PM Mudra Yojana':
+          case 'PMEGP (Khadi Board)':
+          case 'Stand-Up India':
+          case 'Other':
+              return <GovernmentSchemeLoanApplicationForm initialData={initialData} applicationId={id} mode="edit" />;
+
+          default:
+              return <div>Unsupported application type for editing: {applicationData.applicationType}</div>;
+      }
+    }
+
+    return (
+      <div className="flex flex-col min-h-screen">
+        <Header />
+        <main className="flex-grow">
+          {renderForm()}
+        </main>
+      </div>
+    );
+  } catch (error: any) {
+      if (error.message.includes('Forbidden')) {
+          // If the user isn't allowed to see this, just send them back to their dashboard.
+          redirect('/dashboard');
+      }
+      if (error.message.includes('Unauthorized')) {
+          // If the user isn't logged in, send them to the login page.
+          redirect('/login');
+      }
+      // Handle other errors, e.g., application not found.
+      return <div>Error: Application not found or an unexpected error occurred.</div>;
+  }
 }
