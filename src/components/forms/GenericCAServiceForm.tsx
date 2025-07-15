@@ -1,7 +1,8 @@
 
+
 "use client";
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { ZodType, ZodTypeDef } from 'zod';
@@ -83,6 +84,8 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
   const [isDeclared, setIsDeclared] = useState(!declarationConfig);
   const [highestValidatedStep, setHighestValidatedStep] = useState(0);
 
+  const storageKey = useMemo(() => `form-data-${pathname}-${applicationId || ''}`, [pathname, applicationId]);
+
   const currentStep = useMemo(() => {
     const step = parseInt(searchParams.get('step') || '0', 10);
     return isNaN(step) ? 0 : step;
@@ -91,7 +94,19 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
 
   const form = useForm<TData>({
     resolver: zodResolver(schema),
-    defaultValues,
+    defaultValues: (() => {
+        if (typeof window !== 'undefined') {
+            const savedData = sessionStorage.getItem(storageKey);
+            if (savedData) {
+                try {
+                    return JSON.parse(savedData);
+                } catch (e) {
+                    console.error("Failed to parse saved form data", e);
+                }
+            }
+        }
+        return defaultValues;
+    })(),
   });
 
   const { control, handleSubmit, reset, watch, setError, trigger } = form;
@@ -99,6 +114,21 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
   const getNestedValue = (obj: any, path: string) => path.split('.').reduce((o, i) => (o ? o[i] : undefined), obj);
   
   const watchedValues = watch();
+
+   // Persist form data to session storage on change
+  useEffect(() => {
+    const subscription = watch((value) => {
+        try {
+          // We only store strings, not file objects
+          const serializableValue = JSON.parse(JSON.stringify(value, (key, val) => (val instanceof File ? undefined : val)));
+          sessionStorage.setItem(storageKey, JSON.stringify(serializableValue));
+        } catch (e) {
+          console.error("Could not save form data to session storage", e);
+        }
+    });
+    return () => subscription.unsubscribe();
+  }, [watch, storageKey]);
+
 
   const visibleSections = useMemo(() => {
     return sections.filter(section => 
@@ -112,17 +142,6 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
 
   const stepLabels = useMemo(() => visibleSections.map(s => s.title), [visibleSections]);
   
-  // Effect to manage step validity and highest step reached
-  useEffect(() => {
-    if (currentStep > highestValidatedStep) {
-        setHighestValidatedStep(currentStep);
-    }
-    if (currentStep >= visibleSections.length) {
-      router.push(`${pathname}?step=${Math.max(0, visibleSections.length - 1)}`);
-    }
-  }, [visibleSections, currentStep, highestValidatedStep, pathname, router]);
-
-
   const handleBackClick = onBack || (mode === 'edit' ? () => router.back() : undefined);
 
   const onInvalid = () => {
@@ -159,6 +178,7 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
 
       if (result.success) {
         toast({ title: mode === 'edit' ? "Application Updated!" : "Application Submitted!", description: result.message, duration: 5000 });
+        sessionStorage.removeItem(storageKey);
         
         setTimeout(() => {
           if (handleBackClick) {
@@ -186,17 +206,30 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
     }
   }
 
-  const navigateToStep = (step: number) => {
-      router.push(`${pathname}?step=${step}`);
-  }
+  const navigateToStep = useCallback((step: number) => {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set('step', String(step));
+      router.push(`${pathname}?${params.toString()}`);
+  }, [pathname, router, searchParams]);
 
-  const handleNextClick = async () => {
-    const fieldsInSection = visibleSections[currentStep].fields.map(field => field.name);
+  useEffect(() => {
+    const savedStep = parseInt(searchParams.get('step') || '0', 10);
+     if (savedStep > highestValidatedStep) {
+        setHighestValidatedStep(savedStep);
+     }
+  }, [searchParams, highestValidatedStep]);
+
+  const handleNextClick = useCallback(async () => {
+    const fieldsInSection = visibleSections[currentStep]?.fields.map(field => field.name) || [];
     const isValid = await trigger(fieldsInSection as any, { shouldFocus: true });
     
     if (isValid) {
       if (currentStep < visibleSections.length - 1) {
-        navigateToStep(currentStep + 1);
+        const nextStep = currentStep + 1;
+        if(nextStep > highestValidatedStep) {
+            setHighestValidatedStep(nextStep);
+        }
+        navigateToStep(nextStep);
       }
     } else {
       toast({
@@ -205,19 +238,20 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
         description: "Please fill out all required fields in this section correctly.",
       });
     }
-  };
+  }, [currentStep, highestValidatedStep, navigateToStep, trigger, visibleSections, toast]);
 
-  const handlePreviousClick = () => {
+  const handlePreviousClick = useCallback(() => {
     if (currentStep > 0) {
         navigateToStep(currentStep - 1);
     }
-  };
+  }, [currentStep, navigateToStep]);
   
-  const handleStepClick = (stepIndex: number) => {
+  const handleStepClick = useCallback((stepIndex: number) => {
     if (stepIndex <= highestValidatedStep && stepIndex !== currentStep) {
       navigateToStep(stepIndex);
     }
-  };
+  }, [currentStep, highestValidatedStep, navigateToStep]);
+
 
   const renderField = (fieldConfig: FieldConfig) => {
     return (

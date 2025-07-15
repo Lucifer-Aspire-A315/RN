@@ -1,7 +1,8 @@
 
+
 "use client";
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { PartnerSignUpSchema, type PartnerSignUpFormData } from '@/lib/schemas';
@@ -48,6 +49,8 @@ export function PartnerSignUpForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [highestValidatedStep, setHighestValidatedStep] = useState(0);
 
+  const storageKey = useMemo(() => `form-data-partner-signup`, []);
+
   const currentStep = useMemo(() => {
     const step = parseInt(searchParams.get('step') || '0', 10);
     return isNaN(step) ? 0 : step;
@@ -55,14 +58,41 @@ export function PartnerSignUpForm() {
 
   const form = useForm<PartnerSignUpFormData>({
     resolver: zodResolver(PartnerSignUpSchema),
-    defaultValues: {
-      businessModel: 'referral',
-      declaration: false,
-    },
+    defaultValues: (() => {
+        if (typeof window !== 'undefined') {
+            const savedData = sessionStorage.getItem(storageKey);
+            if (savedData) {
+                try {
+                    return JSON.parse(savedData);
+                } catch (e) {
+                    console.error("Failed to parse saved form data", e);
+                }
+            }
+        }
+        return {
+          businessModel: 'referral',
+          declaration: false,
+        };
+    })(),
   });
 
-  const { control, handleSubmit, watch, formState: { errors }, setError, trigger } = form;
+  const { control, handleSubmit, watch, formState: { errors }, setError, trigger, reset } = form;
   const businessModel = watch('businessModel');
+
+  // Persist form data to session storage on change
+  useEffect(() => {
+    const subscription = watch((value) => {
+        try {
+          // We only store strings, not file objects
+          const serializableValue = JSON.parse(JSON.stringify(value, (key, val) => (val instanceof File ? undefined : val)));
+          sessionStorage.setItem(storageKey, JSON.stringify(serializableValue));
+        } catch (e) {
+          console.error("Could not save form data to session storage", e);
+        }
+    });
+    return () => subscription.unsubscribe();
+  }, [watch, storageKey]);
+
 
   const allSections = useMemo(() => {
     if (!(PartnerSignUpSchema._def.schema instanceof z.ZodDiscriminatedUnion)) {
@@ -151,17 +181,23 @@ export function PartnerSignUpForm() {
 
   const stepLabels = useMemo(() => steps.map(s => s.title), [steps]);
   
-  const navigateToStep = (step: number) => {
-      router.push(`${pathname}?step=${step}`);
-  }
+  const navigateToStep = useCallback((step: number) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('step', String(step));
+    router.push(`${pathname}?${params.toString()}`);
+  }, [pathname, router, searchParams]);
 
-  const handleNextStep = async () => {
-    const currentFields = steps[currentStep].fields;
+  const handleNextStep = useCallback(async () => {
+    const currentFields = steps[currentStep]?.fields || [];
     const isValid = await trigger(currentFields as any, { shouldFocus: true });
     
     if (isValid) {
       if (currentStep < steps.length - 1) {
-        navigateToStep(currentStep + 1);
+        const nextStep = currentStep + 1;
+         if(nextStep > highestValidatedStep) {
+            setHighestValidatedStep(nextStep);
+        }
+        navigateToStep(nextStep);
       }
     } else {
       toast({
@@ -170,25 +206,26 @@ export function PartnerSignUpForm() {
         description: "Please fill out all required fields in this section correctly.",
       });
     }
-  };
+  }, [currentStep, steps, trigger, navigateToStep, toast, highestValidatedStep]);
 
-  const handlePrevStep = () => {
+  const handlePrevStep = useCallback(() => {
      if (currentStep > 0) {
         navigateToStep(currentStep - 1);
      }
-  };
+  }, [currentStep, navigateToStep]);
 
-  const handleStepClick = (stepIndex: number) => {
+  const handleStepClick = useCallback((stepIndex: number) => {
     if (stepIndex <= highestValidatedStep && stepIndex !== currentStep) {
       navigateToStep(stepIndex);
     }
-  };
+  }, [currentStep, highestValidatedStep, navigateToStep]);
 
   useEffect(() => {
-    if (currentStep > highestValidatedStep) {
-        setHighestValidatedStep(currentStep);
+    const savedStep = parseInt(searchParams.get('step') || '0', 10);
+    if (savedStep > highestValidatedStep) {
+        setHighestValidatedStep(savedStep);
     }
-  }, [currentStep, highestValidatedStep]);
+  }, [searchParams, highestValidatedStep]);
 
   async function onSubmit(data: PartnerSignUpFormData) {
     setIsSubmitting(true);
@@ -202,6 +239,7 @@ export function PartnerSignUpForm() {
             title: "Sign Up Successful",
             description: result.message || "Your account has been created and is pending approval.",
             });
+            sessionStorage.removeItem(storageKey);
             form.reset();
             router.push('/');
         } else {
