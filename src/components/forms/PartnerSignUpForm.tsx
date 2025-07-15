@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { PartnerSignUpSchema, type PartnerSignUpFormData } from '@/lib/schemas';
@@ -19,7 +19,7 @@ import { Loader2, UserPlus, Handshake, Store, Users, UploadCloud, ArrowLeft } fr
 import { FormSection, FormFieldWrapper } from './FormSection';
 import { partnerSignUpAction } from '@/app/actions/authActions';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { FormStepper } from '../shared/FormStepper';
 
 
@@ -42,10 +42,16 @@ const getKeysFromZodObject = (schema: z.ZodTypeAny): string[] => {
 export function PartnerSignUpForm() {
   const { toast } = useToast();
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [currentStep, setCurrentStep] = useState(0);
   const [highestValidatedStep, setHighestValidatedStep] = useState(0);
 
+  const currentStep = useMemo(() => {
+    const step = parseInt(searchParams.get('step') || '0', 10);
+    return isNaN(step) ? 0 : step;
+  }, [searchParams]);
 
   const form = useForm<PartnerSignUpFormData>({
     resolver: zodResolver(PartnerSignUpSchema),
@@ -145,14 +151,17 @@ export function PartnerSignUpForm() {
 
   const stepLabels = useMemo(() => steps.map(s => s.title), [steps]);
   
+  const navigateToStep = (step: number) => {
+      router.push(`${pathname}?step=${step}`);
+  }
+
   const handleNextStep = async () => {
     const currentFields = steps[currentStep].fields;
     const isValid = await trigger(currentFields as any, { shouldFocus: true });
     
     if (isValid) {
       if (currentStep < steps.length - 1) {
-        setHighestValidatedStep(Math.max(highestValidatedStep, currentStep + 1));
-        setCurrentStep(prev => prev + 1);
+        navigateToStep(currentStep + 1);
       }
     } else {
       toast({
@@ -165,16 +174,21 @@ export function PartnerSignUpForm() {
 
   const handlePrevStep = () => {
      if (currentStep > 0) {
-        setCurrentStep(prev => prev - 1);
+        navigateToStep(currentStep - 1);
      }
   };
 
   const handleStepClick = (stepIndex: number) => {
     if (stepIndex <= highestValidatedStep && stepIndex !== currentStep) {
-      setCurrentStep(stepIndex);
+      navigateToStep(stepIndex);
     }
   };
 
+  useEffect(() => {
+    if (currentStep > highestValidatedStep) {
+        setHighestValidatedStep(currentStep);
+    }
+  }, [currentStep, highestValidatedStep]);
 
   async function onSubmit(data: PartnerSignUpFormData) {
     setIsSubmitting(true);
@@ -244,8 +258,9 @@ export function PartnerSignUpForm() {
                     <RadioGroup
                     onValueChange={(value) => {
                         field.onChange(value);
-                        setCurrentStep(0); // Reset to first step if model changes
+                        // Reset to first step if model changes
                         setHighestValidatedStep(0);
+                        navigateToStep(0);
                     }}
                     defaultValue={field.value}
                     className="grid grid-cols-1 md:grid-cols-3 gap-4 md:col-span-2"

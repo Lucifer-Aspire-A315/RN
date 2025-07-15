@@ -17,7 +17,7 @@ import { FormSection, FormFieldWrapper } from './FormSection';
 import { useAuth } from '@/contexts/AuthContext';
 import { Textarea } from '../ui/textarea';
 import { processNestedFileUploads } from '@/lib/form-helpers';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { FormStepper } from '../shared/FormStepper';
 
 // --- TYPE DEFINITIONS ---
@@ -86,11 +86,18 @@ export function GenericLoanForm<TData extends Record<string, any>>({
 }: GenericLoanFormProps<TData>) {
   const { toast } = useToast();
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const { currentUser } = useAuth();
+  
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isVerifyingID, setIsVerifyingID] = useState(false);
-  const { currentUser } = useAuth();
-  const [currentStep, setCurrentStep] = useState(0);
   const [highestValidatedStep, setHighestValidatedStep] = useState(0);
+
+  const currentStep = useMemo(() => {
+    const step = parseInt(searchParams.get('step') || '0', 10);
+    return isNaN(step) ? 0 : step;
+  }, [searchParams]);
 
   const form = useForm<TData>({
     resolver: zodResolver(schema),
@@ -115,12 +122,14 @@ export function GenericLoanForm<TData extends Record<string, any>>({
 
   const stepLabels = useMemo(() => visibleSections.map(s => s.title), [visibleSections]);
 
-
   useEffect(() => {
-    if (currentStep >= visibleSections.length) {
-      setCurrentStep(Math.max(0, visibleSections.length - 1));
+    if (currentStep > highestValidatedStep) {
+        setHighestValidatedStep(currentStep);
     }
-  }, [visibleSections, currentStep]);
+    if (currentStep >= visibleSections.length) {
+      router.push(`${pathname}?step=${Math.max(0, visibleSections.length - 1)}`);
+    }
+  }, [visibleSections, currentStep, highestValidatedStep, pathname, router]);
 
   const handleBackClick = onBack || (mode === 'edit' ? () => router.back() : undefined);
 
@@ -217,14 +226,17 @@ export function GenericLoanForm<TData extends Record<string, any>>({
     }
   };
 
+  const navigateToStep = (step: number) => {
+      router.push(`${pathname}?step=${step}`);
+  }
+
    const handleNextClick = async () => {
     const fieldsInSection = visibleSections[currentStep].fields.map(field => field.name);
     const isValid = await trigger(fieldsInSection as any, { shouldFocus: true });
     
     if (isValid) {
-      setHighestValidatedStep(Math.max(highestValidatedStep, currentStep + 1));
       if(currentStep < visibleSections.length - 1) {
-        setCurrentStep(prev => prev + 1);
+        navigateToStep(currentStep + 1);
       }
     } else {
       toast({
@@ -236,12 +248,14 @@ export function GenericLoanForm<TData extends Record<string, any>>({
   };
 
   const handlePreviousClick = () => {
-    setCurrentStep(prev => Math.max(0, prev - 1));
+     if (currentStep > 0) {
+        navigateToStep(currentStep - 1);
+    }
   };
   
   const handleStepClick = (stepIndex: number) => {
     if (stepIndex <= highestValidatedStep && stepIndex !== currentStep) {
-      setCurrentStep(stepIndex);
+      navigateToStep(stepIndex);
     }
   };
   
