@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, UserPlus, Handshake } from 'lucide-react';
+import { Loader2, UserPlus, Handshake, Eye, EyeOff } from 'lucide-react';
 import { userSignUpAction } from '@/app/actions/authActions';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
@@ -24,6 +24,8 @@ interface UserSignUpFormProps {
 export function UserSignUpForm({ partners }: UserSignUpFormProps) {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { login } = useAuth();
   const router = useRouter();
 
@@ -164,9 +166,19 @@ export function UserSignUpForm({ partners }: UserSignUpFormProps) {
                 render={({ field }) => (
                 <FormItem>
                     <FormLabel>Create Password</FormLabel>
-                    <FormControl>
-                    <Input type="password" placeholder="Create a strong password" {...field} />
-                    </FormControl>
+                    <div className="relative">
+                      <FormControl>
+                        <Input type={showPassword ? "text" : "password"} placeholder="Create a strong password" {...field} />
+                      </FormControl>
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground"
+                        aria-label={showPassword ? "Hide password" : "Show password"}
+                      >
+                        {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                      </button>
+                    </div>
                     <FormMessage />
                 </FormItem>
                 )}
@@ -177,9 +189,19 @@ export function UserSignUpForm({ partners }: UserSignUpFormProps) {
                 render={({ field }) => (
                 <FormItem>
                     <FormLabel>Confirm Password</FormLabel>
-                    <FormControl>
-                    <Input type="password" placeholder="Confirm your password" {...field} />
-                    </FormControl>
+                    <div className="relative">
+                      <FormControl>
+                        <Input type={showConfirmPassword ? "text" : "password"} placeholder="Confirm your password" {...field} />
+                      </FormControl>
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground"
+                        aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                      >
+                        {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                      </button>
+                    </div>
                     <FormMessage />
                 </FormItem>
                 )}

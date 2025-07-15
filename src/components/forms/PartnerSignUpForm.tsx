@@ -1,5 +1,4 @@
 
-
 "use client";
 
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
@@ -16,7 +15,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { processNestedFileUploads } from '@/lib/form-helpers';
-import { Loader2, UserPlus, Handshake, Store, Users, UploadCloud, ArrowLeft } from 'lucide-react';
+import { Loader2, UserPlus, Handshake, Store, Users, UploadCloud, ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { FormSection, FormFieldWrapper } from './FormSection';
 import { partnerSignUpAction } from '@/app/actions/authActions';
 import Link from 'next/link';
@@ -48,6 +47,8 @@ export function PartnerSignUpForm() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [highestValidatedStep, setHighestValidatedStep] = useState(0);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const storageKey = useMemo(() => `form-data-partner-signup`, []);
 
@@ -345,8 +346,30 @@ export function PartnerSignUpForm() {
                     <FormField control={control} name="fullName" render={({ field }) => ( <FormItem><FormLabel>Full Name</FormLabel><FormControl><Input placeholder="Your Full Name" {...field} /></FormControl><FormMessage /></FormItem> )} />
                     <FormField control={control} name="email" render={({ field }) => ( <FormItem><FormLabel>Email ID</FormLabel><FormControl><Input type="email" placeholder="your.email@example.com" {...field} /></FormControl><FormMessage /></FormItem> )} />
                     <FormField control={control} name="mobileNumber" render={({ field }) => ( <FormItem><FormLabel>Mobile Number</FormLabel><FormControl><Input type="tel" placeholder="10-digit mobile number" {...field} /></FormControl><FormMessage /></FormItem> )} />
-                    <FormField control={control} name="password" render={({ field }) => ( <FormItem><FormLabel>Create Password</FormLabel><FormControl><Input type="password" placeholder="Create a strong password" {...field} /></FormControl><FormMessage /></FormItem> )} />
-                    <FormField control={control} name="confirmPassword" render={({ field }) => ( <FormItem><FormLabel>Confirm Password</FormLabel><FormControl><Input type="password" placeholder="Confirm your password" {...field} /></FormControl><FormMessage /></FormItem> )} />
+                    <FormField control={control} name="password" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Create Password</FormLabel>
+                        <div className="relative">
+                          <FormControl><Input type={showPassword ? "text" : "password"} placeholder="Create a strong password" {...field} /></FormControl>
+                          <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground">
+                            {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                          </button>
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                    <FormField control={control} name="confirmPassword" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Confirm Password</FormLabel>
+                        <div className="relative">
+                          <FormControl><Input type={showConfirmPassword ? "text" : "password"} placeholder="Confirm your password" {...field} /></FormControl>
+                          <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground">
+                            {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                          </button>
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
                      <FormFieldWrapper className="md:col-span-2">
                         <FormField control={control} name="declaration" render={({ field }) => ( <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 shadow-sm"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><div className="space-y-1 leading-none"><FormLabel>Declaration</FormLabel><FormMessage /><p className="text-xs text-muted-foreground">I hereby declare that the details provided are true and correct.</p></div></FormItem> )} />
                     </FormFieldWrapper>
@@ -366,8 +389,10 @@ export function PartnerSignUpForm() {
                         <FormField control={control} name="personalDetails.gender" render={({ field }) => ( <FormItem><FormLabel>Gender</FormLabel><RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex gap-4 pt-2"><FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="male" /></FormControl><FormLabel className="font-normal">Male</FormLabel></FormItem><FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="female" /></FormControl><FormLabel className="font-normal">Female</FormLabel></FormItem><FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="other" /></FormControl><FormLabel className="font-normal">Other</FormLabel></FormItem></RadioGroup><FormMessage /></FormItem> )} />
                         <FormField control={control} name="personalDetails.panNumber" render={({ field }) => ( <FormItem><FormLabel>PAN Number</FormLabel><FormControl><Input placeholder="ABCDE1234F" {...field} /></FormControl><FormMessage /></FormItem> )} />
                         <FormField control={control} name="personalDetails.aadhaarNumber" render={({ field }) => ( <FormItem><FormLabel>Aadhaar Number</FormLabel><FormControl><Input placeholder="12-digit number" {...field} /></FormControl><FormMessage /></FormItem> )} />
-                        <FormField control={control} name="password" render={({ field }) => ( <FormItem><FormLabel>Create Password</FormLabel><FormControl><Input type="password" placeholder="Create a strong password" {...field} /></FormControl><FormMessage /></FormItem> )} />
-                        <FormField control={control} name="confirmPassword" render={({ field }) => ( <FormItem><FormLabel>Confirm Password</FormLabel><FormControl><Input type="password" placeholder="Confirm your password" {...field} /></FormControl><FormMessage /></FormItem> )} />
+                        <FormField control={control} name="password" render={({ field }) => ( <FormItem><FormLabel>Create Password</FormLabel>
+                          <div className="relative"><FormControl><Input type={showPassword ? "text" : "password"} placeholder="Create a strong password" {...field} /></FormControl><button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground">{showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}</button></div><FormMessage /></FormItem> )} />
+                        <FormField control={control} name="confirmPassword" render={({ field }) => ( <FormItem><FormLabel>Confirm Password</FormLabel>
+                          <div className="relative"><FormControl><Input type={showConfirmPassword ? "text" : "password"} placeholder="Confirm your password" {...field} /></FormControl><button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground">{showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}</button></div><FormMessage /></FormItem> )} />
                     </FormSection>
                 </div>
                 <div className={currentStep === 2 ? 'block' : 'hidden'}>
@@ -500,8 +525,10 @@ export function PartnerSignUpForm() {
                         <FormField control={control} name="personalDetails.gender" render={({ field }) => ( <FormItem><FormLabel>Gender</FormLabel><RadioGroup onValueChange={field.onChange} defaultValue={field.value} className="flex gap-4 pt-2"><FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="male" /></FormControl><FormLabel className="font-normal">Male</FormLabel></FormItem><FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="female" /></FormControl><FormLabel className="font-normal">Female</FormLabel></FormItem><FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="other" /></FormControl><FormLabel className="font-normal">Other</FormLabel></FormItem></RadioGroup><FormMessage /></FormItem> )} />
                         <FormField control={control} name="personalDetails.panNumber" render={({ field }) => ( <FormItem><FormLabel>PAN Number</FormLabel><FormControl><Input placeholder="ABCDE1234F" {...field} /></FormControl><FormMessage /></FormItem> )} />
                         <FormField control={control} name="personalDetails.aadhaarNumber" render={({ field }) => ( <FormItem><FormLabel>Aadhaar Number</FormLabel><FormControl><Input placeholder="12-digit number" {...field} /></FormControl><FormMessage /></FormItem> )} />
-                        <FormField control={control} name="password" render={({ field }) => ( <FormItem><FormLabel>Create Password</FormLabel><FormControl><Input type="password" placeholder="Create a strong password" {...field} /></FormControl><FormMessage /></FormItem> )} />
-                        <FormField control={control} name="confirmPassword" render={({ field }) => ( <FormItem><FormLabel>Confirm Password</FormLabel><FormControl><Input type="password" placeholder="Confirm your password" {...field} /></FormControl><FormMessage /></FormItem> )} />
+                        <FormField control={control} name="password" render={({ field }) => ( <FormItem><FormLabel>Create Password</FormLabel>
+                           <div className="relative"><FormControl><Input type={showPassword ? "text" : "password"} placeholder="Create a strong password" {...field} /></FormControl><button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground">{showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}</button></div><FormMessage /></FormItem> )} />
+                        <FormField control={control} name="confirmPassword" render={({ field }) => ( <FormItem><FormLabel>Confirm Password</FormLabel>
+                          <div className="relative"><FormControl><Input type={showConfirmPassword ? "text" : "password"} placeholder="Confirm your password" {...field} /></FormControl><button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground">{showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}</button></div><FormMessage /></FormItem> )} />
                     </FormSection>
                 </div>
                 <div className={currentStep === 2 ? 'block' : 'hidden'}>
