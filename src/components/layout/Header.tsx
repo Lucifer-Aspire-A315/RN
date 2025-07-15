@@ -117,7 +117,7 @@ const DynamicLogo = () => {
   return (
      <div className="flex items-center gap-2">
         <Image src={logoSrc} alt="RN FinTech Logo" width={30} height={20} priority  />
-        <span className="text-xl font-bold text-foreground"> FinTech</span>
+        <span className="text-xl font-bold text-foreground">RN FinTech</span>
     </div>
   );
 };
@@ -142,6 +142,7 @@ export function Header() {
   };
   
   const getInitials = (name: string) => {
+    if (!name) return '??';
     const names = name.split(' ');
     if (names.length > 1 && names[0] && names[names.length - 1]) {
       return `${names[0][0]}${names[names.length - 1][0]}`.toUpperCase();
@@ -153,7 +154,7 @@ export function Header() {
   const mobileLinkClasses = "flex items-center py-3 px-6 text-lg hover:bg-secondary";
 
   return (
-    <header className={`bg-background/80 backdrop-blur-sm border-b border-border sticky top-0 z-50 transition-shadow duration-300 ${isScrolled ? 'shadow-md' : ''}`}>
+    <header className={cn(`bg-background/80 backdrop-blur-sm border-b border-border sticky top-0 z-50 transition-shadow duration-300`, isScrolled && 'shadow-md')}>
       <nav className="w-full max-w-screen-2xl mx-auto px-6 sm:px-8 py-2 flex justify-between items-center">
         <Link href="/" className="flex-shrink-0 flex items-center gap-2 no-underline">
            <DynamicLogo />

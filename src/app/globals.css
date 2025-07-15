@@ -114,6 +114,32 @@
   }
 }
 
+@layer utilities {
+    .hero-interactive-glow {
+        background-image: radial-gradient(
+            circle 500px at var(--cursor-x) var(--cursor-y),
+            hsl(var(--primary) / 0.1),
+            transparent 80%
+        );
+    }
+}
+
+
+@layer keyframes {
+  .float {
+    animation: float 6s ease-in-out infinite;
+  }
+  .float-slow {
+    animation: float-slow 12s ease-in-out infinite;
+  }
+  .shadow-float {
+     animation: shadow-float 6s ease-in-out infinite;
+  }
+  .fade-in-up {
+    animation: fade-in-up 1s ease-out forwards;
+  }
+}
+
 @layer components {
   /* Class for glassmorphism effect in dark mode */
   .dark .glass-card {
