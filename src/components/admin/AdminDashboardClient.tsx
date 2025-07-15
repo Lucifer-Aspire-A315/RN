@@ -3,6 +3,7 @@
 
 import React, { useState, useTransition, useMemo } from 'react';
 import type { UserApplication, PartnerData } from '@/lib/types';
+import type { AdminClientData } from '@/app/actions/adminActions';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AdminApplicationsTable } from './AdminApplicationsTable';
@@ -15,17 +16,20 @@ import { ScrollArea, ScrollBar } from '../ui/scroll-area';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Input } from '../ui/input';
 import { Search } from 'lucide-react';
+import { AllClientsTable } from './AllClientsTable';
 
 interface AdminDashboardClientProps {
     initialApplications: UserApplication[];
     initialPendingPartners: PartnerData[];
     initialAllPartners: PartnerData[];
+    initialAllClients: AdminClientData[];
 }
 
 export function AdminDashboardClient({
     initialApplications,
     initialPendingPartners,
-    initialAllPartners
+    initialAllPartners,
+    initialAllClients
 }: AdminDashboardClientProps) {
   const [applications, setApplications] = useState<UserApplication[]>(initialApplications);
   const [pendingPartners, setPendingPartners] = useState<PartnerData[]>(initialPendingPartners);
@@ -141,6 +145,7 @@ export function AdminDashboardClient({
               <TabsTrigger value="pending_applications">Pending Applications ({pendingApplications.length})</TabsTrigger>
               <TabsTrigger value="pending_partners">Pending Partners ({pendingPartners.length})</TabsTrigger>
               <TabsTrigger value="all_partners">All Partners ({allPartners.length})</TabsTrigger>
+              <TabsTrigger value="all_clients">All Clients ({initialAllClients.length})</TabsTrigger>
               </TabsList>
               <ScrollBar orientation="horizontal" />
           </ScrollArea>
@@ -218,6 +223,17 @@ export function AdminDashboardClient({
               </CardHeader>
               <CardContent>
                   <AllPartnersTable partners={allPartners} />
+              </CardContent>
+            </Card>
+        </TabsContent>
+         <TabsContent value="all_clients">
+           <Card>
+              <CardHeader>
+                <CardTitle>All Clients</CardTitle>
+                <CardDescription>A comprehensive list of all clients on the platform.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                  <AllClientsTable clients={initialAllClients} />
               </CardContent>
             </Card>
         </TabsContent>

@@ -14,6 +14,7 @@ import { sendEmail } from '@/lib/email';
 import { PartnerApprovedEmail } from '@/components/emails/PartnerApprovedEmail';
 import { ApplicationStatusUpdateEmail } from '@/components/emails/ApplicationStatusUpdateEmail';
 import { getPartnerClientIds } from './partnerActions';
+import { PartnerClient } from './partnerActions';
 
 // Helper function to ensure only admins can execute these actions
 async function verifyAdmin() {
@@ -368,6 +369,49 @@ export async function getApprovedPartnerList(): Promise<{ id: string; fullName: 
             
     } catch (error) {
         console.error('[AdminActions] Error fetching approved partner list:', error);
+        return [];
+    }
+}
+
+export interface AdminClientData extends PartnerClient {
+    partnerName: string | null;
+}
+
+export async function getAllClientsForAdmin(): Promise<AdminClientData[]> {
+    await verifyAdmin();
+    console.log('[AdminActions] Fetching all clients for admin view...');
+    
+    try {
+        const [partnersSnapshot, usersSnapshot] = await Promise.all([
+            getDocs(query(collection(db, 'partners'), where('isApproved', '==', true))),
+            getDocs(collection(db, 'users'))
+        ]);
+        
+        const partnerMap = new Map<string, string>();
+        partnersSnapshot.forEach(doc => {
+            partnerMap.set(doc.id, doc.data().fullName);
+        });
+
+        const allClients: AdminClientData[] = usersSnapshot.docs.map(doc => {
+            const data = doc.data();
+            const partnerId = data.partnerId;
+            const createdAtTimestamp = data.createdAt as Timestamp;
+            return {
+                id: doc.id,
+                fullName: data.fullName,
+                email: data.email,
+                createdAt: createdAtTimestamp?.toDate().toISOString() || new Date().toISOString(),
+                partnerName: partnerId ? partnerMap.get(partnerId) || 'Partner Not Found' : 'No Partner'
+            };
+        });
+        
+        allClients.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        
+        console.log(`[AdminActions] Found ${allClients.length} total clients.`);
+        return allClients;
+
+    } catch (error: any) {
+        console.error('[AdminActions] Error fetching clients for admin:', error);
         return [];
     }
 }

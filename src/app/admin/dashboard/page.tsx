@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import { checkSessionAction } from '@/app/actions/authActions';
 import { Header } from '@/components/layout/Header';
 import { AdminDashboardClient } from '@/components/admin/AdminDashboardClient';
-import { getAllApplications, getPendingPartners, getAllPartners } from '@/app/actions/adminActions';
+import { getAllApplications, getPendingPartners, getAllPartners, getAllClientsForAdmin } from '@/app/actions/adminActions';
 
 export default async function AdminDashboardPage() {
   const user = await checkSessionAction();
@@ -13,10 +13,11 @@ export default async function AdminDashboardPage() {
   }
 
   // Fetch all data on the server
-  const [applications, pendingPartners, allPartners] = await Promise.all([
+  const [applications, pendingPartners, allPartners, allClients] = await Promise.all([
     getAllApplications(),
     getPendingPartners(),
-    getAllPartners()
+    getAllPartners(),
+    getAllClientsForAdmin()
   ]);
 
   return (
@@ -32,6 +33,7 @@ export default async function AdminDashboardPage() {
             initialApplications={applications}
             initialPendingPartners={pendingPartners}
             initialAllPartners={allPartners}
+            initialAllClients={allClients}
         />
       </main>
     </div>
