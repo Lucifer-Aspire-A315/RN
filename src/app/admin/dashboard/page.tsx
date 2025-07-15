@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { checkSessionAction } from '@/app/actions/authActions';
 import { Header } from '@/components/layout/Header';
 import { AdminDashboardClient } from '@/components/admin/AdminDashboardClient';
+import { getAllApplications, getPendingPartners, getAllPartners } from '@/app/actions/adminActions';
 
 export default async function AdminDashboardPage() {
   const user = await checkSessionAction();
@@ -11,7 +12,13 @@ export default async function AdminDashboardPage() {
     redirect('/login');
   }
 
-  // Data fetching is now handled inside AdminDashboardClient
+  // Fetch all data on the server
+  const [applications, pendingPartners, allPartners] = await Promise.all([
+    getAllApplications(),
+    getPendingPartners(),
+    getAllPartners()
+  ]);
+
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
@@ -21,7 +28,11 @@ export default async function AdminDashboardPage() {
           <p className="text-muted-foreground">Welcome, {user.fullName}. Manage applications and partners here.</p>
         </div>
         
-        <AdminDashboardClient />
+        <AdminDashboardClient 
+            initialApplications={applications}
+            initialPendingPartners={pendingPartners}
+            initialAllPartners={allPartners}
+        />
       </main>
     </div>
   );

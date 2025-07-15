@@ -1,20 +1,18 @@
 
 'use client';
 
-import React, { useState, useTransition, useEffect } from 'react';
+import React, { useState, useTransition } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { format } from 'date-fns';
-import { ArrowLeft, Loader2, FileText, Edit, Trash2, User, FileClock, Check, CircleX, Briefcase, Building, HandCoins, Info, Handshake, Fingerprint, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, Loader2, FileText, Edit, Trash2, User, FileClock, Check, CircleX, Briefcase, Building, HandCoins, Info, Handshake, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { updateApplicationStatus, archiveApplicationAction } from '@/app/actions/adminActions';
-import { getApplicationDetails } from '@/app/actions/applicationActions';
 import { useToast } from '@/hooks/use-toast';
 import type { UserApplication } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '../ui/skeleton';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 
 
@@ -144,8 +142,7 @@ const DetailItem = ({ itemKey, itemValue }: { itemKey: string; itemValue: any })
 interface ApplicationDetailsViewProps {
   applicationId: string;
   serviceCategory: UserApplication['serviceCategory'];
-  title: string;
-  subtitle: string;
+  initialApplicationData: any | null;
   isAdmin: boolean;
 }
 
@@ -171,53 +168,15 @@ const getCategoryIcon = (category: UserApplication['serviceCategory']) => {
     }
 }
 
-const ApplicationDetailsSkeleton = () => (
-    <div className="grid lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-1 space-y-6">
-            <Card><CardHeader><Skeleton className="h-6 w-1/2" /></CardHeader><CardContent className="space-y-4"><Skeleton className="h-5 w-3/4" /><Skeleton className="h-5 w-1/2" /></CardContent></Card>
-             <Card><CardHeader><Skeleton className="h-6 w-1/2" /></CardHeader><CardContent className="space-y-4"><Skeleton className="h-10 w-full" /><Skeleton className="h-10 w-full" /></CardContent></Card>
-        </div>
-        <div className="lg:col-span-2 space-y-6">
-            <Card><CardHeader><Skeleton className="h-7 w-1/4" /></CardHeader><CardContent className="grid md:grid-cols-2 gap-4"><Skeleton className="h-12 w-full" /><Skeleton className="h-12 w-full" /></CardContent></Card>
-             <Card><CardHeader><Skeleton className="h-7 w-1/4" /></CardHeader><CardContent className="grid md:grid-cols-2 gap-4"><Skeleton className="h-12 w-full" /><Skeleton className="h-12 w-full" /></CardContent></Card>
-        </div>
-    </div>
-);
-
-
-export function ApplicationDetailsView({ applicationId, serviceCategory, title, subtitle, isAdmin = false }: ApplicationDetailsViewProps) {
+export function ApplicationDetailsView({ applicationId, serviceCategory, initialApplicationData, isAdmin = false }: ApplicationDetailsViewProps) {
     const router = useRouter();
     const { toast } = useToast();
     const [isUpdating, startUpdateTransition] = useTransition();
-    const [isLoading, setIsLoading] = useState(true);
-    const [applicationData, setApplicationData] = useState<any | null>(null);
+    const [applicationData, setApplicationData] = useState<any | null>(initialApplicationData);
     const [isAlertOpen, setIsAlertOpen] = useState(false);
 
-    const [currentStatus, setCurrentStatus] = useState<string>('');
-    const [selectedStatus, setSelectedStatus] = useState<string>('');
-
-    useEffect(() => {
-        async function fetchData() {
-            setIsLoading(true);
-            try {
-                const data = await getApplicationDetails(applicationId, serviceCategory);
-                setApplicationData(data);
-                if (data) {
-                    setCurrentStatus(data.status);
-                    setSelectedStatus(data.status);
-                }
-            } catch (error: any) {
-                toast({ variant: "destructive", title: "Error", description: error.message });
-            } finally {
-                setIsLoading(false);
-            }
-        }
-        fetchData();
-    }, [applicationId, serviceCategory, toast]);
-
-    if (isLoading) {
-        return <ApplicationDetailsSkeleton />;
-    }
+    const [currentStatus, setCurrentStatus] = useState<string>(initialApplicationData?.status || '');
+    const [selectedStatus, setSelectedStatus] = useState<string>(initialApplicationData?.status || '');
 
     if (!applicationData) {
         return (

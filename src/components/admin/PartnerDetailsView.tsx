@@ -1,57 +1,25 @@
 
 'use client';
 
-import React, { useState, useEffect, useTransition } from 'react';
+import React, { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { getPartnerDetails, getApplicationsByPartner, removePartnerAction } from '@/app/actions/adminActions';
+import { removePartnerAction } from '@/app/actions/adminActions';
 import type { PartnerData, UserApplication } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
-import { User, Mail, Shield, BadgeCheck, Phone, Briefcase, Trash2, Loader2, ArrowLeft } from 'lucide-react';
+import { User, Mail, Briefcase, Trash2, Loader2, ArrowLeft } from 'lucide-react';
 import { ApplicationsTable } from '@/components/dashboard/ApplicationsTable';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface PartnerDetailsViewProps {
   partnerId: string;
+  initialPartnerData: PartnerData | null;
+  initialApplications: UserApplication[];
 }
-
-const PartnerProfileSkeleton = () => (
-    <div className="grid lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-1">
-            <Card className="shadow-lg">
-                <CardHeader className="items-center text-center">
-                    <Skeleton className="w-24 h-24 rounded-full mb-4" />
-                    <Skeleton className="h-8 w-40" />
-                    <Skeleton className="h-5 w-24 mt-2" />
-                </CardHeader>
-                <CardContent className="space-y-4 pt-4">
-                    <Skeleton className="h-12 w-full" />
-                    <Skeleton className="h-12 w-full" />
-                    <Skeleton className="h-12 w-full" />
-                    <Skeleton className="h-10 w-full mt-4" />
-                </CardContent>
-            </Card>
-        </div>
-        <div className="lg:col-span-2">
-            <Card>
-                <CardHeader>
-                    <Skeleton className="h-8 w-1/3" />
-                </CardHeader>
-                <CardContent>
-                    <div className="space-y-4">
-                        <Skeleton className="h-10 w-full" />
-                        <Skeleton className="h-10 w-full" />
-                    </div>
-                </CardContent>
-            </Card>
-        </div>
-    </div>
-);
 
 const PartnerInfoItem = ({ icon: Icon, label, value }: { icon: React.ElementType, label: string, value: string }) => (
     <div className="flex items-start gap-4 p-4 rounded-lg bg-background border">
@@ -63,40 +31,13 @@ const PartnerInfoItem = ({ icon: Icon, label, value }: { icon: React.ElementType
     </div>
 );
 
-
-export function PartnerDetailsView({ partnerId }: PartnerDetailsViewProps) {
+export function PartnerDetailsView({ partnerId, initialPartnerData, initialApplications }: PartnerDetailsViewProps) {
     const router = useRouter();
     const { toast } = useToast();
-    const [partner, setPartner] = useState<PartnerData | null>(null);
-    const [applications, setApplications] = useState<UserApplication[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+    const [partner] = useState<PartnerData | null>(initialPartnerData);
+    const [applications] = useState<UserApplication[]>(initialApplications);
     const [isRemoving, startRemoveTransition] = useTransition();
     const [isAlertOpen, setIsAlertOpen] = useState(false);
-
-    useEffect(() => {
-        const fetchData = async () => {
-            setIsLoading(true);
-            try {
-                const [partnerData, partnerApps] = await Promise.all([
-                    getPartnerDetails(partnerId),
-                    getApplicationsByPartner(partnerId)
-                ]);
-                
-                if (partnerData) {
-                    setPartner(partnerData);
-                } else {
-                     toast({ variant: "destructive", title: "Error", description: "Partner not found." });
-                }
-                setApplications(partnerApps);
-
-            } catch (error: any) {
-                toast({ variant: "destructive", title: "Error", description: error.message || "Failed to load partner data." });
-            } finally {
-                setIsLoading(false);
-            }
-        };
-        fetchData();
-    }, [partnerId, toast]);
 
     const getInitials = (name: string) => {
         const names = name.split(' ');
@@ -131,10 +72,6 @@ export function PartnerDetailsView({ partnerId }: PartnerDetailsViewProps) {
         });
     };
 
-    if (isLoading) {
-        return <PartnerProfileSkeleton />;
-    }
-    
     if (!partner) {
         return (
             <Card>
@@ -179,7 +116,7 @@ export function PartnerDetailsView({ partnerId }: PartnerDetailsViewProps) {
                         </CardHeader>
                         <CardContent className="space-y-3">
                            <PartnerInfoItem icon={Mail} label="Email Address" value={partner.email} />
-                           <PartnerInfoItem icon={Phone} label="Mobile Number" value={partner.mobileNumber} />
+                           <PartnerInfoItem icon={User} label="Mobile Number" value={partner.mobileNumber} />
                            <PartnerInfoItem icon={Briefcase} label="Business Model" value={partnerTypeDisplay} />
                         </CardContent>
                     </Card>

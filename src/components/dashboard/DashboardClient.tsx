@@ -1,15 +1,11 @@
 
 "use client";
 
-import React, { useState, useEffect, useMemo, useTransition } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ApplicationsTable } from './ApplicationsTable';
 import type { UserApplication, UserData } from '@/lib/types';
 import { PartnerDashboard } from './PartnerDashboard';
-import { getUserApplications } from '@/app/actions/dashboardActions';
-import { getPartnerAnalytics } from '@/app/actions/partnerActions';
-import { useToast } from '@/hooks/use-toast';
-import { Skeleton } from '../ui/skeleton';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { PlusCircle } from 'lucide-react';
@@ -21,24 +17,11 @@ import { PartnerClientsView } from './PartnerClientsView';
 
 interface DashboardClientProps {
   user: UserData;
+  initialApplications: UserApplication[];
 }
 
-function ApplicationsTableSkeleton() {
-  return (
-    <div className="space-y-4">
-        <Skeleton className="h-12 w-full" />
-        <Skeleton className="h-12 w-full" />
-        <Skeleton className="h-12 w-full" />
-        <Skeleton className="h-12 w-full" />
-    </div>
-  );
-}
-
-export function DashboardClient({ user }: DashboardClientProps) {
-    const [applications, setApplications] = useState<UserApplication[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [isPending, startTransition] = useTransition();
-    const { toast } = useToast();
+export function DashboardClient({ user, initialApplications }: DashboardClientProps) {
+    const [applications] = useState<UserApplication[]>(initialApplications);
     const searchParams = useSearchParams();
     const router = useRouter();
 
@@ -47,35 +30,6 @@ export function DashboardClient({ user }: DashboardClientProps) {
     const handleTabChange = (value: string) => {
         router.push(`/dashboard?tab=${value}`);
     };
-    
-    useEffect(() => {
-        const fetchDashboardData = () => {
-          startTransition(async () => {
-            setIsLoading(true);
-            try {
-                let userApps: UserApplication[] = [];
-                if (user.type === 'partner') {
-                    const partnerData = await getPartnerAnalytics();
-                    userApps = partnerData.applications;
-                } else {
-                    userApps = await getUserApplications();
-                }
-                setApplications(userApps);
-            } catch (error) {
-                console.error("Failed to load dashboard applications:", error);
-                toast({
-                    variant: "destructive",
-                    title: "Error",
-                    description: "Could not load your applications."
-                })
-            } finally {
-                setIsLoading(false);
-            }
-          });
-        }
-
-        fetchDashboardData();
-    }, [toast, user.type]);
     
     const dashboardStats: Stat[] = useMemo(() => {
         const total = applications.length;
@@ -100,7 +54,7 @@ export function DashboardClient({ user }: DashboardClientProps) {
                 <TabsTrigger value="my_clients">My Clients</TabsTrigger>
             </TabsList>
             <TabsContent value="dashboard">
-                 <PartnerDashboard user={user} applications={applications} isLoading={isLoading || isPending} stats={dashboardStats} />
+                 <PartnerDashboard user={user} applications={applications} isLoading={false} stats={dashboardStats} />
             </TabsContent>
             <TabsContent value="my_clients">
                 <PartnerClientsView />
@@ -125,7 +79,7 @@ export function DashboardClient({ user }: DashboardClientProps) {
         </Button>
       </div>
 
-      <DashboardStats stats={dashboardStats} isLoading={isLoading || isPending} />
+      <DashboardStats stats={dashboardStats} isLoading={false} />
 
       <Card>
         <CardHeader>
@@ -133,7 +87,7 @@ export function DashboardClient({ user }: DashboardClientProps) {
           <CardDescription>A list of all your submitted applications.</CardDescription>
         </CardHeader>
         <CardContent>
-          {(isLoading || isPending) ? <ApplicationsTableSkeleton /> : <ApplicationsTable applications={applications} />}
+          <ApplicationsTable applications={applications} />
         </CardContent>
       </Card>
     </div>

@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useTransition } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
@@ -22,24 +22,23 @@ const TableSkeleton = () => (
 
 export function PartnerClientsView() {
     const { toast } = useToast();
-    const [isLoading, setIsLoading] = useState(true);
+    const [isLoading, startTransition] = useTransition();
     const [clients, setClients] = useState<PartnerClient[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
         const fetchClients = async () => {
-            setIsLoading(true);
             try {
                 const partnerClients = await getPartnerClients();
                 setClients(partnerClients);
             } catch (error: any) {
                 toast({ variant: 'destructive', title: 'Error', description: 'Could not fetch client list. ' + error.message });
-            } finally {
-                setIsLoading(false);
             }
         };
 
-        fetchClients();
+        startTransition(() => {
+            fetchClients();
+        });
     }, [toast]);
 
     const filteredClients = useMemo(() => {

@@ -5,6 +5,9 @@ import { ApplicationDetailsView } from '@/components/application/ApplicationDeta
 import type { UserApplication } from '@/lib/types';
 import { redirect } from 'next/navigation';
 import { checkSessionAction } from '@/app/actions/authActions';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { ArrowLeft } from 'lucide-react';
 
 interface AdminApplicationDetailsPageProps {
   params: { id: string };
@@ -21,10 +24,29 @@ export default async function AdminApplicationDetailsPage({ params, searchParams
   const { category } = searchParams;
 
   if (!category) {
-    return <div>Error: Service category not specified.</div>;
+    return (
+        <div className="flex flex-col min-h-screen">
+          <Header />
+          <main className="flex-grow container mx-auto px-4 sm:px-6 py-8">
+            <Card>
+                <CardHeader>
+                    <CardTitle>Error</CardTitle>
+                    <CardDescription>Service category not specified.</CardDescription>
+                </CardHeader>
+                 <CardContent>
+                    <Button onClick={() => redirect('/admin/dashboard')}>
+                        <ArrowLeft className="mr-2 h-4 w-4" />
+                        Back to Dashboard
+                    </Button>
+                </CardContent>
+            </Card>
+          </main>
+        </div>
+    );
   }
 
-  // Data fetching is now handled inside ApplicationDetailsView
+  const applicationData = await getApplicationDetails(id, category);
+
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
@@ -32,8 +54,7 @@ export default async function AdminApplicationDetailsPage({ params, searchParams
         <ApplicationDetailsView
           applicationId={id}
           serviceCategory={category}
-          title="Admin View: Application Details"
-          subtitle={`Viewing details for application ID: ${id}`}
+          initialApplicationData={applicationData}
           isAdmin={true}
         />
       </main>
