@@ -12,7 +12,7 @@ import { PlusCircle } from 'lucide-react';
 import { DashboardStats, type Stat } from './DashboardStats';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { PartnerClientsView } from './PartnerClientsView';
+import { PartnerClientsTable } from './PartnerClientsTable';
 
 
 interface DashboardClientProps {
@@ -57,7 +57,7 @@ export function DashboardClient({ user, initialApplications }: DashboardClientPr
                  <PartnerDashboard user={user} applications={applications} isLoading={false} stats={dashboardStats} />
             </TabsContent>
             <TabsContent value="my_clients">
-                <PartnerClientsView />
+                <PartnerClientsTable />
             </TabsContent>
         </Tabs>
     );

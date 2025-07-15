@@ -22,7 +22,7 @@ const TableSkeleton = () => (
     </div>
 );
 
-export function PartnerClientsView() {
+export function PartnerClientsTable() {
     const { toast } = useToast();
     const router = useRouter();
     const [isLoading, startDataTransition] = useTransition();

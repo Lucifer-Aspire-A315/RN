@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Search, UserX } from 'lucide-react';
 import { format } from 'date-fns';
+import { useRouter } from 'next/navigation';
 
 interface AllClientsTableProps {
     clients: AdminClientData[];
@@ -15,6 +16,7 @@ interface AllClientsTableProps {
 
 export function AllClientsTable({ clients }: AllClientsTableProps) {
     const [searchTerm, setSearchTerm] = useState('');
+    const router = useRouter();
 
     const filteredClients = useMemo(() => {
         if (!searchTerm) return clients;
@@ -39,6 +41,10 @@ export function AllClientsTable({ clients }: AllClientsTableProps) {
         );
     }
 
+    const handleRowClick = (clientId: string) => {
+        router.push(`/admin/client/${clientId}`);
+    };
+
     return (
         <div className="space-y-4">
             <div className="relative">
@@ -62,7 +68,11 @@ export function AllClientsTable({ clients }: AllClientsTableProps) {
                     </TableHeader>
                     <TableBody>
                         {filteredClients.map(client => (
-                            <TableRow key={client.id}>
+                            <TableRow 
+                                key={client.id}
+                                onClick={() => handleRowClick(client.id)}
+                                className="cursor-pointer"
+                            >
                                 <TableCell className="font-medium">{client.fullName}</TableCell>
                                 <TableCell className="hidden sm:table-cell">{client.email}</TableCell>
                                 <TableCell>
