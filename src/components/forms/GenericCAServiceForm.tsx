@@ -183,9 +183,12 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
         toast({ title: mode === 'edit' ? "Application Updated!" : "Application Submitted!", description: result.message, duration: 5000 });
         sessionStorage.removeItem(storageKey);
         
-        if (mode === 'create') {
-            router.push('/dashboard');
-            reset();
+        if (mode === 'create' && result.applicationId) {
+            const isAdminView = pathname.includes('/admin/');
+            const detailPageUrl = isAdminView
+                ? `/admin/application/${result.applicationId}?category=caService`
+                : `/dashboard/application/${result.applicationId}?category=caService`;
+            router.replace(detailPageUrl);
         } else if (mode === 'edit' && applicationId) {
             const isAdminView = pathname.includes('/admin/');
             const detailPageUrl = isAdminView
@@ -193,8 +196,9 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
                 : `/dashboard/application/${applicationId}?category=caService`;
             router.replace(detailPageUrl);
         } else {
-            router.push('/dashboard');
+            router.replace('/dashboard');
         }
+        reset();
 
       } else {
         toast({ variant: "destructive", title: mode === 'edit' ? "Update Failed" : "Application Failed", description: result.message || "An unknown error occurred.", duration: 9000 });
