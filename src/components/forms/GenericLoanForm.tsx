@@ -19,6 +19,7 @@ import { Textarea } from '../ui/textarea';
 import { processNestedFileUploads } from '@/lib/form-helpers';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { FormStepper } from '../shared/FormStepper';
+import type { UserApplication } from '@/lib/types';
 
 interface FieldConfig {
   name: string;
@@ -58,7 +59,7 @@ interface GenericLoanFormProps<T extends Record<string, any>> {
   schema: ZodType<T, ZodTypeDef, T>;
   defaultValues: T;
   sections: SectionConfig[];
-  submitAction: (data: T) => Promise<ServerActionResponse>;
+  submitAction: (data: T, schemeNameForDisplay?: string) => Promise<ServerActionResponse>;
   updateAction?: (applicationId: string, data: T) => Promise<ServerActionResponse>;
   mode?: 'create' | 'edit';
   applicationId?: string;
@@ -154,14 +155,16 @@ export function GenericLoanForm<TData extends Record<string, any>>({
   const handleBackClick = useCallback(() => {
     const isAdminView = pathname.includes('/admin/');
     if (mode === 'edit' && applicationId) {
+        const serviceCategoryParam = searchParams.get('category') || 'loan';
         const detailPageUrl = isAdminView 
-            ? `/admin/application/${applicationId}?category=loan`
-            : `/dashboard/application/${applicationId}?category=loan`;
+            ? `/admin/application/${applicationId}?category=${serviceCategoryParam}`
+            : `/dashboard/application/${applicationId}?category=${serviceCategoryParam}`;
         router.push(detailPageUrl);
     } else {
         router.back();
     }
-  }, [mode, applicationId, router, pathname]);
+  }, [mode, applicationId, router, pathname, searchParams]);
+
 
   async function onSubmit(data: TData) {
     setIsSubmitting(true);
@@ -179,7 +182,11 @@ export function GenericLoanForm<TData extends Record<string, any>>({
       if (mode === 'edit' && applicationId && updateAction) {
           result = await updateAction(applicationId, payloadForServer);
       } else {
-          result = await submitAction(payloadForServer);
+          // Special handling for government schemes to pass display name
+          const schemeNameForDisplay = (payloadForServer as any).loanDetails?.selectedScheme === 'Other' 
+            ? (payloadForServer as any).loanDetails?.otherSchemeName 
+            : (payloadForServer as any).loanDetails?.selectedScheme;
+          result = await submitAction(payloadForServer, schemeNameForDisplay);
       }
 
       if (result.success) {
@@ -191,9 +198,10 @@ export function GenericLoanForm<TData extends Record<string, any>>({
             reset();
         } else if (mode === 'edit' && applicationId) {
             const isAdminView = pathname.includes('/admin/');
+            const serviceCategoryParam = searchParams.get('category') as UserApplication['serviceCategory'] || 'loan';
             const detailPageUrl = isAdminView 
-                ? `/admin/application/${applicationId}?category=loan`
-                : `/dashboard/application/${applicationId}?category=loan`;
+                ? `/admin/application/${applicationId}?category=${serviceCategoryParam}`
+                : `/dashboard/application/${applicationId}?category=${serviceCategoryParam}`;
             router.replace(detailPageUrl);
         } else {
             router.push('/dashboard');
