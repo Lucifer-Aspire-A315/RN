@@ -46,7 +46,16 @@ export default async function ApplicationDetailsPage({ params, searchParams }: A
     );
   }
 
-  const applicationData = await getApplicationDetails(id, category);
+  let applicationData;
+  try {
+    applicationData = await getApplicationDetails(id, category);
+  } catch (error) {
+    // This will catch the "Application not found" or "Forbidden" errors
+    // and prevent the page from crashing.
+    console.error(`[ApplicationDetailsPage] Failed to fetch application:`, error);
+    applicationData = null; // Ensure applicationData is null so the view component can handle it.
+  }
+
 
   return (
     <div className="flex flex-col min-h-screen">
