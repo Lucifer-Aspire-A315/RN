@@ -188,19 +188,17 @@ export function GenericLoanForm<TData extends Record<string, any>>({
         toast({ title: mode === 'edit' ? "Application Updated!" : "Application Submitted!", description: result.message, duration: 5000 });
         sessionStorage.removeItem(storageKey);
         
-        setTimeout(() => {
-            if (mode === 'edit' && applicationId) {
-                const detailPageUrl = isAdmin 
-                    ? `/admin/application/${applicationId}?category=loan`
-                    : `/dashboard/application/${applicationId}?category=loan`;
-                router.push(detailPageUrl);
-            } else {
-                router.push('/dashboard');
-            }
-        }, 1500);
-
+        // ** REDIRECTION LOGIC FIX **
         if (mode === 'create') {
-            reset(); 
+            router.push('/dashboard');
+            reset();
+        } else if (mode === 'edit' && applicationId) {
+            const detailPageUrl = isAdmin 
+                ? `/admin/application/${applicationId}?category=loan`
+                : `/dashboard/application/${applicationId}?category=loan`;
+            router.replace(detailPageUrl); // Use replace to prevent back button from returning to edit form
+        } else {
+            router.push('/dashboard'); // Fallback
         }
 
       } else {

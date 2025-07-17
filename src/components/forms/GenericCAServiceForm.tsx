@@ -1,5 +1,4 @@
 
-
 "use client";
 
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
@@ -51,7 +50,7 @@ interface GenericCAServiceFormProps<T extends Record<string, any>> {
   schema: ZodType<T, ZodTypeDef, T>;
   defaultValues: T;
   sections: SectionConfig[];
-  submitAction: (data: T) => Promise<{ success: boolean; message: string; errors?: Record<string, string[]> }>;
+  submitAction: (data: T) => Promise<{ success: boolean; message: string; errors?: Record<string, string[]>; applicationId?: string }>;
   updateAction?: (applicationId: string, data: any) => Promise<{ success: boolean; message: string; errors?: Record<string, string[]> }>;
   mode?: 'create' | 'edit';
   applicationId?: string;
@@ -184,20 +183,19 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
         toast({ title: mode === 'edit' ? "Application Updated!" : "Application Submitted!", description: result.message, duration: 5000 });
         sessionStorage.removeItem(storageKey);
         
-        setTimeout(() => {
-            if (mode === 'edit' && applicationId) {
-                const detailPageUrl = isAdmin 
-                    ? `/admin/application/${applicationId}?category=caService`
-                    : `/dashboard/application/${applicationId}?category=caService`;
-                router.push(detailPageUrl);
-            } else {
-                router.push('/dashboard');
-            }
-        }, 1500);
-
+        // ** REDIRECTION LOGIC FIX **
         if (mode === 'create') {
+            router.push('/dashboard');
             reset();
+        } else if (mode === 'edit' && applicationId) {
+            const detailPageUrl = isAdmin 
+                ? `/admin/application/${applicationId}?category=caService`
+                : `/dashboard/application/${applicationId}?category=caService`;
+            router.replace(detailPageUrl); // Use replace to prevent back button from returning to edit form
+        } else {
+            router.push('/dashboard'); // Fallback
         }
+
       } else {
         toast({ variant: "destructive", title: mode === 'edit' ? "Update Failed" : "Application Failed", description: result.message || "An unknown error occurred.", duration: 9000 });
         if (result.errors) {
