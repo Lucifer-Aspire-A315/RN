@@ -20,7 +20,6 @@ import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { processNestedFileUploads } from '@/lib/form-helpers';
 import { FormStepper } from '../shared/FormStepper';
 
-// Field and Section Configuration Types
 interface FieldConfig {
   name: string;
   label: React.ReactNode;
@@ -46,7 +45,6 @@ interface DeclarationConfig {
 }
 
 interface GenericCAServiceFormProps<T extends Record<string, any>> {
-  onBack?: () => void;
   formTitle: string;
   formSubtitle: string;
   formIcon: React.ReactNode;
@@ -58,10 +56,10 @@ interface GenericCAServiceFormProps<T extends Record<string, any>> {
   mode?: 'create' | 'edit';
   applicationId?: string;
   declarationConfig?: DeclarationConfig;
+  isAdmin?: boolean;
 }
 
 export function GenericCAServiceForm<TData extends Record<string, any>>({
-  onBack,
   formTitle,
   formSubtitle,
   formIcon,
@@ -73,6 +71,7 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
   mode = 'create',
   applicationId,
   declarationConfig,
+  isAdmin = false,
 }: GenericCAServiceFormProps<TData>) {
   const { toast } = useToast();
   const router = useRouter();
@@ -90,7 +89,6 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
     const step = parseInt(searchParams.get('step') || '0', 10);
     return isNaN(step) ? 0 : step;
   }, [searchParams]);
-
 
   const form = useForm<TData>({
     resolver: zodResolver(schema),
@@ -115,11 +113,9 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
   
   const watchedValues = watch();
 
-   // Persist form data to session storage on change
   useEffect(() => {
     const subscription = watch((value) => {
         try {
-          // We only store strings, not file objects
           const serializableValue = JSON.parse(JSON.stringify(value, (key, val) => (val instanceof File ? undefined : val)));
           sessionStorage.setItem(storageKey, JSON.stringify(serializableValue));
         } catch (e) {
@@ -128,7 +124,6 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
     });
     return () => subscription.unsubscribe();
   }, [watch, storageKey]);
-
 
   const visibleSections = useMemo(() => {
     return sections.filter(section => 
@@ -142,7 +137,16 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
 
   const stepLabels = useMemo(() => visibleSections.map(s => s.title), [visibleSections]);
   
-  const handleBackClick = onBack || (mode === 'edit' ? () => router.back() : undefined);
+  const handleBackClick = useCallback(() => {
+    if (mode === 'edit') {
+        const detailPageUrl = isAdmin 
+            ? `/admin/application/${applicationId}?category=caService`
+            : `/dashboard/application/${applicationId}?category=caService`;
+        router.push(detailPageUrl);
+    } else {
+        router.back();
+    }
+  }, [mode, isAdmin, applicationId, router]);
 
   const onInvalid = () => {
     toast({
@@ -181,11 +185,14 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
         sessionStorage.removeItem(storageKey);
         
         setTimeout(() => {
-          if (handleBackClick) {
-            handleBackClick();
-          } else {
-            router.push('/dashboard');
-          }
+            if (mode === 'edit' && applicationId) {
+                const detailPageUrl = isAdmin 
+                    ? `/admin/application/${applicationId}?category=caService`
+                    : `/dashboard/application/${applicationId}?category=caService`;
+                router.push(detailPageUrl);
+            } else {
+                router.push('/dashboard');
+            }
         }, 1500);
 
         if (mode === 'create') {
@@ -251,7 +258,6 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
       navigateToStep(stepIndex);
     }
   }, [currentStep, highestValidatedStep, navigateToStep]);
-
 
   const renderField = (fieldConfig: FieldConfig) => {
     return (
@@ -345,12 +351,10 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
   return (
     <section className="bg-secondary py-12 md:py-20">
       <div className="container mx-auto px-4 sm:px-6">
-        {handleBackClick && (
-            <Button variant="ghost" onClick={handleBackClick} className="inline-flex items-center mb-8 text-muted-foreground hover:text-primary">
+        <Button variant="ghost" onClick={handleBackClick} className="inline-flex items-center mb-8 text-muted-foreground hover:text-primary">
             <ArrowLeft className="w-5 h-5 mr-2" />
              {mode === 'edit' ? 'Back to Details' : 'Back'}
-            </Button>
-        )}
+        </Button>
         <div className="max-w-4xl mx-auto bg-card p-6 md:p-10 rounded-2xl shadow-xl">
           <div className="text-center mb-4">
             {formIcon}

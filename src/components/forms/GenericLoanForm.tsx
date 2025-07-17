@@ -20,8 +20,6 @@ import { processNestedFileUploads } from '@/lib/form-helpers';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { FormStepper } from '../shared/FormStepper';
 
-// --- TYPE DEFINITIONS ---
-
 interface FieldConfig {
   name: string;
   label: React.ReactNode; 
@@ -52,7 +50,6 @@ interface ServerActionResponse {
 }
 
 interface GenericLoanFormProps<T extends Record<string, any>> {
-  onBack?: () => void;
   backButtonText?: string;
   formTitle: string;
   formSubtitle?: string;
@@ -65,12 +62,10 @@ interface GenericLoanFormProps<T extends Record<string, any>> {
   mode?: 'create' | 'edit';
   applicationId?: string;
   submitButtonText?: string;
+  isAdmin?: boolean;
 }
 
-// --- GENERIC FORM COMPONENT ---
-
 export function GenericLoanForm<TData extends Record<string, any>>({ 
-  onBack,
   backButtonText,
   formTitle, 
   formSubtitle, 
@@ -82,7 +77,8 @@ export function GenericLoanForm<TData extends Record<string, any>>({
   updateAction,
   mode = 'create',
   applicationId,
-  submitButtonText = "Submit Application"
+  submitButtonText = "Submit Application",
+  isAdmin = false,
 }: GenericLoanFormProps<TData>) {
   const { toast } = useToast();
   const router = useRouter();
@@ -94,9 +90,7 @@ export function GenericLoanForm<TData extends Record<string, any>>({
   const [isVerifyingID, setIsVerifyingID] = useState(false);
   const [highestValidatedStep, setHighestValidatedStep] = useState(0);
 
-  // Key for session storage, unique to each form instance
   const storageKey = useMemo(() => `form-data-${pathname}-${applicationId || ''}`, [pathname, applicationId]);
-
 
   const currentStep = useMemo(() => {
     const step = parseInt(searchParams.get('step') || '0', 10);
@@ -126,11 +120,9 @@ export function GenericLoanForm<TData extends Record<string, any>>({
   
   const watchedValues = watch();
   
-  // Persist form data to session storage on change
   useEffect(() => {
     const subscription = watch((value) => {
         try {
-          // We only store strings, not file objects
           const serializableValue = JSON.parse(JSON.stringify(value, (key, val) => (val instanceof File ? undefined : val)));
           sessionStorage.setItem(storageKey, JSON.stringify(serializableValue));
         } catch (e) {
@@ -139,7 +131,6 @@ export function GenericLoanForm<TData extends Record<string, any>>({
     });
     return () => subscription.unsubscribe();
   }, [watch, storageKey]);
-
 
   const visibleSections = useMemo(() => {
     return sections.filter(section => 
@@ -161,8 +152,16 @@ export function GenericLoanForm<TData extends Record<string, any>>({
     });
   };
   
-  const handleBackClick = onBack || (mode === 'edit' ? () => router.back() : undefined);
-
+  const handleBackClick = useCallback(() => {
+    if (mode === 'edit') {
+        const detailPageUrl = isAdmin 
+            ? `/admin/application/${applicationId}?category=loan`
+            : `/dashboard/application/${applicationId}?category=loan`;
+        router.push(detailPageUrl);
+    } else {
+        router.back();
+    }
+  }, [mode, isAdmin, applicationId, router]);
 
   async function onSubmit(data: TData) {
     setIsSubmitting(true);
@@ -185,14 +184,17 @@ export function GenericLoanForm<TData extends Record<string, any>>({
 
       if (result.success) {
         toast({ title: mode === 'edit' ? "Application Updated!" : "Application Submitted!", description: result.message, duration: 5000 });
-        sessionStorage.removeItem(storageKey); // Clear saved data on success
+        sessionStorage.removeItem(storageKey);
         
         setTimeout(() => {
-          if (handleBackClick) {
-            handleBackClick();
-          } else {
-            router.push('/dashboard');
-          }
+            if (mode === 'edit' && applicationId) {
+                const detailPageUrl = isAdmin 
+                    ? `/admin/application/${applicationId}?category=loan`
+                    : `/dashboard/application/${applicationId}?category=loan`;
+                router.push(detailPageUrl);
+            } else {
+                router.push('/dashboard');
+            }
         }, 1500);
 
         if (mode === 'create') {
@@ -295,7 +297,6 @@ export function GenericLoanForm<TData extends Record<string, any>>({
       navigateToStep(stepIndex);
     }
   }, [currentStep, highestValidatedStep, navigateToStep]);
-  
   
   const renderField = (fieldConfig: FieldConfig) => {
     const onBlur = fieldConfig.isAadhaar ? handleIDValidation : undefined;
@@ -403,12 +404,10 @@ export function GenericLoanForm<TData extends Record<string, any>>({
   return (
     <section className="bg-secondary py-12 md:py-20">
       <div className="container mx-auto px-4 sm:px-6">
-        {handleBackClick && (
-            <Button variant="ghost" onClick={handleBackClick} className="inline-flex items-center mb-8 text-muted-foreground hover:text-primary">
-              <ArrowLeft className="w-5 h-5 mr-2" />
-              {backButtonText || (mode === 'edit' ? 'Back to Details' : 'Back to Home')}
-            </Button>
-        )}
+        <Button variant="ghost" onClick={handleBackClick} className="inline-flex items-center mb-8 text-muted-foreground hover:text-primary">
+            <ArrowLeft className="w-5 h-5 mr-2" />
+            {backButtonText || (mode === 'edit' ? 'Back to Details' : 'Back to Home')}
+        </Button>
         <div className="max-w-4xl mx-auto bg-card p-6 md:p-10 rounded-2xl shadow-xl">
           <div className="text-center mb-4">
             {formIcon || <Info className="w-12 h-12 mx-auto text-primary mb-2" />}
@@ -451,7 +450,6 @@ export function GenericLoanForm<TData extends Record<string, any>>({
                   📝 I hereby declare that all the information and documents provided above are true and correct to the best of my knowledge.
                 </p>
               </div>
-
 
               <div className="mt-8 pt-6 border-t border-border flex justify-between items-center">
                 <div>
