@@ -50,6 +50,7 @@ interface ServerActionResponse {
 }
 
 interface GenericLoanFormProps<T extends Record<string, any>> {
+  onBack?: () => void;
   backButtonText?: string;
   formTitle: string;
   formSubtitle?: string;
@@ -66,6 +67,7 @@ interface GenericLoanFormProps<T extends Record<string, any>> {
 }
 
 export function GenericLoanForm<TData extends Record<string, any>>({ 
+  onBack,
   backButtonText,
   formTitle, 
   formSubtitle, 
@@ -153,7 +155,7 @@ export function GenericLoanForm<TData extends Record<string, any>>({
   };
   
   const handleBackClick = useCallback(() => {
-    if (mode === 'edit') {
+    if (mode === 'edit' && applicationId) {
         const detailPageUrl = isAdmin 
             ? `/admin/application/${applicationId}?category=loan`
             : `/dashboard/application/${applicationId}?category=loan`;
@@ -330,6 +332,11 @@ export function GenericLoanForm<TData extends Record<string, any>>({
                       Selected: {value.name} ({(value.size / 1024).toFixed(2)} KB)
                     </p>
                   )}
+                   {typeof value === 'string' && value.startsWith('http') && (
+                      <p className="text-xs text-muted-foreground mt-1">
+                        <a href={value} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">View current file</a>
+                      </p>
+                    )}
                   <FormMessage />
                 </FormItem>
               );

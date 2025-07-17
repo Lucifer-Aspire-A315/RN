@@ -138,7 +138,7 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
   const stepLabels = useMemo(() => visibleSections.map(s => s.title), [visibleSections]);
   
   const handleBackClick = useCallback(() => {
-    if (mode === 'edit') {
+    if (mode === 'edit' && applicationId) {
         const detailPageUrl = isAdmin 
             ? `/admin/application/${applicationId}?category=caService`
             : `/dashboard/application/${applicationId}?category=caService`;
