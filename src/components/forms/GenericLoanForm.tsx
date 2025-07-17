@@ -63,11 +63,9 @@ interface GenericLoanFormProps<T extends Record<string, any>> {
   mode?: 'create' | 'edit';
   applicationId?: string;
   submitButtonText?: string;
-  isAdmin?: boolean;
 }
 
 export function GenericLoanForm<TData extends Record<string, any>>({ 
-  onBack,
   backButtonText,
   formTitle, 
   formSubtitle, 
@@ -80,7 +78,6 @@ export function GenericLoanForm<TData extends Record<string, any>>({
   mode = 'create',
   applicationId,
   submitButtonText = "Submit Application",
-  isAdmin = false,
 }: GenericLoanFormProps<TData>) {
   const { toast } = useToast();
   const router = useRouter();
@@ -155,15 +152,16 @@ export function GenericLoanForm<TData extends Record<string, any>>({
   };
   
   const handleBackClick = useCallback(() => {
+    const isAdminView = pathname.includes('/admin/');
     if (mode === 'edit' && applicationId) {
-        const detailPageUrl = isAdmin 
+        const detailPageUrl = isAdminView 
             ? `/admin/application/${applicationId}?category=loan`
             : `/dashboard/application/${applicationId}?category=loan`;
         router.push(detailPageUrl);
     } else {
         router.back();
     }
-  }, [mode, isAdmin, applicationId, router]);
+  }, [mode, applicationId, router, pathname]);
 
   async function onSubmit(data: TData) {
     setIsSubmitting(true);
@@ -188,17 +186,17 @@ export function GenericLoanForm<TData extends Record<string, any>>({
         toast({ title: mode === 'edit' ? "Application Updated!" : "Application Submitted!", description: result.message, duration: 5000 });
         sessionStorage.removeItem(storageKey);
         
-        // ** REDIRECTION LOGIC FIX **
         if (mode === 'create') {
             router.push('/dashboard');
             reset();
         } else if (mode === 'edit' && applicationId) {
-            const detailPageUrl = isAdmin 
+            const isAdminView = pathname.includes('/admin/');
+            const detailPageUrl = isAdminView 
                 ? `/admin/application/${applicationId}?category=loan`
                 : `/dashboard/application/${applicationId}?category=loan`;
-            router.replace(detailPageUrl); // Use replace to prevent back button from returning to edit form
+            router.replace(detailPageUrl);
         } else {
-            router.push('/dashboard'); // Fallback
+            router.push('/dashboard');
         }
 
       } else {

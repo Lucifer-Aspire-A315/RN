@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
@@ -55,7 +56,6 @@ interface GenericCAServiceFormProps<T extends Record<string, any>> {
   mode?: 'create' | 'edit';
   applicationId?: string;
   declarationConfig?: DeclarationConfig;
-  isAdmin?: boolean;
 }
 
 export function GenericCAServiceForm<TData extends Record<string, any>>({
@@ -70,7 +70,6 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
   mode = 'create',
   applicationId,
   declarationConfig,
-  isAdmin = false,
 }: GenericCAServiceFormProps<TData>) {
   const { toast } = useToast();
   const router = useRouter();
@@ -137,15 +136,16 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
   const stepLabels = useMemo(() => visibleSections.map(s => s.title), [visibleSections]);
   
   const handleBackClick = useCallback(() => {
+    const isAdminView = pathname.includes('/admin/');
     if (mode === 'edit' && applicationId) {
-        const detailPageUrl = isAdmin 
+        const detailPageUrl = isAdminView
             ? `/admin/application/${applicationId}?category=caService`
             : `/dashboard/application/${applicationId}?category=caService`;
         router.push(detailPageUrl);
     } else {
         router.back();
     }
-  }, [mode, isAdmin, applicationId, router]);
+  }, [mode, applicationId, router, pathname]);
 
   const onInvalid = () => {
     toast({
@@ -183,17 +183,17 @@ export function GenericCAServiceForm<TData extends Record<string, any>>({
         toast({ title: mode === 'edit' ? "Application Updated!" : "Application Submitted!", description: result.message, duration: 5000 });
         sessionStorage.removeItem(storageKey);
         
-        // ** REDIRECTION LOGIC FIX **
         if (mode === 'create') {
             router.push('/dashboard');
             reset();
         } else if (mode === 'edit' && applicationId) {
-            const detailPageUrl = isAdmin 
+            const isAdminView = pathname.includes('/admin/');
+            const detailPageUrl = isAdminView
                 ? `/admin/application/${applicationId}?category=caService`
                 : `/dashboard/application/${applicationId}?category=caService`;
-            router.replace(detailPageUrl); // Use replace to prevent back button from returning to edit form
+            router.replace(detailPageUrl);
         } else {
-            router.push('/dashboard'); // Fallback
+            router.push('/dashboard');
         }
 
       } else {

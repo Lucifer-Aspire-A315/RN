@@ -43,7 +43,7 @@ export default async function AdminEditApplicationPage({ params, searchParams }:
     const initialData = applicationData.formData;
     
     const renderForm = () => {
-      const commonProps = { initialData, applicationId: id, mode: 'edit' as const, isAdmin: true };
+      const commonProps = { initialData, applicationId: id, mode: 'edit' as const };
       switch (applicationData.applicationType) {
           case 'Home Loan': return <HomeLoanApplicationForm {...commonProps} />;
           case 'Personal Loan': return <PersonalLoanApplicationForm {...commonProps} />;
