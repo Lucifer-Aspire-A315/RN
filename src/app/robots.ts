@@ -15,6 +15,8 @@ export default function robots(): MetadataRoute.Robots {
             '/terms-of-service',
             '/services/',
             '/apply/',
+            '/forgot-password',
+            '/reset-password',
         ],
         disallow: [
             '/admin/',
