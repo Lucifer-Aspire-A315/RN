@@ -70,7 +70,7 @@ export default function AboutUsPage() {
                      <div className="group rounded-2xl shadow-2xl overflow-hidden p-2 bg-gradient-to-br from-primary/20 to-accent/20 transition-all duration-500 hover:shadow-primary/30 hover:shadow-2xl">
                         <Image 
                             data-ai-hint="finance meeting"
-                            src="https://placehold.co/600x450.png"
+                            src="/aboutus-logo.png"
                             alt="Illustration of a financial consultant helping clients"
                             width={600}
                             height={450}

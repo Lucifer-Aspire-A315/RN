@@ -5,6 +5,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from '@/contexts/AuthContext';
 import { AuthModalController } from '@/components/shared/AuthModalController';
 import { ThemeProvider } from '@/components/shared/ThemeProvider';
+import { GoogleAnalytics } from '@/components/shared/GoogleAnalytics';
+import { Suspense } from 'react';
 
 export const metadata: Metadata = {
   title: 'RN FinTech - Aapke Sapno Ka Loan',
@@ -24,6 +26,9 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
       </head>
       <body className="font-body antialiased">
+        <Suspense>
+            <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID} />
+        </Suspense>
         <ThemeProvider
             attribute="class"
             defaultTheme="system"
