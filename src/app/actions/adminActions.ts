@@ -190,13 +190,14 @@ export async function updateApplicationStatus(
       updatedAt: Timestamp.now(),
     });
     
-    // Send status update email
-    if (appData.submittedBy?.userEmail) {
+    // Send status update email to the actual applicant
+    const applicantEmail = appData.applicantDetails?.email;
+    if (applicantEmail) {
         await sendEmail({
-            to: appData.submittedBy.userEmail,
-            subject: `Update on your ${appData.applicationType} application`,
+            to: applicantEmail,
+            subject: `Update on your ${appData.schemeNameForDisplay || appData.applicationType} application`,
             react: ApplicationStatusUpdateEmail({
-                name: appData.submittedBy.userName,
+                name: appData.applicantDetails.fullName,
                 applicationType: appData.schemeNameForDisplay || appData.applicationType,
                 applicationId: applicationId,
                 newStatus: newStatus,

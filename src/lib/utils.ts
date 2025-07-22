@@ -25,23 +25,26 @@ export function formatApplication(doc: DocumentData, defaultCategory: UserApplic
 
     // Determine the application type for display
     let applicationTypeDisplay = data.applicationType;
-    if (defaultCategory === 'governmentScheme' && data.schemeNameForDisplay) {
+    if (data.serviceCategory === 'governmentScheme' && data.schemeNameForDisplay) {
         applicationTypeDisplay = data.schemeNameForDisplay;
     }
     
     // With standardized schemas, we can now reliably get applicant details.
     const applicantInfo = data.applicantDetails;
-    const applicantFullName = applicantInfo?.fullName || 'N/A';
-    const applicantEmail = applicantInfo?.email || 'N/A';
-    const applicantUserId = applicantInfo?.userId || null;
+    const submittedByInfo = data.submittedBy;
 
 
     return {
         id: doc.id,
         applicantDetails: {
-            userId: applicantUserId,
-            fullName: applicantFullName,
-            email: applicantEmail,
+            userId: applicantInfo?.userId || null,
+            fullName: applicantInfo?.fullName || 'N/A',
+            email: applicantInfo?.email || 'N/A',
+        },
+         submittedBy: {
+            userId: submittedByInfo?.userId || 'N/A',
+            userName: submittedByInfo?.userName || 'N/A',
+            userEmail: submittedByInfo?.userEmail || 'N/A',
         },
         serviceCategory: data.serviceCategory || defaultCategory,
         applicationType: applicationTypeDisplay,
