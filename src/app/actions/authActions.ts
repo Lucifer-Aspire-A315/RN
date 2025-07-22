@@ -101,7 +101,7 @@ async function _signUpUser(data: UserSignUpFormData | PartnerSignUpFormData, col
         let emailToSearch: string;
         let fullName: string;
         let mobileNumber: string;
-        let partnerId: string | undefined;
+        let partnerId: string | null = (data as UserSignUpFormData).partnerId || null;
 
         if (collectionName === 'partners') {
             const partnerData = data as PartnerSignUpFormData;
@@ -119,7 +119,6 @@ async function _signUpUser(data: UserSignUpFormData | PartnerSignUpFormData, col
             emailToSearch = userData.email;
             fullName = userData.fullName;
             mobileNumber = userData.mobileNumber;
-            partnerId = userData.partnerId;
         }
 
         const existingUser = await _findUserByEmail(emailToSearch, collectionName);
@@ -141,15 +140,21 @@ async function _signUpUser(data: UserSignUpFormData | PartnerSignUpFormData, col
 
         if (collectionName === 'partners') {
             userToSave.isApproved = false; // Partners require approval
-            // Standardize top-level fields for easy querying
             userToSave.fullName = fullName;
             userToSave.email = emailToSearch;
             userToSave.mobileNumber = mobileNumber;
         } else {
-            userToSave.isAdmin = false; // Normal users are never admins by default
-            if (partnerId) {
-                userToSave.partnerId = partnerId; // Store partner ID directly on user document
+            userToSave.isAdmin = false;
+            // NEW LOGIC: Assign to House Account if no partnerId is provided
+            if (!partnerId) {
+                partnerId = process.env.HOUSE_ACCOUNT_PARTNER_ID || null;
+                if(partnerId) {
+                    console.log(`[AuthActions] No partner selected. Assigning new user ${emailToSearch} to House Account.`);
+                } else {
+                     console.warn(`[AuthActions] HOUSE_ACCOUNT_PARTNER_ID is not set. New user ${emailToSearch} is unassigned.`);
+                }
             }
+            userToSave.partnerId = partnerId;
         }
         
         const docRef = await addDoc(collection(db, collectionName), userToSave);
@@ -164,8 +169,8 @@ async function _signUpUser(data: UserSignUpFormData | PartnerSignUpFormData, col
             partnerId: userToSave.partnerId,
         };
         
-        // If a user selected a partner during signup, notify the partner
-        if (collectionName === 'users' && partnerId) {
+        // Notify partner if a user was explicitly linked to them (not house account)
+        if (collectionName === 'users' && partnerId && partnerId !== process.env.HOUSE_ACCOUNT_PARTNER_ID) {
             console.log(`[AuthActions] User ${docRef.id} linked to partner ${partnerId}. Notifying partner.`);
             
             const partnerRef = doc(db, 'partners', partnerId);
@@ -195,14 +200,12 @@ async function _signUpUser(data: UserSignUpFormData | PartnerSignUpFormData, col
              });
              return { success: true, message: 'Sign-up successful! Welcome to RN FinTech.', user: newUser };
         } else {
-            // Send welcome email to partner
             await sendEmail({
                 to: newUser.email,
                 subject: 'RN FinTech Partner Application Received',
                 react: PartnerWelcomeEmail({ name: newUser.fullName }),
             });
             
-            // Send notification email to admin
             const adminEmail = process.env.ADMIN_EMAIL_ADDRESS;
             if(adminEmail) {
                  await sendEmail({

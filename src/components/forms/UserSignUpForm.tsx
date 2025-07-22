@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { UserSignUpSchema, type UserSignUpFormData } from '@/lib/schemas';
@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, UserPlus, Handshake, Eye, EyeOff } from 'lucide-react';
+import { Loader2, UserPlus, Handshake, Eye, EyeOff, Info } from 'lucide-react';
 import { userSignUpAction } from '@/app/actions/authActions';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
@@ -19,9 +19,10 @@ import { Combobox } from '@/components/ui/combobox';
 
 interface UserSignUpFormProps {
   partners: { id: string; fullName: string; businessModel?: 'referral' | 'dsa' | 'merchant' }[];
+  referralCode?: string;
 }
 
-export function UserSignUpForm({ partners }: UserSignUpFormProps) {
+export function UserSignUpForm({ partners, referralCode }: UserSignUpFormProps) {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -42,9 +43,16 @@ export function UserSignUpForm({ partners }: UserSignUpFormProps) {
       mobileNumber: '',
       password: '',
       confirmPassword: '',
-      partnerId: '',
+      partnerId: referralCode || '',
     },
   });
+
+  useEffect(() => {
+    // If a referral code from the URL is present, set it in the form.
+    if (referralCode) {
+      form.setValue('partnerId', referralCode);
+    }
+  }, [referralCode, form]);
 
   async function onSubmit(data: UserSignUpFormData) {
     setIsSubmitting(true);
@@ -85,6 +93,8 @@ export function UserSignUpForm({ partners }: UserSignUpFormProps) {
     }
   }
 
+  const referringPartnerName = referralCode ? partnerOptions.find(p => p.value === referralCode)?.label : null;
+
   return (
      <Card className="max-w-md mx-auto shadow-xl">
       <CardHeader className="text-center">
@@ -93,6 +103,12 @@ export function UserSignUpForm({ partners }: UserSignUpFormProps) {
         <CardDescription>Join RN FinTech to access our financial services.</CardDescription>
       </CardHeader>
       <CardContent>
+        {referringPartnerName && (
+            <div className="mb-4 flex items-center gap-2 rounded-md border bg-secondary p-3 text-sm text-secondary-foreground">
+                <Info className="h-5 w-5 flex-shrink-0" />
+                You are being referred by: <span className="font-semibold">{referringPartnerName}</span>
+            </div>
+        )}
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField
@@ -135,7 +151,7 @@ export function UserSignUpForm({ partners }: UserSignUpFormProps) {
                 )}
             />
 
-            {partners.length > 0 && (
+            {!referralCode && partners.length > 0 && (
                 <FormField
                     control={form.control}
                     name="partnerId"
@@ -143,12 +159,12 @@ export function UserSignUpForm({ partners }: UserSignUpFormProps) {
                     <FormItem className="flex flex-col">
                         <FormLabel className="flex items-center gap-2">
                         <Handshake className="w-4 h-4 text-muted-foreground" />
-                        Referred by a Partner?
+                        Referred by a Partner? (Optional)
                         </FormLabel>
                         <FormControl>
                             <Combobox
                                 options={partnerOptions}
-                                value={field.value}
+                                value={field.value || ''}
                                 onChange={field.onChange}
                                 placeholder="Search partner name..."
                                 notFoundMessage="No partner found."
