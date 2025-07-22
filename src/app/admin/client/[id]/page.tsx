@@ -3,7 +3,7 @@ import { checkSessionAction } from '@/app/actions/authActions';
 import { Header } from '@/components/layout/Header';
 import { redirect } from 'next/navigation';
 import { ClientDetailsView } from '@/components/dashboard/ClientDetailsView';
-import { adminGetClientDetails, adminRemoveClientAction } from '@/app/actions/adminActions';
+import { adminGetClientDetails, adminRemoveClientAction, getApprovedPartnerList } from '@/app/actions/adminActions';
 
 interface AdminClientDetailsPageProps {
   params: { id: string };
@@ -17,7 +17,11 @@ export default async function AdminClientDetailsPage({ params }: AdminClientDeta
 
   const { id: clientId } = params;
 
-  const clientData = await adminGetClientDetails(clientId);
+  // Fetch both client details and the list of partners to reassign to
+  const [clientData, partners] = await Promise.all([
+    adminGetClientDetails(clientId),
+    getApprovedPartnerList()
+  ]);
 
   return (
     <div className="flex flex-col min-h-screen bg-secondary/50">
@@ -31,6 +35,7 @@ export default async function AdminClientDetailsPage({ params }: AdminClientDeta
             return adminRemoveClientAction(clientId);
           }}
           isPartnerView={false}
+          partnersForReassignment={partners}
         />
       </main>
     </div>

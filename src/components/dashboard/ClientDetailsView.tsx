@@ -8,12 +8,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { User, Mail, Phone, Calendar, ArrowLeft, Loader2, Trash2 } from 'lucide-react';
+import { User, Mail, Phone, Calendar, ArrowLeft, Loader2, Trash2, Users } from 'lucide-react';
 import { ApplicationsTable } from '@/components/dashboard/ApplicationsTable';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import type { UserApplication } from '@/lib/types';
 import type { UserProfileData } from '@/app/actions/profileActions';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { adminReassignClientAction } from '@/app/actions/adminActions';
+import { Combobox } from '@/components/ui/combobox';
 
 interface ClientDetailsViewProps {
   client: UserProfileData | null;
@@ -21,6 +24,7 @@ interface ClientDetailsViewProps {
   onDisassociate?: () => Promise<{ success: boolean; message: string }>;
   onPermanentDelete?: () => Promise<{ success: boolean; message: string }>;
   isPartnerView: boolean;
+  partnersForReassignment?: { id: string; fullName: string }[];
 }
 
 const InfoItem = ({ icon: Icon, label, value }: { icon: React.ElementType, label: string, value: string | undefined }) => {
@@ -37,12 +41,14 @@ const InfoItem = ({ icon: Icon, label, value }: { icon: React.ElementType, label
 };
 
 
-export function ClientDetailsView({ client, applications, onDisassociate, onPermanentDelete, isPartnerView }: ClientDetailsViewProps) {
+export function ClientDetailsView({ client, applications, onDisassociate, onPermanentDelete, isPartnerView, partnersForReassignment = [] }: ClientDetailsViewProps) {
     const router = useRouter();
     const { toast } = useToast();
-    const [isRemoving, startRemoveTransition] = useTransition();
+    const [isProcessing, startTransition] = useTransition();
     const [isAlertOpen, setIsAlertOpen] = useState(false);
     const [actionType, setActionType] = useState<'disassociate' | 'delete' | null>(null);
+    const [isReassignDialogOpen, setIsReassignDialogOpen] = useState(false);
+    const [selectedPartner, setSelectedPartner] = useState('');
 
     const getInitials = (name: string = '') => {
         const names = name.split(' ');
@@ -53,7 +59,7 @@ export function ClientDetailsView({ client, applications, onDisassociate, onPerm
     };
 
     const handleActionConfirm = () => {
-        startRemoveTransition(async () => {
+        startTransition(async () => {
             let result;
             if (actionType === 'disassociate' && onDisassociate) {
                 result = await onDisassociate();
@@ -80,6 +86,21 @@ export function ClientDetailsView({ client, applications, onDisassociate, onPerm
         });
     };
 
+    const handleReassignConfirm = () => {
+        if (!selectedPartner || !client) return;
+        startTransition(async () => {
+            const result = await adminReassignClientAction(client.id, selectedPartner);
+            if (result.success) {
+                toast({ title: 'Client Reassigned', description: result.message });
+                router.refresh();
+            } else {
+                toast({ variant: 'destructive', title: 'Reassignment Failed', description: result.message });
+            }
+            setIsReassignDialogOpen(false);
+            setSelectedPartner('');
+        });
+    }
+
     const openDialog = (type: 'disassociate' | 'delete') => {
         setActionType(type);
         setIsAlertOpen(true);
@@ -102,6 +123,8 @@ export function ClientDetailsView({ client, applications, onDisassociate, onPerm
         );
     }
 
+    const partnerOptions = partnersForReassignment.map(p => ({ label: p.fullName, value: p.id }));
+
     const alertConfig = {
         disassociate: {
             title: "Are you sure you want to disassociate this client?",
@@ -120,20 +143,27 @@ export function ClientDetailsView({ client, applications, onDisassociate, onPerm
                     <ArrowLeft className="mr-2 h-4 w-4" />
                     Back
                 </Button>
-                 { (onDisassociate || onPermanentDelete) && (
+                 { (onDisassociate || onPermanentDelete || !isPartnerView) && (
                     <div className="flex gap-2">
                         {isPartnerView && onDisassociate && (
-                             <Button variant="destructive" onClick={() => openDialog('disassociate')} disabled={isRemoving}>
-                                {isRemoving && actionType === 'disassociate' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
+                             <Button variant="destructive" onClick={() => openDialog('disassociate')} disabled={isProcessing}>
+                                {isProcessing && actionType === 'disassociate' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
                                 Disassociate Client
                             </Button>
                         )}
-                         {!isPartnerView && onPermanentDelete && (
-                            <Button variant="destructive" onClick={() => openDialog('delete')} disabled={isRemoving}>
-                                {isRemoving && actionType === 'delete' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
-                                Delete Client Permanently
-                            </Button>
-                        )}
+                         {!isPartnerView && (
+                             <div className="flex gap-2">
+                                <Button variant="outline" onClick={() => setIsReassignDialogOpen(true)} disabled={isProcessing}>
+                                    <Users className="mr-2 h-4 w-4" /> Reassign Partner
+                                </Button>
+                                {onPermanentDelete && (
+                                    <Button variant="destructive" onClick={() => openDialog('delete')} disabled={isProcessing}>
+                                        {isProcessing && actionType === 'delete' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
+                                        Delete Client
+                                    </Button>
+                                )}
+                             </div>
+                         )}
                     </div>
                 )}
             </div>
@@ -178,12 +208,37 @@ export function ClientDetailsView({ client, applications, onDisassociate, onPerm
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleActionConfirm} variant="destructive" disabled={isRemoving}>
-                        {isRemoving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Yes, Confirm'}
+                    <AlertDialogAction onClick={handleActionConfirm} variant="destructive" disabled={isProcessing}>
+                        {isProcessing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Yes, Confirm'}
                     </AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
+            
+            <Dialog open={isReassignDialogOpen} onOpenChange={setIsReassignDialogOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Reassign Client to New Partner</DialogTitle>
+                        <DialogDescription>
+                            Select a new partner from the list to take ownership of this client.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="py-4">
+                        <Combobox
+                            options={partnerOptions}
+                            value={selectedPartner}
+                            onChange={setSelectedPartner}
+                            placeholder="Search and select a partner..."
+                        />
+                    </div>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setIsReassignDialogOpen(false)}>Cancel</Button>
+                        <Button onClick={handleReassignConfirm} disabled={!selectedPartner || isProcessing}>
+                            {isProcessing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Confirm Reassignment'}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </>
     );
 }

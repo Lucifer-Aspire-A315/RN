@@ -393,6 +393,7 @@ export async function getApprovedPartnerList(): Promise<{ id: string; fullName: 
 
 export interface AdminClientData extends PartnerClient {
     partnerName: string | null;
+    partnerId: string | null;
 }
 
 export async function getAllClientsForAdmin(): Promise<AdminClientData[]> {
@@ -419,6 +420,7 @@ export async function getAllClientsForAdmin(): Promise<AdminClientData[]> {
                 fullName: data.fullName,
                 email: data.email,
                 createdAt: createdAtTimestamp?.toDate().toISOString() || new Date().toISOString(),
+                partnerId: partnerId || null,
                 partnerName: partnerId ? partnerMap.get(partnerId) || 'Partner Not Found' : 'No Partner'
             };
         });
@@ -524,5 +526,41 @@ export async function adminRemoveClientAction(clientId: string): Promise<{ succe
     } catch (error: any) {
         console.error(`[AdminActions] Error during permanent deletion of client ${clientId}:`, error);
         return { success: false, message: "Failed to delete client. Check server logs." };
+    }
+}
+
+/**
+ * Admin action to reassign a client to a different partner.
+ */
+export async function adminReassignClientAction(clientId: string, newPartnerId: string): Promise<{ success: boolean; message: string }> {
+    await verifyAdmin();
+    console.log(`[AdminActions] Reassigning client ${clientId} to partner ${newPartnerId}`);
+    
+    try {
+        const clientRef = doc(db, 'users', clientId);
+        const clientSnap = await getDoc(clientRef);
+
+        if (!clientSnap.exists()) {
+            return { success: false, message: "Client not found." };
+        }
+        
+        const partnerRef = doc(db, 'partners', newPartnerId);
+        const partnerSnap = await getDoc(partnerRef);
+
+        if (!partnerSnap.exists()) {
+            return { success: false, message: "Target partner not found." };
+        }
+
+        await updateDoc(clientRef, {
+            partnerId: newPartnerId
+        });
+
+        revalidatePath('/admin/dashboard?tab=all_clients');
+        revalidatePath(`/admin/client/${clientId}`);
+
+        return { success: true, message: "Client has been successfully reassigned." };
+    } catch (error: any) {
+        console.error(`[AdminActions] Error reassigning client ${clientId}:`, error);
+        return { success: false, message: "Failed to reassign client due to a server error." };
     }
 }
