@@ -18,8 +18,6 @@ export function AllClientsTable({ clients }: AllClientsTableProps) {
     const [searchTerm, setSearchTerm] = useState('');
     const router = useRouter();
 
-    const houseAccountId = process.env.NEXT_PUBLIC_HOUSE_ACCOUNT_PARTNER_ID;
-
     const filteredClients = useMemo(() => {
         if (!searchTerm) return clients;
         return clients.filter(c => 
@@ -78,12 +76,10 @@ export function AllClientsTable({ clients }: AllClientsTableProps) {
                                 <TableCell className="font-medium">{client.fullName}</TableCell>
                                 <TableCell className="hidden sm:table-cell">{client.email}</TableCell>
                                 <TableCell>
-                                    {client.partnerId === houseAccountId ? (
-                                        <Badge variant="destructive">House Account</Badge>
-                                    ) : client.partnerName ? (
-                                        <Badge variant="secondary">{client.partnerName}</Badge>
+                                    {client.partnerName === 'Unassigned' ? (
+                                        <Badge variant="outline">Unassigned</Badge>
                                     ) : (
-                                        <Badge variant="outline">No Partner</Badge>
+                                        <Badge variant="secondary">{client.partnerName}</Badge>
                                     )}
                                 </TableCell>
                                 <TableCell className="hidden lg:table-cell text-right">{format(new Date(client.createdAt), 'PP')}</TableCell>

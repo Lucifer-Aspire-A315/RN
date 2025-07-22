@@ -145,6 +145,13 @@ export default async function ProfilePage() {
                                 isSensitive
                             />
                         )}
+                        {userProfile.type !== 'partner' && !userProfile.isAdmin && (
+                           <InfoRow 
+                                icon={<Calendar className="w-6 h-6"/>} 
+                                label="Member Since" 
+                                value={new Date(userProfile.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                           />
+                        )}
                     </CardContent>
                 </Card>
                 

@@ -344,7 +344,7 @@ export async function removePartnerAction(partnerId: string): Promise<{ success:
             isApproved: false
         });
 
-        // NEW: Disassociate all clients linked to this partner
+        // NEW LOGIC: Find all clients linked to this partner and disassociate them
         const clientsRef = collection(db, 'users');
         const q = query(clientsRef, where('partnerId', '==', partnerId));
         const clientsSnapshot = await getDocs(q);
@@ -352,6 +352,7 @@ export async function removePartnerAction(partnerId: string): Promise<{ success:
         if (!clientsSnapshot.empty) {
              console.log(`[AdminActions] Found ${clientsSnapshot.size} clients to disassociate from partner ${partnerId}.`);
              clientsSnapshot.forEach(clientDoc => {
+                // Set partnerId to null, effectively assigning them to the House Account on next logic check
                 batch.update(clientDoc.ref, { partnerId: null });
             });
         }
@@ -412,6 +413,12 @@ export async function getAllClientsForAdmin(): Promise<AdminClientData[]> {
             partnerMap.set(doc.id, doc.data().fullName);
         });
 
+        const houseAccountId = process.env.HOUSE_ACCOUNT_PARTNER_ID;
+        const adminUser = await verifyAdmin(); // Get admin info
+        if (adminUser) {
+            partnerMap.set(adminUser.id, 'RN FinTech House Account');
+        }
+
         const allClients: AdminClientData[] = usersSnapshot.docs.map(doc => {
             const data = doc.data();
             const partnerId = data.partnerId;
@@ -422,7 +429,7 @@ export async function getAllClientsForAdmin(): Promise<AdminClientData[]> {
                 email: data.email,
                 createdAt: createdAtTimestamp?.toDate().toISOString() || new Date().toISOString(),
                 partnerId: partnerId || null,
-                partnerName: partnerId ? partnerMap.get(partnerId) || 'Partner Not Found' : 'No Partner'
+                partnerName: partnerId ? (partnerMap.get(partnerId) || 'Partner Not Found') : 'Unassigned'
             };
         });
         
