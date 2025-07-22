@@ -17,6 +17,7 @@ import type { UserProfileData } from '@/app/actions/profileActions';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { adminReassignClientAction } from '@/app/actions/adminActions';
 import { Combobox } from '@/components/ui/combobox';
+import Link from 'next/link';
 
 interface ClientDetailsViewProps {
   client: UserProfileData | null;
@@ -138,34 +139,37 @@ export function ClientDetailsView({ client, applications, onDisassociate, onPerm
     
     return (
         <>
-            <div className="flex items-center justify-between gap-4 mb-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
                 <Button onClick={() => router.back()} variant="outline">
                     <ArrowLeft className="mr-2 h-4 w-4" />
                     Back
                 </Button>
-                 { (onDisassociate || onPermanentDelete || !isPartnerView) && (
-                    <div className="flex gap-2">
-                        {isPartnerView && onDisassociate && (
-                             <Button variant="destructive" onClick={() => openDialog('disassociate')} disabled={isProcessing}>
-                                {isProcessing && actionType === 'disassociate' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
-                                Disassociate Client
+                <div className="flex gap-2 w-full sm:w-auto">
+                    {!isPartnerView && (
+                        <Button asChild className="flex-grow sm:flex-grow-0">
+                            <Link href="/dashboard/new-application">New Application</Link>
+                        </Button>
+                    )}
+                    {isPartnerView && onDisassociate && (
+                            <Button variant="destructive" onClick={() => openDialog('disassociate')} disabled={isProcessing} className="flex-grow sm:flex-grow-0">
+                            {isProcessing && actionType === 'disassociate' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
+                            Disassociate
+                        </Button>
+                    )}
+                    {!isPartnerView && (
+                        <>
+                            <Button variant="outline" onClick={() => setIsReassignDialogOpen(true)} disabled={isProcessing} className="flex-grow sm:flex-grow-0">
+                                <Users className="mr-2 h-4 w-4" /> Reassign
                             </Button>
-                        )}
-                         {!isPartnerView && (
-                             <div className="flex gap-2">
-                                <Button variant="outline" onClick={() => setIsReassignDialogOpen(true)} disabled={isProcessing}>
-                                    <Users className="mr-2 h-4 w-4" /> Reassign Partner
+                            {onPermanentDelete && (
+                                <Button variant="destructive" onClick={() => openDialog('delete')} disabled={isProcessing} className="flex-grow sm:flex-grow-0">
+                                    {isProcessing && actionType === 'delete' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
+                                    Delete
                                 </Button>
-                                {onPermanentDelete && (
-                                    <Button variant="destructive" onClick={() => openDialog('delete')} disabled={isProcessing}>
-                                        {isProcessing && actionType === 'delete' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
-                                        Delete Client
-                                    </Button>
-                                )}
-                             </div>
-                         )}
-                    </div>
-                )}
+                            )}
+                        </>
+                    )}
+                </div>
             </div>
             <div className="lg:grid lg:grid-cols-3 lg:gap-6 items-start">
                 <div className="lg:col-span-1 space-y-6 mb-6 lg:mb-0">
@@ -242,3 +246,4 @@ export function ClientDetailsView({ client, applications, onDisassociate, onPerm
         </>
     );
 }
+
